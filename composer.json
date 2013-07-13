@@ -1,6 +1,6 @@
 {
     "name": "zoopcommerce/shard-module",
-    "version": "1.0",
+    "version": "1.0.1",
     "description": "Zend Framework 2 Module for Shard",
     "type": "library",
     "keywords": [
@@ -23,15 +23,15 @@
         "zoopcommerce/maggott-module":        "~1.0",
         "zoopcommerce/juggernaut":            "~1.0",
         "doctrine/doctrine-mongo-odm-module": "~1.0",
-        "zendframework/zend-servicemanager":  "2.3-dev",
-        "zendframework/zend-modulemanager":   "2.3-dev",
-        "zendframework/zend-mvc":             "2.3-dev",
-        "zendframework/zend-http":            "2.3-dev",
-        "zendframework/zend-view":            "2.3-dev",
-        "zendframework/zend-stdlib":          "2.3-dev"
+        "zendframework/zend-servicemanager":  "2.3.x-dev",
+        "zendframework/zend-modulemanager":   "2.3.x-dev",
+        "zendframework/zend-mvc":             "2.3.x-dev",
+        "zendframework/zend-http":            "2.3.x-dev",
+        "zendframework/zend-view":            "2.3.x-dev",
+        "zendframework/zend-stdlib":          "2.3.x-dev"
     },
     "require-dev": {
-        "zendframework/zendframework":        "2.3-dev"
+        "zendframework/zendframework":        "2.3.x-dev"
     },
     "autoload": {
         "psr-0": {
