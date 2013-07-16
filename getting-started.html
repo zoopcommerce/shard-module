@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Zoop · Shard Module</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="Tim Roediger">
+
+    <link href="css/bootstrap.css" rel="stylesheet">
+    <link href="css/bootstrap-responsive.css" rel="stylesheet">
+    <link href="css/docs.css" rel="stylesheet">
+    <link href="js/google-code-prettify/prettify.css" rel="stylesheet">
+  </head>
+
+  <body onload="prettyPrint()">
+
+    <!-- Navbar
+    ================================================== -->
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="brand" href="./index.html">Shard</a>
+          <div class="nav-collapse collapse">
+            <ul class="nav">
+              <li class="">
+                <a href="./index.html">Home</a>
+              </li>
+              <li class="">
+                <a href="./getting-started.html">Get started</a>
+              </li>
+              <li class="">
+                <a href="./config.html">Config</a>
+              </li>
+              <li class="">
+                <a href="./rest-controller.html">Rest Controller</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    
+<!-- Subhead
+================================================== -->
+<header class="jumbotron subhead" id="overview">
+  <div class="container">
+    <h1>Getting Started</h1>
+    <p class="lead">Overview of Shard Module</p>
+  </div>
+</header>
+
+
+  <div class="container">
+
+    <!-- Docs nav
+    ================================================== -->
+    <div class="row">
+      <div class="span3 bs-docs-sidebar">
+        <ul data-dojo-type="havok/widget/ListNav"
+            data-dojo-mixins="havok/widget/_AffixMixin, havok/widget/_ScrollSpyMixin"
+            data-dojo-props="
+               linkTemplate: '&lt;a role=&quot;navitem&quot; href=&quot;${href}&quot;&gt;&lt;i class=&quot;icon-chevron-right&quot;&gt;&lt;/i&gt; ${label}&lt;/a&gt;',
+               affixOffset: {top: 40, bottom: 0},
+               affixTarget: 'mainContent',
+               spyTarget: 'mainContent'
+            "
+            class="nav-stacked bs-docs-sidenav"
+        >
+        </ul>
+      </div>
+      <div class="span9" id="mainContent">
+
+        <section id="download-shard-module" title="Install">
+  <div class="page-header">
+    <h1>Install</h1>
+  </div>
+
+    <p class="lead">A zf2 module ready to go.</p>
+
+    <p>Shard Module requires php 5.4</p>
+
+    <h2>Get source</h2>
+
+    <div class="row-fluid">
+
+      <div class="span6">
+        <h2>Source with Composer</h2>
+        <p>Get the source, dependencies, and easily manage versioning. This is the recommended way to install.</p>
+        <p>Add the following to your root <code>composer.json</code>:</p>
+<pre class="prettyprint linenums">
+require: [
+    "zoopcommerce/shard-module": "~1.0"
+]
+</pre>
+      </div>
+
+      <div class="span6">
+        <h2 class="muted">Source from Github</h2>
+        <p>Once downloaded, you'll need to run composer in Shard Module's root directory to install dependencies.</p>
+        <p><a class="btn btn-large" href="https://github.com/zoopcommerce/shard-module/zipball/master" ><span class="muted">Download Shard Module source</span></a></p>
+        <p>or gittish people:</p>
+<pre class="prettyprint linenums">
+git clone http://github.com/zoopcommerce/shard-module
+</pre>
+      </div>
+    </div>
+
+    <h2>Add to applicaiton.config.php</h2>
+
+    <p>Add the following four modules to your zf2 application config (order is significant):</p>
+
+<pre class="prettyprint linenums">
+'modules' => [
+    'Zoop\MaggottModule',
+    'DoctrineModule',
+    'DoctrineMongoODMModule',
+    'Zoop\ShardModule'
+]
+</pre>
+
+    <p>Each of these modules does the following:</p>
+
+<table class="table table-bordered table-striped">
+  <thead>
+   <tr>
+     <th style="width: 100px;">module</th>
+     <th>description</th>
+   </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>Zoop\MaggottModule</td>
+    <td>An exception handling module for zf2. In paricular handles rendering exceptions as json. See <a href="http://zoopcommerce.github.io/maggott-module">here</a> for more details.</td>
+</tr>
+<tr>
+    <td>DoctrineModule</td>
+    <td>The official core module for integrating Doctrine with zf2. See <a href="http://github.com/doctinre/DoctrineModule">here.</a></td>
+</tr>
+<tr>
+    <td>DoctrineMongoODMModule</td>
+    <td>The official module for integrating Doctrine Mongo ODM with zf2. See <a href="http://github.com/doctrine/DoctrineMongoODMModule">here</a></td>
+</tr>
+<tr>
+    <td>Zoop\ShardModule</td>
+    <td>This.</td>
+</tr>
+</tbody>
+</table>
+
+</section>
+<section id="whats-included" title="What's Included">
+  <div class="page-header">
+    <h1>What's Included</h1>
+  </div>
+  <p class="lead">Shard Module has two exciting parts. First it integrates Shard with zf2. Second, it provides a feature full json rest controller for documents.</p>
+
+    <h2>Docs sections</h2>
+    <h4><a href="./config.html">Config</a></h4>
+    <p>Detailed information about how configure Shard Module inside zf2.</p>
+    <h4><a href="./rest-controller.html">Rest Controller</a></h4>
+    <p>How to use the json rest controller.</p>
+</section>
+
+<section id="examples" title="Examples">
+  <div class="page-header">
+    <h1>Examples</h1>
+  </div>
+
+    <p class="lead">Simple shard configuration.</p>
+
+    <h2>Turn on <a href="http://zoopcommerce.github.io/shard">Shard</a> Timestamping</h2>
+    <p>Use the following in a module config:</p>
+<pre class="prettyprint linenums">
+'zoop' => [
+    'shard' => [
+        'manifest' => [
+            'default' => [
+                'extension_configs' => [
+                    'extension.stamp' => true,
+                ]
+            ]
+        ]
+    ]
+]
+</pre>
+
+    <h2>Use the Json Rest Controller</h2>
+    <p>Get a list:</p>
+<pre class="prettyprint linenums">
+    http://myserver.com/rest/item
+</pre>
+
+    <p>Sort a list:</p>
+<pre class="prettyprint linenums">
+    http://myserver.com/rest/item?sort(+fieldname)
+</pre>
+
+</section>
+<section id="what-next" title="What Next?">
+  <div class="page-header">
+    <h1>What next?</h1>
+  </div>
+
+  <p class="lead">Dive into the docs for detailed instructions...</p>
+
+  <div class="row-fluid">
+    <a class="span4 btn btn-large" href="./config.html">Configure Shard Module</a>
+    <a class="span4 btn btn-large" href="./rest-controller.html">Explore the Rest Controller</a>
+  </div>
+</section>
+
+
+      </div>
+    </div>
+  </div>
+
+    <!-- Footer
+    ================================================== -->
+    <footer class="footer">
+      <div class="container">
+        <p>Created by <a href="http://github.com/superdweebie">@superdweebie</a> and <a href="http://github.com/crimsonronin">@crimsonronin</a>.</p>
+        <p>Code licensed under MIT.</p>
+        <p>Built on the shoulders of giants <a href="http://github.com/doctrine/mongo-odm">doctrine</a>, <a href="http://mongodb.org">mongo</a> and <a href="http://github.com/zendframework/zf2">zf2</a>.</p>
+        <ul class="footer-links">
+          <li><a href="http://zoopcommerce.com">Zoop</a></li>
+          <li class="muted">&middot;</li>
+          <li><a href="https://github.com/zoopcommerce/shard-module/issues?state=open">Issues</a></li>
+          <li class="muted">&middot;</li>
+          <li><a href="https://github.com/zoopcommerce/shard-module/blob/master/CHANGELOG.md">Changelog</a></li>
+        </ul>
+      </div>
+    </footer>
+
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="js/google-code-prettify/prettify.js"></script>
+    <script src="js/havok.js"></script>
+    <script type="text/javascript">
+        require(['dojo/parser'], function(parser){parser.parse()})
+    </script>
+  </body>
+</html>

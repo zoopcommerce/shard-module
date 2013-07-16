@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Zoop · Shard Module</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="Tim Roediger">
+
+    <link href="css/bootstrap.css" rel="stylesheet">
+    <link href="css/bootstrap-responsive.css" rel="stylesheet">
+    <link href="css/docs.css" rel="stylesheet">
+    <link href="js/google-code-prettify/prettify.css" rel="stylesheet">
+  </head>
+
+  <body onload="prettyPrint()">
+
+    <!-- Navbar
+    ================================================== -->
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="brand" href="./index.html">Shard</a>
+          <div class="nav-collapse collapse">
+            <ul class="nav">
+              <li class="">
+                <a href="./index.html">Home</a>
+              </li>
+              <li class="">
+                <a href="./getting-started.html">Get started</a>
+              </li>
+              <li class="">
+                <a href="./config.html">Config</a>
+              </li>
+              <li class="">
+                <a href="./rest-controller.html">Rest Controller</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    
+<!-- Subhead
+================================================== -->
+<header class="jumbotron subhead" id="overview">
+  <div class="container">
+    <h1>Config</h1>
+    <p class="lead">How to use Shard extensions inside zf2</p>
+  </div>
+</header>
+
+
+  <div class="container">
+
+    <!-- Docs nav
+    ================================================== -->
+    <div class="row">
+      <div class="span3 bs-docs-sidebar">
+        <ul data-dojo-type="havok/widget/ListNav"
+            data-dojo-mixins="havok/widget/_AffixMixin, havok/widget/_ScrollSpyMixin"
+            data-dojo-props="
+               linkTemplate: '&lt;a role=&quot;navitem&quot; href=&quot;${href}&quot;&gt;&lt;i class=&quot;icon-chevron-right&quot;&gt;&lt;/i&gt; ${label}&lt;/a&gt;',
+               affixOffset: {top: 40, bottom: 0},
+               affixTarget: 'mainContent',
+               spyTarget: 'mainContent'
+            "
+            class="nav-stacked bs-docs-sidenav"
+        >
+        </ul>
+      </div>
+      <div class="span9" id="mainContent">
+
+        <section id="doctrine-config" title="Doctrine Config">
+  <div class="page-header">
+    <h1>Doctrine Config</h1>
+  </div>
+
+    <p class="lead">Configuring DoctineModule and DoctrineMongoODMModule</p>
+
+    <p>DoctrineModule and DoctrineMongoODMModule are maintained by the Doctrine project for integrating Doctrine Mongo ODM with zf2. They provide their own configuration documentation. Use these modules to configure a DocumentManager and possibly other services, such as an AuthenticationAdapter. Shard Module will use the services configured by these modules.</p>
+
+</section>
+
+<section id="shard-config" title="Shard Config">
+  <div class="page-header">
+    <h1>Shard Config</h1>
+  </div>
+
+    <p class="lead">Specify which Shard Extensions you want to use.</p>
+
+    <p>Shard Module supports multiple DocumentManager-Manifest pairs. Each manifest needs to be configured with a document manager, and the extensions you want to use. Eg:</p>
+
+<pre class="prettyprint linenums">
+'zoop' => [
+    'shard' => [
+        'manifest' => [ //Array of different manifests. (Most of the time you'll only use one)
+            'default' => [ //The manifest name
+                ... //Put the manifest config in here
+            ]
+        ]
+    ]
+]
+</pre>
+
+    <p>Note, that the value of <code>document_manager</code> in the manifest config can be the name of the document manager service configured by DoctrineMongoODMModule.</p>
+
+    <p>Example complete config (with three extensions turned on):</p>
+
+<pre class="prettyprint linenums">
+'zoop' => [
+    'shard' => [
+        'manifest' => [
+            'default' => [
+                'document_manager' => 'doctrine.odm.documentmanager.default',
+                'extension_configs' => [
+                        'extension.accessControl' => true,
+                        'extension.freeze' => true,
+                        'extension.owner' => true,
+                ],
+            ]
+        ]
+    ],
+]
+</pre>
+
+    <p>All other config keys in a manifest configuration are supported. See <a href="http://zoopcommerce.github.io/shard/config.html#manual-config">shard docs</a>.</p>
+
+    <h2>User Config</h2>
+
+    <p>Shard Module will automatically configure a shard manifest to use any object returned by <code>$serviceLocator->get(Zend\Authentication\AuthenticationService)->getIdentity()</code> as the user.</p>
+
+    <p>If you would like to use zend authentication integrated with Doctrine and Shard's access control, then take a look at <a href="http://zoopcommerce.github.io/gateway-module">Gateway Module</a>.</p>
+</section>
+<section id="using-services" title="Using Services">
+  <div class="page-header">
+    <h1>Using Services</h1>
+  </div>
+
+    <p class="lead">Use services provied by Shard Extensions.</p>
+
+    <p>Many Shard extensions provide services. To access those services through the main application service manager, just prefix the service name with <code>shard.$manifestName.</code>. Eg:</p>
+
+<pre class="prettyprint linenums">
+$serializer = $serviceLocator->get('shard.default.serializer');
+//and
+$accessController = $serviceLocator->get('shard.default.accessController');
+</pre>
+
+</section>
+
+      </div>
+    </div>
+  </div>
+
+    <!-- Footer
+    ================================================== -->
+    <footer class="footer">
+      <div class="container">
+        <p>Created by <a href="http://github.com/superdweebie">@superdweebie</a> and <a href="http://github.com/crimsonronin">@crimsonronin</a>.</p>
+        <p>Code licensed under MIT.</p>
+        <p>Built on the shoulders of giants <a href="http://github.com/doctrine/mongo-odm">doctrine</a>, <a href="http://mongodb.org">mongo</a> and <a href="http://github.com/zendframework/zf2">zf2</a>.</p>
+        <ul class="footer-links">
+          <li><a href="http://zoopcommerce.com">Zoop</a></li>
+          <li class="muted">&middot;</li>
+          <li><a href="https://github.com/zoopcommerce/shard-module/issues?state=open">Issues</a></li>
+          <li class="muted">&middot;</li>
+          <li><a href="https://github.com/zoopcommerce/shard-module/blob/master/CHANGELOG.md">Changelog</a></li>
+        </ul>
+      </div>
+    </footer>
+
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="js/google-code-prettify/prettify.js"></script>
+    <script src="js/havok.js"></script>
+    <script type="text/javascript">
+        require(['dojo/parser'], function(parser){parser.parse()})
+    </script>
+  </body>
+</html>
