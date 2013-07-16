@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Zoop · Shard Module</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="Tim Roediger">
+
+    <link href="css/bootstrap.css" rel="stylesheet">
+    <link href="css/bootstrap-responsive.css" rel="stylesheet">
+    <link href="css/docs.css" rel="stylesheet">
+    <link href="js/google-code-prettify/prettify.css" rel="stylesheet">
+  </head>
+
+  <body onload="prettyPrint()">
+
+    <!-- Navbar
+    ================================================== -->
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="brand" href="./index.html">Shard</a>
+          <div class="nav-collapse collapse">
+            <ul class="nav">
+              <li class="">
+                <a href="./index.html">Home</a>
+              </li>
+              <li class="">
+                <a href="./getting-started.html">Get started</a>
+              </li>
+              <li class="">
+                <a href="./config.html">Config</a>
+              </li>
+              <li class="">
+                <a href="./rest-controller.html">Rest Controller</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    
+<!-- Subhead
+================================================== -->
+<header class="jumbotron subhead" id="overview">
+  <div class="container">
+    <h1>Rest Controller</h1>
+    <p class="lead">Direct access to your documents via a json rest api</p>
+  </div>
+</header>
+
+
+  <div class="container">
+
+    <!-- Docs nav
+    ================================================== -->
+    <div class="row">
+      <div class="span3 bs-docs-sidebar">
+        <ul data-dojo-type="havok/widget/ListNav"
+            data-dojo-mixins="havok/widget/_AffixMixin, havok/widget/_ScrollSpyMixin"
+            data-dojo-props="
+               linkTemplate: '&lt;a role=&quot;navitem&quot; href=&quot;${href}&quot;&gt;&lt;i class=&quot;icon-chevron-right&quot;&gt;&lt;/i&gt; ${label}&lt;/a&gt;',
+               affixOffset: {top: 40, bottom: 0},
+               affixTarget: 'mainContent',
+               spyTarget: 'mainContent'
+            "
+            class="nav-stacked bs-docs-sidenav"
+        >
+        </ul>
+      </div>
+      <div class="span9" id="mainContent">
+
+        <section id="config" title="Config">
+  <div class="page-header">
+    <h1>Config</h1>
+  </div>
+
+    <p class="lead">Expose documents via json rest.</p>
+
+    <h2>Enable Shard Rest</h2>
+
+    <p>The rest extenions needs to be configured with an endpoint map. The endpoint map defines which documents will be exposed by the rest controller, and what urls will be used to access them. Eg:</p>
+
+<pre class="prettyprint linenums">
+'zoop' => [
+    'shard' => [
+        'manifest' => [
+            'default' => [
+                'extension_configs' => [
+                    'extension.rest' => [
+                        'endpoint_map' => [
+                            'users' => [
+                                'class' => 'My\Users\Document',
+                                'property' => 'username'
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ]
+    ]
+]
+</pre>
+
+    <h2>Embedded Lists</h2>
+    <p>To make embedded lists accessable via rest, configure them like this:</p>
+<pre class="prettyprint linenums">
+...
+'endpoint_map' => [
+    'users' => [
+        'class' => 'My\Users\Document',
+        'property' => 'username',
+        'embedded_lists' => [
+            'assets' => [
+                'property' => 'name',
+                'class' => 'My\Assets\Document'
+            ]
+        ]
+    ]
+]
+...
+</pre>
+
+    <h2>Customize Route</h2>
+    <p>Shard Module automatically configures the rest controller on the <code>/rest</code> route. You may wish to override that in your module config.</p>
+
+    <p>By default, the config above would expose the user with username <code>toby</code> at:</p>
+<pre class="prettyprint linenums">
+http://myserver.com/rest/users/toby
+</pre>
+
+    <h2>Access Control</h2>
+    <p>If the Access Control extension is enabled, all permissions will be respected.</p>
+
+</section>
+<section id="get" title="Get">
+  <div class="page-header">
+    <h1>Get</h1>
+  </div>
+
+    <p class="lead">Get a single document.</p>
+
+    <p>To get a document use:</p>
+
+<pre class="prettyprint linenums">
+http://myserver.com/rest/user/toby
+</pre>
+
+    <h2>Partial documents</h2>
+
+    <p>To get only some properties of a document use:</p>
+<pre class="prettyprint linenums">
+http://myserver.com/rest/user/toby?select(username,age)
+</pre>
+
+    <h2>Single nested document</h2>
+
+    <p>Append the property name:</p>
+<pre class="prettyprint linenums">
+http://myserver.com/rest/user/toby/address
+</pre>
+
+    <h2>Single document from a nested list</h2>
+
+    <p>To get one item from a list of documents append the property name and the id of the document you want:</p>
+<pre class="prettyprint linenums">
+http://myserver.com/rest/user/toby/assets/funky-car
+</pre>
+
+    <h2>Errors</h2>
+
+<table class="table table-bordered table-striped">
+  <thead>
+   <tr>
+     <th style="width: 100px;">error</th>
+     <th>description</th>
+   </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>404</td>
+    <td>If the endpoint requested does not exists, or the document requested cannot be found.</td>
+</tr>
+</tbody>
+</table>
+
+</section>
+<section id="get-list" title="Get List">
+  <div class="page-header">
+    <h1>Get List</h1>
+  </div>
+
+    <p class="lead">Get a list of documents.</p>
+
+    <p>An array of documents will be returned when a list is requested, rather than a specific document. A successful response will include a <code>contentRange: x-x/x</code> header.</p>
+
+<pre class="prettyprint linenums">
+http://myserver.com/rest/user
+</pre>
+
+    <h2>Partial documents</h2>
+<pre class="prettyprint linenums">
+http://myserver.com/rest/user?select(username,age)
+</pre>
+
+    <h2>Filter</h2>
+<pre class="prettyprint linenums">
+http://myserver.com/rest/user?country=australia
+</pre>
+
+    <h2>And Filter</h2>
+<pre class="prettyprint linenums">
+http://myserver.com/rest/user?country=australia&type=active
+</pre>
+
+    <h2>Or Filter</h2>
+<pre class="prettyprint linenums">
+http://myserver.com/rest/user?country=[australia, usa]
+</pre>
+
+    <h2>Sort Ascending</h2>
+<pre class="prettyprint linenums">
+http://myserver.com/rest/user?sort(+username)
+</pre>
+
+    <h2>Sort Decending</h2>
+<pre class="prettyprint linenums">
+http://myserver.com/rest/user?sort(-username)
+</pre>
+
+    <h2>Multiple Sort</h2>
+<pre class="prettyprint linenums">
+http://myserver.com/rest/user?sort(+country,+username)
+</pre>
+
+    <h2>Offset</h2>
+<pre class="prettyprint linenums">
+HEADERS
+range: items=2-25
+http://myserver.com/rest/user
+</pre>
+
+    <h2>Nested List</h2>
+<pre class="prettyprint linenums">
+http://myserver.com/rest/assets
+</pre>
+
+    <h2>Errors</h2>
+
+<table class="table table-bordered table-striped">
+  <thead>
+   <tr>
+     <th style="width: 100px;">error</th>
+     <th>description</th>
+   </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>404</td>
+    <td>If the endpoint requested does not exist.</td>
+</tr>
+<tr>
+    <td>416</td>
+    <td><code>Content-Type: application/api-problem+json</code>, Requested range cannot be returned. Occurs if a bad range is requested, eg: <code>Range: 10-5</code></td>
+</tr>
+<tr>
+    <td>204</td>
+    <td>If the requested list is empty.</td>
+</tr>
+</tbody>
+</table>
+
+</section>
+<section id="post" title="Post">
+  <div class="page-header">
+    <h1>Post</h1>
+  </div>
+
+    <p class="lead">Create a document</p>
+
+    <p>To create a new document, use a POST request, and place the json document in the request body.</p>
+
+<pre class="prettyprint linenums">
+POST
+HEADERS
+Content-type: application/json
+
+CONTENT
+{"username": "lucy", "age": 27}
+http://myserver.com/rest/user
+</pre>
+
+    <h2>Single nested document</h2>
+<pre class="prettyprint linenums">
+POST
+HEADERS
+Content-type: application/json
+
+CONTENT
+{"street": "Street Rd", "number": "45", city: "Sydney"}
+http://myserver.com/rest/user/address
+</pre>
+
+
+    <p>Single document from a nested list</p>
+<pre class="prettyprint linenums">
+POST
+HEADERS
+Content-type: application/json
+
+CONTENT
+{"make": "ford", "model": "stumpy"}
+http://myserver.com/rest/user/assets/old-car
+</pre>
+
+    <h2>Create with reference</h2>
+
+    <p>Add a reference to an already existing document.</p>
+<pre class="prettyprint linenums">
+POST
+HEADERS
+Content-type: application/json
+
+CONTENT
+{"username": "jsason", "country": {"$ref": "country/australia"}}
+http://myserver.com/rest/user
+</pre>
+
+    <h2>Errors</h2>
+
+<table class="table table-bordered table-striped">
+  <thead>
+   <tr>
+     <th style="width: 100px;">error</th>
+     <th>description</th>
+   </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>404</td>
+    <td>If the endpoint or document requested does not exist.</td>
+</tr>
+<tr>
+    <td>500</td>
+    <td><code>Content-Type: application/api-problem+json</code>, Document validation failed. Occurs if the validation extension is turned on, and validation fails.</td>
+</tr>
+<tr>
+    <td>500</td>
+    <td><code>Content-Type: application/api-problem+json</code>, Document already exists. Occurs request to create a document with id that already exists.</td>
+</tr>
+</tbody>
+</table>
+
+</section>
+<section id="put" title="Put">
+  <div class="page-header">
+    <h1>Put</h1>
+  </div>
+
+    <p class="lead">Update a document.</p>
+
+    <p>Note: PUT will update <i>all</i> properties of a document. If you need to update only some of the properties of a doument, use PATCH.</p>
+
+    <p>The response from a successful PUT will always be a 204.</p>
+
+    <h2>Update a document</h2>
+
+<pre class="prettyprint linenums">
+PUT
+HEADERS
+Content-type: application/json
+
+CONTENT
+{"age": "18"}
+http://myserver.com/rest/user/toby
+</pre>
+
+    <h2>Create via PUT</h2>
+
+    <p>If the document selected for update does not exist, it will be created.</p>
+<pre class="prettyprint linenums">
+PUT
+HEADERS
+Content-type: application/json
+
+CONTENT
+{"age": "27"}
+http://myserver.com/rest/user/lucy
+</pre>
+
+    <h2>Update single nested document</h2>
+
+    <p>Append the property name:</p>
+<pre class="prettyprint linenums">
+PUT
+HEADERS
+Content-type: application/json
+
+CONTENT
+{"street": "Street Rd", "number": "45", city: "Sydney"}
+http://myserver.com/rest/user/toby/address
+</pre>
+
+    <h2>Update single document in a nested list</h2>
+
+    <p>To update one item from a list of documents append the property name and the id of the document you want:</p>
+<pre class="prettyprint linenums">
+PUT
+HEADERS
+Content-type: application/json
+
+CONTENT
+{"make": "gm", "model": "camero"}
+http://myserver.com/rest/user/toby/assets/funky-car
+</pre>
+
+    <h2>Replace a whole list</h2>
+
+<pre class="prettyprint linenums">
+PUT
+HEADERS
+Content-type: application/json
+
+CONTENT
+[
+   {"username": "gumpy"},
+   {"username": "sleepy"}
+   {"username": "happy"}
+]
+http://myserver.com/rest/user
+</pre>
+
+    <h2>Update document id</h2>
+
+    <p>A document id can be updated. To do so, include the new document id in the PUT data. Note that this will actually delete the existing document, and create a new document with the new id.</p>
+<pre class="prettyprint linenums">
+PUT
+HEADERS
+Content-type: application/json
+
+CONTENT
+{"username": "toby-different"}
+http://myserver.com/rest/user/toby
+</pre>
+
+    <h2>Errors</h2>
+
+<table class="table table-bordered table-striped">
+  <thead>
+   <tr>
+     <th style="width: 100px;">error</th>
+     <th>description</th>
+   </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>404</td>
+    <td>If the endpoint or document requested does not exist.</td>
+</tr>
+<tr>
+    <td>500</td>
+    <td><code>Content-Type: application/api-problem+json</code>, Document validation failed. Occurs if the validation extension is turned on, and validation fails.</td>
+</tr>
+</tbody>
+</table>
+
+</section>
+<section id="patch" title="Patch">
+  <div class="page-header">
+    <h1>Patch</h1>
+  </div>
+
+    <p class="lead">Patch a document.</p>
+
+    <p>Note: PATCH will update a selection of properties on a document.</p>
+
+    <p>The response from a successful PATCH will always be a 204.</p>
+
+    <h2>Patch a document</h2>
+
+<pre class="prettyprint linenums">
+PATCH
+HEADERS
+Content-type: application/json
+
+CONTENT
+{"age": "18"}
+http://myserver.com/rest/user/toby
+</pre>
+
+    <h2>Create via PATCH</h2>
+
+    <p>If the document selected for patch does not exist, it will be created.</p>
+<pre class="prettyprint linenums">
+PATCH
+HEADERS
+Content-type: application/json
+
+CONTENT
+{"age": "27"}
+http://myserver.com/rest/user/lucy
+</pre>
+
+    <h2>Patch single nested document</h2>
+
+    <p>Append the property name:</p>
+<pre class="prettyprint linenums">
+PATCH
+HEADERS
+Content-type: application/json
+
+CONTENT
+{"street": "Street Rd"}
+http://myserver.com/rest/user/toby/address
+</pre>
+
+    <h2>Patch single document in a nested list</h2>
+
+    <p>To patch one item from a list of documents append the property name and the id of the document you want:</p>
+<pre class="prettyprint linenums">
+PATCH
+HEADERS
+Content-type: application/json
+
+CONTENT
+{"make": "gm", "model": "camero"}
+http://myserver.com/rest/user/toby/assets/funky-car
+</pre>
+
+    <h2>Patch whole list</h2>
+
+    <p>Patching a list will add the supplied items to the list, without removing the existing items.</p>
+<pre class="prettyprint linenums">
+PATCH
+HEADERS
+Content-type: application/json
+
+CONTENT
+[
+   {"username": "gumpy"},
+   {"username": "sleepy"}
+   {"username": "happy"}
+]
+http://myserver.com/rest/user
+</pre>
+
+    <h2>Patch document id</h2>
+
+    <p>A document id can be patched. To do so, include the new document id in the PATCH data. Note that this will actually delete the existing document, and create a new document with the new id.</p>
+<pre class="prettyprint linenums">
+PATCH
+HEADERS
+Content-type: application/json
+
+CONTENT
+{"username": "toby-different"}
+http://myserver.com/rest/user/toby
+</pre>
+
+    <h2>Errors</h2>
+
+<table class="table table-bordered table-striped">
+  <thead>
+   <tr>
+     <th style="width: 100px;">error</th>
+     <th>description</th>
+   </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>404</td>
+    <td>If the endpoint or document requested does not exist.</td>
+</tr>
+<tr>
+    <td>500</td>
+    <td><code>Content-Type: application/api-problem+json</code>, Document validation failed. Occurs if the validation extension is turned on, and validation fails.</td>
+</tr>
+</tbody>
+</table>
+
+</section>
+<section id="delete" title="Delete">
+  <div class="page-header">
+    <h1>Delete</h1>
+  </div>
+
+    <p class="lead">Delete a document.</p>
+
+    <p>The response from a successful DELETE will always be a 204.</p>
+
+    <h2>Delete a document</h2>
+
+<pre class="prettyprint linenums">
+DELETE
+HEADERS
+Content-type: application/json
+
+http://myserver.com/rest/user/toby
+</pre>
+
+    <h2>Delete a list</h2>
+
+<pre class="prettyprint linenums">
+DELETE
+HEADERS
+Content-type: application/json
+
+http://myserver.com/rest/user
+</pre>
+
+    <h2>Delete single nested document</h2>
+
+    <p>Append the property name:</p>
+<pre class="prettyprint linenums">
+DELETE
+HEADERS
+Content-type: application/json
+
+http://myserver.com/rest/user/toby/address
+</pre>
+
+    <h2>Delete single document in a nested list</h2>
+
+    <p>To delete one item from a list of documents append the property name and the id of the document you want:</p>
+<pre class="prettyprint linenums">
+DELETE
+HEADERS
+Content-type: application/json
+
+http://myserver.com/rest/user/toby/assets/funky-car
+</pre>
+
+    <h2>Errors</h2>
+
+<table class="table table-bordered table-striped">
+  <thead>
+   <tr>
+     <th style="width: 100px;">error</th>
+     <th>description</th>
+   </tr>
+  </thead>
+  <tbody>
+<tr>
+    <td>404</td>
+    <td>If the endpoint or document requested does not exist.</td>
+</tr>
+</tbody>
+</table>
+
+</section>
+<section id="batch" title="Batch">
+  <div class="page-header">
+    <h1>Batch</h1>
+  </div>
+
+    <p class="lead">Execute multiple requests at once</p>
+
+    <p>A batch request is always a POST to the <code>batch</code> endpoint. The POST content describes the requests which should be executed in order. The response content will describe the result of each request.</p>
+
+    <p>For example, this batch request will be the same as executing the nine separate requests in order:</p>
+
+<pre class="prettyprint linenums">
+POST
+HEADERS
+Content-type: application/json
+
+CONTENT
+{
+    "get single author": {
+        "uri": "/rest/author/james",
+        "method": "GET"
+    },
+    "get author list": {
+        "uri": "/rest/author",
+        "method": "GET"
+    },
+    "get author list of partials": {
+        "uri": "/rest/author?select(name)",
+        "method": "GET"
+    },
+    "get filtered author list": {
+        "uri": "/rest/author?country=germany",
+        "method": "GET"
+    },
+    "get author list offset": {
+        "uri": "/rest/author",
+        "method": "GET",
+        "headers": {
+            "Range": "items=2-100"
+        }
+    },
+    "replace game list": {
+        "uri": "/rest/game",
+        "method": "POST",
+        "content": {"name": "forbidden-island", "type": "co-op"}
+    },
+    "delete an author": {
+        "uri": "/rest/author/harry",
+        "method": "DELETE"
+    },
+    "update a game": {
+        "uri": "/rest/game/feed-the-kitty",
+        "method": "PUT",
+        "content": {"type": "childrens", "author": {"$ref": "author/harry"}}
+    },
+    "patch a game": {
+        "uri": "/rest/game/feed-the-kitty",
+        "method": "PATCH",
+        "content": {"type": "kids"}
+    }
+}
+
+http://myserver.com/rest/batch
+</pre>
+
+    <p>The response object might look like:</p>
+
+<pre class="prettyprint linenums">
+{
+    "get single author": {
+        "status": 200,
+        "content": { ... }
+    },
+    "get author list": {
+        "status": 200,
+        "headers": {
+            "Content-Range": "x-x/x"
+        },
+        "content": [ ... ]
+    },
+    "get author list of partials": {
+        "status": 200,
+        "headers": {
+            "Content-Range": "x-x/x"
+        },
+        "content": [ ... ]
+    },
+    "get filtered author list": {
+        "status": 200,
+        "headers": {
+            "Content-Range": "x-x/x"
+        },
+        "content": [ ... ]
+    },
+    "get author list offset": {
+        "status": 200,
+        "headers": {
+            "Content-Range": "x-x/x"
+        },
+        "content": [ ... ]
+    },
+    "replace game list": {
+        "status": 204
+    },
+    "delete an author": {
+        "status": 204
+    },
+    "update a game": {
+        "status": 204
+    },
+    "patch a game": {
+        "status": 204
+    }
+}
+</pre>
+
+</section>
+
+      </div>
+    </div>
+  </div>
+
+    <!-- Footer
+    ================================================== -->
+    <footer class="footer">
+      <div class="container">
+        <p>Created by <a href="http://github.com/superdweebie">@superdweebie</a> and <a href="http://github.com/crimsonronin">@crimsonronin</a>.</p>
+        <p>Code licensed under MIT.</p>
+        <p>Built on the shoulders of giants <a href="http://github.com/doctrine/mongo-odm">doctrine</a>, <a href="http://mongodb.org">mongo</a> and <a href="http://github.com/zendframework/zf2">zf2</a>.</p>
+        <ul class="footer-links">
+          <li><a href="http://zoopcommerce.com">Zoop</a></li>
+          <li class="muted">&middot;</li>
+          <li><a href="https://github.com/zoopcommerce/shard-module/issues?state=open">Issues</a></li>
+          <li class="muted">&middot;</li>
+          <li><a href="https://github.com/zoopcommerce/shard-module/blob/master/CHANGELOG.md">Changelog</a></li>
+        </ul>
+      </div>
+    </footer>
+
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="js/google-code-prettify/prettify.js"></script>
+    <script src="js/havok.js"></script>
+    <script type="text/javascript">
+        require(['dojo/parser'], function(parser){parser.parse()})
+    </script>
+  </body>
+</html>
