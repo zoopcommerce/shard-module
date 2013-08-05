@@ -17,13 +17,24 @@ use Zend\ServiceManager\ServiceLocatorInterface;
 class UserAbstractFactory implements AbstractFactoryInterface
 {
 
+    protected $activeCall = false;
+
     public function canCreateServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName){
+
+        //this if is to stop recursion. There can be only one user per manifest.
+        if ($this->activeCall){
+            return false;
+        }
+
+        $this->activeCall = true;
         if ($name == 'user' &&
             $serviceLocator->has('Zend\Authentication\AuthenticationService') &&
             $serviceLocator->get('Zend\Authentication\AuthenticationService')->hasIdentity()
         ){
+            $this->activeCall = false;
             return true;
         }
+        $this->activeCall = false;
     }
 
     public function createServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName){
