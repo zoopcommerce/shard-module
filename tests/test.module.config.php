@@ -20,7 +20,6 @@ return [
                                 ],
                             ]
                         ],
-                        'extension.user' => true,
                         'extension.owner' => true,
                         'extension.reference' => true,
                         'extension.rest' => [

@@ -121,7 +121,6 @@ class GetListAssistant extends AbstractAssistant
 
         $header = $this->controller->getRequest()->getHeader('Range');
         $limit = $this->options->getLimit();
-
         if ($header) {
             list($lower, $upper) = array_map(
                 function($item){return intval($item);},

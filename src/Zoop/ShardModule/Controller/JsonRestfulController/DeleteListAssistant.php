@@ -5,9 +5,6 @@
  */
 namespace Zoop\ShardModule\Controller\JsonRestfulController;
 
-use Zoop\ShardModule\Exception;
-use Zend\Http\Header\ContentRange;
-
 /**
  *
  * @since   1.0
