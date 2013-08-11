@@ -2,6 +2,16 @@
 return [
     'zoop' => [
         'shard' => [
+            'controllers' => [
+                'rest' => [
+                    'default' => [
+                        'review' => [
+                            'limit' => 2
+                        ]
+                    ]
+                ]
+            ],
+
             'manifest' => [
                 'default' => [
                     'extension_configs' => [
