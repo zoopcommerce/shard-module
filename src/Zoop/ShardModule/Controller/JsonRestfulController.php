@@ -23,8 +23,6 @@ class JsonRestfulController extends AbstractRestfulController
 {
     protected $model;
 
-    protected $range;
-
     protected $options;
 
     protected $doctrineSubscriber;
