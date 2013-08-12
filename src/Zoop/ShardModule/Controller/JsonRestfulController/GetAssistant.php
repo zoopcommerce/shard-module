@@ -150,11 +150,8 @@ class GetAssistant extends AbstractAssistant
                 //embedded document not found in collection
                 throw new Exception\DocumentNotFoundException();
             } else {
-                $getListAssistant = new GetListAssistant(
-                    $this->metadata,
-                    $this->endpoint,
-                    $this->controller
-                );
+                $getListAssistant = $this->options->getGetListAssistant();
+                $getListAssistant->setController($this->controller);                
                 return $getListAssistant->doGetList($document[$field]);
             }
         }

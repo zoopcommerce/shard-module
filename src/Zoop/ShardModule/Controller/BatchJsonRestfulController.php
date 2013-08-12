@@ -9,6 +9,7 @@ namespace Zoop\ShardModule\Controller;
 use Zoop\ShardModule\Exception;
 use Zoop\ShardModule\Options\BatchJsonRestfulControllerOptions;
 use Zoop\ShardModule\RouteListener;
+use Zend\Http\Header\GenericHeader;
 use Zend\Http\Request;
 use Zend\Http\Response;
 use Zend\Mvc\Controller\AbstractRestfulController;
@@ -53,15 +54,17 @@ class BatchJsonRestfulController extends AbstractRestfulController
                 $request->setQuery(new Parameters($query));
             }
 
-            if (isset($requestData['headers'])){
-                foreach ($requestData['headers'] as $name => $value){
-                    $request->getHeaders()->addHeaderLine($name, $value);
-                }
-            }
-            $request->getHeaders()->addHeaders([
+            $requestHeaders = [
                 $this->request->getHeaders()->get('Accept'),
                 $this->request->getHeaders()->get('Content-Type'),
-            ]);
+            ];
+            if (isset($requestData['headers'])){
+                foreach ($requestData['headers'] as $name => $value){
+                    $requestHeaders[] = GenericHeader::fromString($name . ': ' . $value);
+                }
+            }
+            $request->getHeaders()->addHeaders($requestHeaders);
+
             if (isset($requestData['content'])){
                 $request->setContent(json_encode($requestData['content']));
             }

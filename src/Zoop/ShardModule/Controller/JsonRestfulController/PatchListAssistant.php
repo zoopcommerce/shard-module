@@ -22,11 +22,8 @@ class PatchListAssistant extends AbstractAssistant
 
         $documentManager = $this->options->getDocumentManager();
 
-        $createAssistant = new CreateAssistant(
-            $metadata,
-            $this->endpoint,
-            $this->controller
-        );
+        $createAssistant = $this->options->getCreateAssistant();
+        $createAssistant->setController($this->controller);
 
         foreach ($data as $key => $item){
             $document = $this->unserialize($item, null, $metadata, Serializer::UNSERIALIZE_PATCH);

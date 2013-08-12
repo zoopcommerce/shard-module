@@ -6,21 +6,13 @@
 namespace Zoop\ShardModule\Controller;
 
 use Zoop\ShardModule\Controller\JsonRestfulController\DoctrineSubscriber;
-use Zoop\ShardModule\Controller\JsonRestfulController\CreateAssistant;
-use Zoop\ShardModule\Controller\JsonRestfulController\DeleteAssistant;
-use Zoop\ShardModule\Controller\JsonRestfulController\DeleteListAssistant;
-use Zoop\ShardModule\Controller\JsonRestfulController\GetAssistant;
-use Zoop\ShardModule\Controller\JsonRestfulController\GetListAssistant;
-use Zoop\ShardModule\Controller\JsonRestfulController\PatchAssistant;
-use Zoop\ShardModule\Controller\JsonRestfulController\PatchListAssistant;
-use Zoop\ShardModule\Controller\JsonRestfulController\ReplaceListAssistant;
-use Zoop\ShardModule\Controller\JsonRestfulController\UpdateAssistant;
 use Zoop\ShardModule\Exception;
 use Zoop\ShardModule\Options\JsonRestfulControllerOptions;
 use Zend\Http\Header\Location;
 use Zend\Mvc\Controller\AbstractRestfulController;
 use Zend\Mvc\MvcEvent;
 use Zend\View\Model\ModelInterface;
+use Zend\View\Model\JsonModel;
 
 /**
  *
@@ -30,20 +22,24 @@ use Zend\View\Model\ModelInterface;
  */
 class JsonRestfulController extends AbstractRestfulController
 {
-    protected $model;
-
-    protected $range;
-
     protected $options;
 
     protected $doctrineSubscriber;
 
-
     public function onDispatch(MvcEvent $e) {
-        $this->range = null;
-        $this->model = $this->acceptableViewModelSelector($this->options->getAcceptCriteria());
         $this->options->getDocumentManager()->getEventManager()->addEventSubscriber($this->doctrineSubscriber);
-        return parent::onDispatch($e);
+        $result = parent::onDispatch($e);
+
+        //set the template
+        if ($result instanceof ModelInterface){
+            $action = $e->getRouteMatch()->getParam('action');
+            if ($action == 'get'){
+                $result->setTemplate($this->options->getGetTemplate());
+            } elseif ($action == 'getList'){
+                $result->setTemplate($this->options->getGetListTemplate());
+            }
+        }
+        return $result;
     }
 
     public function getDoctrineSubscriber() {
@@ -71,18 +67,17 @@ class JsonRestfulController extends AbstractRestfulController
 
     public function getList(){
 
-        $assistant = new GetListAssistant(
-            $this->options->getDocumentManager()->getClassMetadata($this->options->getDocumentClass()),
-            $this->options->getEndpoint(),
-            $this
-        );
+        $assistant = $this->options->getGetListAssistant();
+        $assistant->setController($this);
         $list = $assistant->doGetList();
 
-        if (count($list) == 0){
+        $model = $this->acceptableViewModelSelector($this->options->getAcceptCriteria())->setVariables($list);
+
+        if (count($list) == 0 && $model instanceof JsonModel){
             return $this->response;
         }
 
-        return $this->model->setVariables($list);
+        return $model;
     }
 
     public function get($id){
@@ -93,18 +88,15 @@ class JsonRestfulController extends AbstractRestfulController
         array_shift($parts);
         $deeperResource = $parts;
 
-        $assistant = new GetAssistant(
-            $this->options->getDocumentManager()->getClassMetadata($this->options->getDocumentClass()),
-            $this->options->getEndpoint(),
-            $this
-        );
+        $assistant = $this->options->getGetAssistant();
+        $assistant->setController($this);
         $result = $assistant->doGet($id, $deeperResource);
 
         if ($result instanceof ModelInterface){
             return $result;
         }
 
-        return $this->model->setVariables($result);
+        return $this->acceptableViewModelSelector($this->options->getAcceptCriteria())->setVariables($result);
     }
 
     public function create($data){
@@ -120,12 +112,8 @@ class JsonRestfulController extends AbstractRestfulController
             $deeperResource = $parts;
         }
 
-        $metadata = $documentManager->getClassMetadata($this->options->getDocumentClass());
-        $assistant = new CreateAssistant(
-            $metadata,
-            $this->options->getEndpoint(),
-            $this
-        );
+        $assistant = $this->options->getCreateAssistant();
+        $assistant->setController($this);
         $createdDocument = $assistant->doCreate($data, $document, $deeperResource);
 
         if ($this->getEvent()->getRouteMatch()->getParam('surpressResponse')){
@@ -155,12 +143,8 @@ class JsonRestfulController extends AbstractRestfulController
         array_shift($parts);
         $deeperResource = $parts;
 
-        $metadata = $documentManager->getClassMetadata($this->options->getDocumentClass());
-        $assistant = new UpdateAssistant(
-            $metadata,
-            $this->options->getEndpoint(),
-            $this
-        );
+        $assistant = $this->options->getUpdateAssistant();
+        $assistant->setController($this);
         $updatedDocument = $assistant->doUpdate($data, $document, $deeperResource);
 
         if ($this->getEvent()->getRouteMatch()->getParam('surpressResponse')){
@@ -193,12 +177,8 @@ class JsonRestfulController extends AbstractRestfulController
         array_shift($parts);
         $deeperResource = $parts;
 
-        $metadata = $documentManager->getClassMetadata($this->options->getDocumentClass());
-        $assistant = new PatchAssistant(
-            $metadata,
-            $this->options->getEndpoint(),
-            $this
-        );
+        $assistant = $this->options->getPatchAssistant();
+        $assistant->setController($this);
         $patchedDocument = $assistant->doPatch($data, $document, $deeperResource);
 
         if ($this->getEvent()->getRouteMatch()->getParam('surpressResponse')){
@@ -224,11 +204,8 @@ class JsonRestfulController extends AbstractRestfulController
 
     public function patchList($data){
 
-        $assistant = new PatchListAssistant(
-            $this->options->getDocumentManager()->getClassMetadata($this->options->getDocumentClass()),
-            $this->options->getEndpoint(),
-            $this
-        );
+        $assistant = $this->options->getPatchListAssistant();
+        $assistant->setController($this);
         $collection = $assistant->doPatchList($data);
 
         if ($this->getEvent()->getRouteMatch()->getParam('surpressResponse')){
@@ -242,11 +219,8 @@ class JsonRestfulController extends AbstractRestfulController
 
     public function replaceList($data){
 
-        $assistant = new ReplaceListAssistant(
-            $this->options->getDocumentManager()->getClassMetadata($this->options->getDocumentClass()),
-            $this->options->getEndpoint(),
-            $this
-        );
+        $assistant = $this->options->getReplaceListAssistant();
+        $assistant->setController($this);
         $collection = $assistant->doReplaceList($data);
 
         if ($this->getEvent()->getRouteMatch()->getParam('surpressResponse')){
@@ -267,13 +241,8 @@ class JsonRestfulController extends AbstractRestfulController
         array_shift($parts);
         $deeperResource = $parts;
 
-        $metadata = $documentManager->getClassMetadata($this->options->getDocumentClass());
-
-        $assistant = new DeleteAssistant(
-            $metadata,
-            $this->options->getEndpoint(),
-            $this
-        );
+        $assistant = $this->options->getDeleteAssistant();
+        $assistant->setController($this);
         $assistant->doDelete($document, $deeperResource);
 
         $this->flush();
@@ -284,11 +253,8 @@ class JsonRestfulController extends AbstractRestfulController
 
     public function deleteList(){
 
-        $assistant = new DeleteListAssistant(
-            $this->options->getDocumentManager()->getClassMetadata($this->options->getDocumentClass()),
-            $this->options->getEndpoint(),
-            $this
-        );
+        $assistant = $this->options->getDeleteListAssistant();
+        $assistant->setController($this);
         $assistant->doDeleteList();
 
         $this->response->setStatusCode(204);

@@ -138,6 +138,17 @@ return [
     ],
 
     'service_manager' => [
+        'invokables' => [
+            'zoop.shardmodule.assistant.create' => 'Zoop\ShardModule\Controller\JsonRestfulController\CreateAssistant',
+            'zoop.shardmodule.assistant.delete' => 'Zoop\ShardModule\Controller\JsonRestfulController\DeleteAssistant',
+            'zoop.shardmodule.assistant.deletelist' => 'Zoop\ShardModule\Controller\JsonRestfulController\DeleteListAssistant',
+            'zoop.shardmodule.assistant.get' => 'Zoop\ShardModule\Controller\JsonRestfulController\GetAssistant',
+            'zoop.shardmodule.assistant.getlist' => 'Zoop\ShardModule\Controller\JsonRestfulController\GetListAssistant',
+            'zoop.shardmodule.assistant.patch' => 'Zoop\ShardModule\Controller\JsonRestfulController\PatchAssistant',
+            'zoop.shardmodule.assistant.patchlist' => 'Zoop\ShardModule\Controller\JsonRestfulController\PatchListAssistant',
+            'zoop.shardmodule.assistant.replacelist' => 'Zoop\ShardModule\Controller\JsonRestfulController\ReplaceListAssistant',
+            'zoop.shardmodule.assistant.update' => 'Zoop\ShardModule\Controller\JsonRestfulController\UpdateAssistant',
+        ],
         'factories' => [
             'doctrine.cache.juggernaut.filesystem' => 'Zoop\ShardModule\Service\JuggernautFileSystemCacheFactory',
         ],
