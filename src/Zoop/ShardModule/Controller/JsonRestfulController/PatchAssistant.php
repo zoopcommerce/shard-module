@@ -52,20 +52,14 @@ class PatchAssistant extends AbstractAssistant
 
             $document = $this->unserialize($data, $document, $metadata, Serializer::UNSERIALIZE_PATCH);
             if ( ! $documentManager->contains($document) && ! $metadata->isEmbeddedDocument){
-                $createAssistant = new CreateAssistant(
-                    $this->metadata,
-                    $this->endpoint,
-                    $this->controller
-                );
+                $createAssistant = $this->options->getCreateAssistant();
+                $createAssistant->setController($this->controller);
                 return $createAssistant->doCreate([], $document, []);
             }
 
             if (isset($newId)){
-                $deleteAssistant = new DeleteAssistant(
-                    $this->metadata,
-                    $this->endpoint,
-                    $this->controller
-                );
+                $deleteAssistant = $this->options->getDeleteAssistant();
+                $deleteAssistant->setController($this->controller);                
                 $deleteAssistant->doDelete($document, []);
 
                 //clone the document
@@ -90,11 +84,8 @@ class PatchAssistant extends AbstractAssistant
                     }
                 }
 
-                $createAssistant = new CreateAssistant(
-                    $this->metadata,
-                    $this->endpoint,
-                    $this->controller
-                );
+                $createAssistant = $this->options->getCreateAssistant();
+                $createAssistant->setController($this->controller);
                 return $createAssistant->doCreate([], $newDocument, []);
             }
             return $document;
@@ -199,12 +190,9 @@ class PatchAssistant extends AbstractAssistant
                 $collection[] = $patchedDocument;
                 return $document;
             } else {
-                $replaceListAssistant = new PatchListAssistant(
-                    $this->metadata,
-                    $this->endpoint,
-                    $this->controller
-                );
-                $replaceListAssistant->doPatchList($data, $collection);
+                $patchListAssistant = $this->options->getPatchListAssistant();
+                $patchListAssistant->setController($this->controller);
+                $patchListAssistant->doPatchList($data, $collection);
                 return $document;
             }
         }

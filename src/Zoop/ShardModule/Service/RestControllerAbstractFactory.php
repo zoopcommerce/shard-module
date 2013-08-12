@@ -35,14 +35,27 @@ class RestControllerAbstractFactory implements AbstractFactoryInterface
         $endpointMap = $this->getEndpointMap($factoryMapping['manifestName'], $serviceLocator);
         $endpoint = $endpointMap->getEndpoint($factoryMapping['endpoint']);
 
-        $options = new JsonRestfulControllerOptions([
+        $options = [
             'end_point'        => $endpoint,
             'endpoint_map'     => $endpointMap,
             'document_class'   => $endpoint->getClass(),
             'document_manager' => $serviceLocator->getServiceLocator()->get('config')['zoop']['shard']['manifest'][$factoryMapping['manifestName']]['document_manager'],
             'manifest_name'    => $factoryMapping['manifestName'],
             'service_locator'  => $serviceLocator->getServiceLocator()->get('shard.' . $factoryMapping['manifestName'] . '.serviceManager')
-        ]);
+        ];
+
+        //load any custom option overrides from config
+        $config = $serviceLocator->getServiceLocator()->get('config')['zoop']['shard'];
+        if (isset($config['controllers']) &&
+            isset($config['controllers']['rest']) &&
+            isset($config['controllers']['rest'][$factoryMapping['manifestName']]) &&
+            isset($config['controllers']['rest'][$factoryMapping['manifestName']][$factoryMapping['endpoint']])
+        ) {
+            $options = array_merge($options, $config['controllers']['rest'][$factoryMapping['manifestName']][$factoryMapping['endpoint']]);
+        }
+
+        $options = new JsonRestfulControllerOptions($options);
+
         $instance = new JsonRestfulController($options);
         $instance->setDoctrineSubscriber(new DoctrineSubscriber);
 

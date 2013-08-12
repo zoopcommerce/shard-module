@@ -17,6 +17,8 @@ use Zend\Http\Header\ContentRange;
 class GetListAssistant extends AbstractAssistant
 {
 
+    protected $range;
+
     /**
      * If list array is supplied, it will be filtered and sorted in php.
      * If list is empty, it will be loaded from the db, (filter and sort will be applied by the db).
@@ -28,6 +30,8 @@ class GetListAssistant extends AbstractAssistant
      */
     public function doGetList($list = null){
 
+        unset($this->range);
+        
         $response = $this->controller->getResponse();
         $documentManager = $this->options->getDocumentManager();
         $serializer = $this->options->getSerializer();
@@ -121,7 +125,6 @@ class GetListAssistant extends AbstractAssistant
 
         $header = $this->controller->getRequest()->getHeader('Range');
         $limit = $this->options->getLimit();
-
         if ($header) {
             list($lower, $upper) = array_map(
                 function($item){return intval($item);},

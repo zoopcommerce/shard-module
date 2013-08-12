@@ -20,18 +20,12 @@ class ReplaceListAssistant extends AbstractAssistant
 
         $metadata = $this->metadata;
 
-        $deleteListAssistant = new DeleteListAssistant(
-            $metadata,
-            $this->endpoint,
-            $this->controller
-        );
+        $deleteListAssistant = $this->options->getDeleteListAssistant();
+        $deleteListAssistant->setController($this->controller);
         $deleteListAssistant->doDeleteList($list);
 
-        $createAssistant = new CreateAssistant(
-            $metadata,
-            $this->endpoint,
-            $this->controller
-        );
+        $createAssistant = $this->options->getCreateAssistant();
+        $createAssistant->setController($this->controller);
 
         $documentManager = $this->options->getDocumentManager();
         foreach ($data as $key => $item){

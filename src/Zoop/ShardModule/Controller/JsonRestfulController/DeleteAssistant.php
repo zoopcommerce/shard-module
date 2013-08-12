@@ -5,9 +5,7 @@
  */
 namespace Zoop\ShardModule\Controller\JsonRestfulController;
 
-use Doctrine\ODM\MongoDB\Mapping\ClassMetadata;
 use Doctrine\ODM\MongoDB\Proxy\Proxy;
-use Zoop\Shard\Serializer\Serializer;
 use Zoop\ShardModule\Exception;
 
 /**
@@ -131,11 +129,8 @@ class DeleteAssistant extends AbstractAssistant
                     );
                 }
             } else {
-                $deleteListAssistant = new DeleteListAssistant(
-                    $embeddedMetadata,
-                    $embeddedEndpoint,
-                    $this->controller
-                );
+                $deleteListAssistant = $this->options->getDeleteListAssistant();
+                $deleteListAssistant->setController($this->controller);
                 return $deleteListAssistant->doDeleteList($collection);
             }
         }

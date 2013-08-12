@@ -56,6 +56,21 @@ class JsonRestfulControllerGetTest extends AbstractHttpControllerTestCase{
         $this->assertEquals('dice', $result['type']);
     }
 
+    public function testGetHTML(){
+
+        $this->getRequest()
+            ->setMethod('GET');
+
+        $this->dispatch('/rest/game/feed-the-kitty');
+
+        $this->assertResponseStatusCode(200);
+        $this->assertControllerName('rest.default.game');
+        $this->assertControllerClass('JsonRestfulController');
+        $this->assertMatchedRouteName('rest.default');
+        $this->assertTemplateName('zoop/rest/get');
+        $this->assertEquals('Cache-Control: no-cache', $this->getResponse()->getHeaders()->get('Cache-Control')->toString());
+    }
+
     public function testGet404(){
 
         $accept = new Accept;
@@ -146,7 +161,7 @@ class JsonRestfulControllerGetTest extends AbstractHttpControllerTestCase{
         $this->dispatch('/rest/game/feed-the-kitty?select(publisher,type)');
 
         $result = json_decode($this->getResponse()->getContent(), true);
-        
+
         $this->assertResponseStatusCode(200);
         $this->assertControllerName('rest.default.game');
         $this->assertControllerClass('JsonRestfulController');

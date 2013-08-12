@@ -8,8 +8,6 @@ namespace Zoop\ShardModule\Controller\JsonRestfulController;
 use Doctrine\ODM\MongoDB\Mapping\ClassMetadata;
 use Zoop\Shard\Rest\Endpoint;
 use Zoop\ShardModule\Controller\JsonRestfulController;
-use Zoop\ShardModule\Options\JsonRestfulControllerOptions;
-use Zend\Mvc\Controller\PluginManager;
 
 /**
  *
@@ -37,16 +35,12 @@ abstract class AbstractAssistant
         return $this->endpoint;
     }
 
-    public function __construct(
-        ClassMetadata $metadata,
-        Endpoint $endpoint,
-        JsonRestfulController $controller
-    ) {
-        $this->metadata = $metadata;
-        $this->endpoint = $endpoint;
+    public function setController(JsonRestfulController $controller){
         $this->controller = $controller;
         $this->pluginManager = $controller->getServiceLocator()->get('ControllerPluginManager');
         $this->options = $controller->getOptions();
+        $this->metadata = $this->options->getDocumentManager()->getClassMetadata($this->options->getDocumentClass());
+        $this->endpoint = $this->options->getEndpoint();
     }
 
     public function __call($method, $params)
