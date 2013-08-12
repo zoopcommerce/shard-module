@@ -12,6 +12,7 @@ use Zend\Http\Header\Location;
 use Zend\Mvc\Controller\AbstractRestfulController;
 use Zend\Mvc\MvcEvent;
 use Zend\View\Model\ModelInterface;
+use Zend\View\Model\JsonModel;
 
 /**
  *
@@ -21,17 +22,24 @@ use Zend\View\Model\ModelInterface;
  */
 class JsonRestfulController extends AbstractRestfulController
 {
-    protected $model;
-
     protected $options;
 
     protected $doctrineSubscriber;
 
     public function onDispatch(MvcEvent $e) {
-        $this->range = null;
-        $this->model = $this->acceptableViewModelSelector($this->options->getAcceptCriteria());
         $this->options->getDocumentManager()->getEventManager()->addEventSubscriber($this->doctrineSubscriber);
-        return parent::onDispatch($e);
+        $result = parent::onDispatch($e);
+
+        //set the template
+        if ($result instanceof ModelInterface){
+            $action = $e->getRouteMatch()->getParam('action');
+            if ($action == 'get'){
+                $result->setTemplate($this->options->getGetTemplate());
+            } elseif ($action == 'getList'){
+                $result->setTemplate($this->options->getGetListTemplate());
+            }
+        }
+        return $result;
     }
 
     public function getDoctrineSubscriber() {
@@ -63,11 +71,13 @@ class JsonRestfulController extends AbstractRestfulController
         $assistant->setController($this);
         $list = $assistant->doGetList();
 
-        if (count($list) == 0){
+        $model = $this->acceptableViewModelSelector($this->options->getAcceptCriteria())->setVariables($list);
+
+        if (count($list) == 0 && $model instanceof JsonModel){
             return $this->response;
         }
 
-        return $this->model->setVariables($list);
+        return $model;
     }
 
     public function get($id){
@@ -86,7 +96,7 @@ class JsonRestfulController extends AbstractRestfulController
             return $result;
         }
 
-        return $this->model->setVariables($result);
+        return $this->acceptableViewModelSelector($this->options->getAcceptCriteria())->setVariables($result);
     }
 
     public function create($data){

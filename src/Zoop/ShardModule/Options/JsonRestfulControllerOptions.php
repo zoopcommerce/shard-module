@@ -41,6 +41,10 @@ class JsonRestfulControllerOptions extends AbstractControllerOptions
 
     protected $endpointMap;
 
+    protected $getTemplate = 'zoop/rest/get';
+
+    protected $getListTemplate = 'zoop/rest/get-list';
+
     protected $createAssistant = 'zoop.shardmodule.assistant.create';
 
     protected $deleteAssistant = 'zoop.shardmodule.assistant.delete';
@@ -48,15 +52,15 @@ class JsonRestfulControllerOptions extends AbstractControllerOptions
     protected $deleteListAssistant = 'zoop.shardmodule.assistant.deletelist';
 
     protected $getAssistant = 'zoop.shardmodule.assistant.get';
-    
+
     protected $getListAssistant = 'zoop.shardmodule.assistant.getlist';
-    
+
     protected $patchAssistant = 'zoop.shardmodule.assistant.patch';
-    
+
     protected $patchListAssistant = 'zoop.shardmodule.assistant.patchlist';
-    
+
     protected $replaceListAssistant = 'zoop.shardmodule.assistant.replacelist';
-    
+
     protected $updateAssistant = 'zoop.shardmodule.assistant.update';
 
     public function getAcceptCriteria() {
@@ -142,6 +146,22 @@ class JsonRestfulControllerOptions extends AbstractControllerOptions
 
     public function setEndpointMap(EndpointMap $endpointMap) {
         $this->endpointMap = $endpointMap;
+    }
+
+    public function getGetTemplate() {
+        return $this->getTemplate;
+    }
+
+    public function setGetTemplate($getTemplate) {
+        $this->getTemplate = (string) $getTemplate;
+    }
+
+    public function getGetListTemplate() {
+        return $this->getListTemplate;
+    }
+
+    public function setGetListTemplate($getListTemplate) {
+        $this->getListTemplate = (string) $getListTemplate;
     }
 
     public function getCreateAssistant() {
