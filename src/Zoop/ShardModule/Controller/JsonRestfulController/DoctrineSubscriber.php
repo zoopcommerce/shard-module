@@ -115,6 +115,7 @@ class DoctrineSubscriber implements EventSubscriber
         $exception = new Exception\AccessControlException;
         $exception->setAction($eventArgs->getAction());
         $exception->setDocument($eventArgs->getDocument());
+        $exception->setDocumentClass(get_class($eventArgs->getDocument()));
         $this->flushExceptions[] = $exception;
     }
 }

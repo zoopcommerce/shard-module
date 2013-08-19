@@ -68,7 +68,7 @@ return [
                     'described_by' => 'access-control-exception',
                     'title' => 'Access denied',
                     'status_code' => 403,
-                    'action' => ['action']
+                    'extension_fields' => ['action', 'documentClass']
                 ]
             ]
         ],
