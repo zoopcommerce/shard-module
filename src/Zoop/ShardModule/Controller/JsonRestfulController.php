@@ -154,17 +154,18 @@ class JsonRestfulController extends AbstractRestfulController
         $this->flush();
 
         $updatedMetadata = $documentManager->getClassMetadata(get_class($updatedDocument));
-        $newId = $updatedMetadata->reflFields[$updatedMetadata->identifier]->getValue($updatedDocument);
-        if ($newId != $id){
+        $newEndpoint = $updatedMetadata->reflFields[$this->options->getEndpoint()->getProperty()]->getValue($updatedDocument);
+        if ($newEndpoint != $id){
             $parts = explode('/', $this->request->getUri()->getPath());
             array_pop($parts);
-            $location = implode('/', $parts) . '/' . $newId;
+            $location = implode('/', $parts) . '/' . $newEndpoint;
             $this->response->getHeaders()->addHeader(Location::fromString(
                 'Location: ' . $location
             ));
         }
 
         $this->response->setStatusCode(204);
+        $this->response->setContent(null);
         return $this->response;
     }
 

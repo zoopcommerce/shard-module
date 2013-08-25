@@ -147,8 +147,8 @@ class GetListAssistant extends AbstractAssistant
 
         $result = [];
         foreach ($this->controller->getRequest()->getQuery() as $key => $value){
-            //ignore criteria that null and for fields that don't exist
-            if (isset($value) && array_key_exists($key, $metadata->reflFields)){
+            //ignore criteria that are null
+            if (isset($value)){
                 if (substr($value, 0, 1) == '['){
                     $value = explode(',', substr($value, 1, -1));
                 }
