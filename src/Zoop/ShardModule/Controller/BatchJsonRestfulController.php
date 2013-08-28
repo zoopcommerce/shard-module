@@ -24,26 +24,30 @@ class BatchJsonRestfulController extends AbstractRestfulController
 
     protected $options;
 
-    public function getOptions() {
+    public function getOptions()
+    {
         return $this->options;
     }
 
-    public function setOptions(BatchJsonRestfulControllerOptions $options) {
+    public function setOptions(BatchJsonRestfulControllerOptions $options)
+    {
         $this->options = $options;
     }
 
-    public function __construct(BatchJsonRestfulControllerOptions $options = null) {
-        if (!isset($options)){
+    public function __construct(BatchJsonRestfulControllerOptions $options = null)
+    {
+        if (!isset($options)) {
             $options = new BatchJsonRestfulControllerOptions;
         }
         $this->setOptions($options);
     }
 
-    public function create($data) {
+    public function create($data)
+    {
         $router = $this->serviceLocator->get('router');
         $controllerLoader = $this->serviceLocator->get('controllerLoader');
 
-        foreach ($data as $key => $requestData){
+        foreach ($data as $key => $requestData) {
             $request = new Request();
             $request->setMethod($requestData['method']);
             $request->setUri($requestData['uri']);
@@ -58,14 +62,14 @@ class BatchJsonRestfulController extends AbstractRestfulController
                 $this->request->getHeaders()->get('Accept'),
                 $this->request->getHeaders()->get('Content-Type'),
             ];
-            if (isset($requestData['headers'])){
-                foreach ($requestData['headers'] as $name => $value){
+            if (isset($requestData['headers'])) {
+                foreach ($requestData['headers'] as $name => $value) {
                     $requestHeaders[] = GenericHeader::fromString($name . ': ' . $value);
                 }
             }
             $request->getHeaders()->addHeaders($requestHeaders);
 
-            if (isset($requestData['content'])){
+            if (isset($requestData['content'])) {
                 $request->setContent(json_encode($requestData['content']));
             }
 
@@ -77,11 +81,14 @@ class BatchJsonRestfulController extends AbstractRestfulController
             RouteListener::resolveController($match);
             $contentModel = null;
 
-            if (!isset($match) || ($match->getMatchedRouteName() != 'rest.' . $this->options->getManifestName())){
+            if (!isset($match) || ($match->getMatchedRouteName() != 'rest.' . $this->options->getManifestName())) {
                 $contentModel = $this->createExceptionContentModel(
-                    new Exception\RuntimeException(sprintf(
-                        '%s uri is not a rest route, so is not supported by batch controller.', $requestData['uri']
-                    )),
+                    new Exception\RuntimeException(
+                        sprintf(
+                            '%s uri is not a rest route, so is not supported by batch controller.',
+                            $requestData['uri']
+                        )
+                    ),
                     $event
                 );
             } else {
@@ -95,7 +102,7 @@ class BatchJsonRestfulController extends AbstractRestfulController
                 $event->setRouteMatch($match);
                 $controller->setEvent($event);
 
-                if (!isset($contentModel)){
+                if (!isset($contentModel)) {
                     try {
                         $contentModel = $controller->dispatch($request, $response);
                     } catch (\Exception $exception) {
@@ -105,14 +112,16 @@ class BatchJsonRestfulController extends AbstractRestfulController
             }
 
             $headers = [];
-            foreach ($response->getHeaders() as $header){
+            foreach ($response->getHeaders() as $header) {
                 $headers[$header->getFieldName()] = $header->getFieldValue();
             }
-            $responseModel = new JsonModel([
-                'status' => $response->getStatusCode(),
-                'headers' => $headers
-            ]);
-            if ($contentModel instanceof ModelInterface){
+            $responseModel = new JsonModel(
+                [
+                    'status' => $response->getStatusCode(),
+                    'headers' => $headers
+                ]
+            );
+            if ($contentModel instanceof ModelInterface) {
                 $responseModel->addChild($contentModel, 'content');
             }
             $this->model->addChild($responseModel, $key);
@@ -121,45 +130,69 @@ class BatchJsonRestfulController extends AbstractRestfulController
         return $this->model;
     }
 
-    protected function createExceptionContentModel($exception, $event) {
+    protected function createExceptionContentModel($exception, $event)
+    {
         $event->setError(Application::ERROR_EXCEPTION);
         $event->setParam('exception', $exception);
         $this->options->getExceptionViewModelPreparer()->prepareExceptionViewModel($event);
+
         return $event->getResult();
     }
 
-    public function onDispatch(MvcEvent $e) {
+    public function onDispatch(MvcEvent $e)
+    {
         $this->model = $this->acceptableViewModelSelector($this->options->getAcceptCriteria());
+
         return parent::onDispatch($e);
     }
 
-    public function getList(){
-        throw new Exception\RuntimeException(sprintf(
-            '%s is not supported', __METHOD__
-        ));
+    public function getList()
+    {
+        throw new Exception\RuntimeException(
+            sprintf(
+                '%s is not supported',
+                __METHOD__
+            )
+        );
     }
 
-    public function get($id){
-        throw new Exception\RuntimeException(sprintf(
-            '%s is not supported', __METHOD__
-        ));
+    public function get($id)
+    {
+        throw new Exception\RuntimeException(
+            sprintf(
+                '%s is not supported',
+                __METHOD__
+            )
+        );
     }
 
-    public function delete($id) {
-        throw new Exception\RuntimeException(sprintf(
-            '%s is not supported', __METHOD__
-        ));
+    public function delete($id)
+    {
+        throw new Exception\RuntimeException(
+            sprintf(
+                '%s is not supported',
+                __METHOD__
+            )
+        );
     }
 
-    public function deleteList() {
-        throw new Exception\RuntimeException(sprintf(
-            '%s is not supported', __METHOD__
-        ));
+    public function deleteList()
+    {
+        throw new Exception\RuntimeException(
+            sprintf(
+                '%s is not supported',
+                __METHOD__
+            )
+        );
     }
 
-    public function update($id, $data) {
-        throw new Exception\RuntimeException(sprintf(
-            '%s is not supported', __METHOD__
-        ));
+    public function update($id, $data)
+    {
+        throw new Exception\RuntimeException(
+            sprintf(
+                '%s is not supported',
+                __METHOD__
+            )
+        );
     }
 }

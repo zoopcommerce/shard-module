@@ -19,15 +19,15 @@ use Zend\Http\Header\LastModified;
 class GetAssistant extends AbstractAssistant
 {
 
-    public function doGet($document, $deeperResource = []){
-
+    public function doGet($document, $deeperResource = [])
+    {
         $documentManager = $this->options->getDocumentManager();
         $serializer = $this->options->getSerializer();
         $metadata = $this->metadata;
         $endpoint = $this->endpoint;
 
-        if (count($deeperResource) == 0 ){
-            if (is_string($document)){
+        if (count($deeperResource) == 0) {
+            if (is_string($document)) {
                 $document = $documentManager
                     ->createQueryBuilder()
                     ->find($metadata->name)
@@ -36,12 +36,12 @@ class GetAssistant extends AbstractAssistant
                     ->getQuery();
                 $document = $document->getSingleResult();
 
-                if ( ! $document){
+                if (! $document) {
                     throw new Exception\DocumentNotFoundException();
                 }
             }
 
-            if (isset($metadata->stamp['updatedOn'])){
+            if (isset($metadata->stamp['updatedOn'])) {
                 $lastModified = new LastModified;
                 $sec = $document[$metadata->stamp['updatedOn']]->sec;
                 $lastModified->setDate(new \DateTime("@$sec"));
@@ -50,23 +50,24 @@ class GetAssistant extends AbstractAssistant
 
             $cacheControlOptions = $endpoint->getCacheControl();
             $cacheControl = new CacheControl;
-            if ($cacheControlOptions->getPublic()){
+            if ($cacheControlOptions->getPublic()) {
                 $cacheControl->addDirective('public', true);
             }
-            if ($cacheControlOptions->getPrivate()){
+            if ($cacheControlOptions->getPrivate()) {
                 $cacheControl->addDirective('private', true);
             }
-            if ($cacheControlOptions->getNoCache()){
+            if ($cacheControlOptions->getNoCache()) {
                 $cacheControl->addDirective('no-cache', true);
             }
-            if ($cacheControlOptions->getMaxAge()){
+            if ($cacheControlOptions->getMaxAge()) {
                 $cacheControl->addDirective('max-age', $cacheControlOptions->getMaxAge());
             }
             $this->controller->getResponse()->getHeaders()->addHeader($cacheControl);
 
-            if ($select = $this->getSelect()){
+            if ($select = $this->getSelect()) {
                 $document = array_intersect_key($document, array_fill_keys($select, 0));
             }
+
             return $serializer->applySerializeMetadataToArray($document, $metadata->name);
         }
 
@@ -74,13 +75,13 @@ class GetAssistant extends AbstractAssistant
         array_shift($deeperResource);
 
         //check if field can be returned
-        if ( ! $serializer->isSerializableField($field, $metadata)){
+        if (! $serializer->isSerializableField($field, $metadata)) {
             throw new Exception\DocumentNotFoundException();
         }
 
         $mapping = $metadata->fieldMappings[$field];
 
-        if (isset($mapping['reference']) && $mapping['reference'] && $mapping['type'] == 'many'){
+        if (isset($mapping['reference']) && $mapping['reference'] && $mapping['type'] == 'many') {
             $this->controller->getRequest()->getQuery()->set($metadata->fieldMappings[$field]['mappedBy'], $document);
             $referenceMetadata = $this->options
                 ->getDocumentManager()
@@ -88,13 +89,14 @@ class GetAssistant extends AbstractAssistant
             $referenceEndpoint = $this->options
                 ->getEndpointMap()
                 ->getEndpointsFromClass($referenceMetadata->name)[0];
+
             return $this->forward()->dispatch(
                 'rest.' . $this->options->getManifestName() . '.' . $referenceEndpoint->getName(),
                 ['id' => implode('/', $deeperResource)]
             );
         }
 
-        if (is_string($document)){
+        if (is_string($document)) {
             $document = $documentManager
                 ->createQueryBuilder()
                 ->find($metadata->name)
@@ -105,45 +107,53 @@ class GetAssistant extends AbstractAssistant
                 ->getQuery()
                 ->getSingleResult();
 
-            if ( ! $document){
+            if (! $document) {
                 throw new Exception\DocumentNotFoundException();
             }
         }
 
-        if (isset($mapping['reference']) && $mapping['reference'] && $mapping['type'] == 'one'){
-            if ( ! $referencedDocument = $document[$field]){
+        if (isset($mapping['reference']) && $mapping['reference'] && $mapping['type'] == 'one') {
+            if (! $referencedDocument = $document[$field]) {
                 throw new Exception\DocumentNotFoundException;
             }
-            $referencedMetadata = $documentManager->getClassMetadata($metadata->fieldMappings[$field]['targetDocument']);
+            $referencedMetadata = $documentManager
+                ->getClassMetadata($metadata->fieldMappings[$field]['targetDocument']);
             $referencedEndpoint = $this->options
                 ->getEndpointMap()
                 ->getEndpointsFromClass($referencedMetadata->name)[0];
-            if (is_string($referencedDocument)){
-                $referencedDocument = $this->options->getDocumentManager()->getRepository($referencedMetadata->name)->find($referencedDocument);
+            if (is_string($referencedDocument)) {
+                $referencedDocument = $this->options
+                    ->getDocumentManager()->getRepository($referencedMetadata->name)->find($referencedDocument);
             }
-            if ($referencedDocument instanceof Proxy){
+            if ($referencedDocument instanceof Proxy) {
                 $referencedDocument->__load();
             }
-            array_unshift($deeperResource, $referencedMetadata->reflFields[$referencedEndpoint->getProperty()]->getValue($referencedDocument));
+            array_unshift(
+                $deeperResource,
+                $referencedMetadata->reflFields[$referencedEndpoint->getProperty()]->getValue($referencedDocument)
+            );
+
             return $this->forward()->dispatch(
                 'rest.' . $this->options->getManifestName() . '.' . $referencedEndpoint->getName(),
                 ['id' => implode('/', $deeperResource)]
             );
         }
 
-        if (isset($mapping['embedded']) && $mapping['embedded'] && $mapping['type'] == 'many'){
+        if (isset($mapping['embedded']) && $mapping['embedded'] && $mapping['type'] == 'many') {
             $this->metadata = $this
                 ->options
                 ->getDocumentManager()
                 ->getClassMetadata($metadata->fieldMappings[$field]['targetDocument']);
-            if (count($deeperResource) > 0){
+            if (count($deeperResource) > 0) {
                 $collection = $document[$field];
                 $embeddedEndpoint = $endpoint->getEmbeddedLists()[$field];
                 $embeddedEndpointProperty = $embeddedEndpoint->getProperty();
-                foreach ($collection as $embeddedDocument){ //this iteration is slow. Should be replaced when upgrade to new version of mongo happens
-                    if ($embeddedDocument[$embeddedEndpointProperty] == $deeperResource[0]){
+                foreach ($collection as $embeddedDocument) {
+                    //this iteration is slow. Should be replaced when upgrade to new version of mongo happens
+                    if ($embeddedDocument[$embeddedEndpointProperty] == $deeperResource[0]) {
                         array_shift($deeperResource);
                         $this->endpoint = $embeddedEndpoint;
+
                         return $this->doGet($embeddedDocument, $deeperResource);
                     }
                 }
@@ -151,16 +161,18 @@ class GetAssistant extends AbstractAssistant
                 throw new Exception\DocumentNotFoundException();
             } else {
                 $getListAssistant = $this->options->getGetListAssistant();
-                $getListAssistant->setController($this->controller);                
+                $getListAssistant->setController($this->controller);
+
                 return $getListAssistant->doGetList($document[$field]);
             }
         }
 
-        if (isset($mapping['embedded']) && $mapping['embedded'] && $mapping['type'] == 'one'){
+        if (isset($mapping['embedded']) && $mapping['embedded'] && $mapping['type'] == 'one') {
             $this->metadata = $this
                 ->options
                 ->getDocumentManager()
                 ->getClassMetadata($metadata->fieldMappings[$field]['targetDocument']);
+
             return $this->doGet($document[$field], $deeperResource);
         }
 

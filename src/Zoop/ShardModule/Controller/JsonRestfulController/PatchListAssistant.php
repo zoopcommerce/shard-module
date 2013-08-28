@@ -16,8 +16,8 @@ use Zoop\Shard\Serializer\Serializer;
 class PatchListAssistant extends AbstractAssistant
 {
 
-    public function doPatchList(array $data, $list = []){
-
+    public function doPatchList(array $data, $list = [])
+    {
         $metadata = $this->metadata;
 
         $documentManager = $this->options->getDocumentManager();
@@ -25,9 +25,9 @@ class PatchListAssistant extends AbstractAssistant
         $createAssistant = $this->options->getCreateAssistant();
         $createAssistant->setController($this->controller);
 
-        foreach ($data as $key => $item){
+        foreach ($data as $key => $item) {
             $document = $this->unserialize($item, null, $metadata, Serializer::UNSERIALIZE_PATCH);
-            if ($documentManager->contains($document)){
+            if ($documentManager->contains($document)) {
                 $list[$key] = $document;
             } else {
                 $list[$key] = $createAssistant->doCreate($item, $document, []);

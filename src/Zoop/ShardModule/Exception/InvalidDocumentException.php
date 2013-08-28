@@ -19,19 +19,23 @@ class InvalidDocumentException extends \Exception implements ExceptionInterface
 
     protected $document;
 
-    public function getValidatorMessages() {
+    public function getValidatorMessages()
+    {
         return $this->validatorMessages;
     }
 
-    public function setValidatorMessages(array $validatorMessages) {
+    public function setValidatorMessages(array $validatorMessages)
+    {
         $this->validatorMessages = $validatorMessages;
     }
 
-    public function getDocument() {
+    public function getDocument()
+    {
         return $this->document;
     }
 
-    public function setDocument($document) {
+    public function setDocument($document)
+    {
         $this->document = $document;
     }
 }

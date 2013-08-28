@@ -64,8 +64,8 @@ class InitalizeConsoleListener implements SharedListenerAggregateInterface
         $serviceLocator = $event->getParam('ServiceManager')->get('shard.default.servicemanager');
         $manifest = $serviceLocator->get('manifest');
 
-        foreach ($manifest->getCliCommands() as $command){
-            if (is_string($command)){
+        foreach ($manifest->getCliCommands() as $command) {
+            if (is_string($command)) {
                 $command = $serviceLocator->get($command);
             }
             $cli->addCommands([$command]);
@@ -73,7 +73,7 @@ class InitalizeConsoleListener implements SharedListenerAggregateInterface
 
         $helperSet = $cli->getHelperSet();
         foreach ($manifest->getCliHelpers() as $key => $helper) {
-            if (is_string($helper)){
+            if (is_string($helper)) {
                 $helper = $serviceLocator->get($helper);
             }
             $helperSet->set($helper, $key);

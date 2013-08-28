@@ -6,18 +6,19 @@ use Zoop\ShardModule\Test\TestAsset\TestData;
 use Zend\Test\PHPUnit\Controller\AbstractHttpControllerTestCase;
 use Zend\Http\Header\Accept;
 
-class JsonRestfulControllerGetTest extends AbstractHttpControllerTestCase{
-
+class JsonRestfulControllerGetTest extends AbstractHttpControllerTestCase
+{
     protected static $staticDcumentManager;
 
     protected static $dbDataCreated = false;
 
-    public static function tearDownAfterClass(){
+    public static function tearDownAfterClass()
+    {
         TestData::remove(static::$staticDcumentManager);
     }
 
-    public function setUp(){
-
+    public function setUp()
+    {
         $this->setApplicationConfig(
             include __DIR__ . '/../../../../test.application.config.php'
         );
@@ -27,14 +28,14 @@ class JsonRestfulControllerGetTest extends AbstractHttpControllerTestCase{
         $this->documentManager = $this->getApplicationServiceLocator()->get('doctrine.odm.documentmanager.default');
         static::$staticDcumentManager = $this->documentManager;
 
-        if ( ! static::$dbDataCreated){
+        if (! static::$dbDataCreated) {
             TestData::create($this->documentManager);
             static::$dbDataCreated = true;
         }
     }
 
-    public function testGet(){
-
+    public function testGet()
+    {
         $accept = new Accept;
         $accept->addMediaType('application/json');
 
@@ -51,13 +52,16 @@ class JsonRestfulControllerGetTest extends AbstractHttpControllerTestCase{
         $this->assertControllerClass('JsonRestfulController');
         $this->assertMatchedRouteName('rest.default');
 
-        $this->assertEquals('Cache-Control: no-cache', $this->getResponse()->getHeaders()->get('Cache-Control')->toString());
+        $this->assertEquals(
+            'Cache-Control: no-cache',
+            $this->getResponse()->getHeaders()->get('Cache-Control')->toString()
+        );
         $this->assertEquals('feed-the-kitty', $result['name']);
         $this->assertEquals('dice', $result['type']);
     }
 
-    public function testGetHTML(){
-
+    public function testGetHTML()
+    {
         $this->getRequest()
             ->setMethod('GET');
 
@@ -68,11 +72,14 @@ class JsonRestfulControllerGetTest extends AbstractHttpControllerTestCase{
         $this->assertControllerClass('JsonRestfulController');
         $this->assertMatchedRouteName('rest.default');
         $this->assertTemplateName('zoop/rest/get');
-        $this->assertEquals('Cache-Control: no-cache', $this->getResponse()->getHeaders()->get('Cache-Control')->toString());
+        $this->assertEquals(
+            'Cache-Control: no-cache',
+            $this->getResponse()->getHeaders()->get('Cache-Control')->toString()
+        );
     }
 
-    public function testGet404(){
-
+    public function testGet404()
+    {
         $accept = new Accept;
         $accept->addMediaType('application/json');
 
@@ -85,14 +92,17 @@ class JsonRestfulControllerGetTest extends AbstractHttpControllerTestCase{
         $result = json_decode($this->getResponse()->getContent(), true);
 
         $this->assertResponseStatusCode(404);
-        $this->assertEquals('Content-Type: application/api-problem+json', $this->getResponse()->getHeaders()->get('Content-Type')->toString());
+        $this->assertEquals(
+            'Content-Type: application/api-problem+json',
+            $this->getResponse()->getHeaders()->get('Content-Type')->toString()
+        );
 
         $this->assertEquals('/exception/document-not-found', $result['describedBy']);
         $this->assertEquals('Document not found', $result['title']);
     }
 
-    public function testGetDeep404(){
-
+    public function testGetDeep404()
+    {
         $accept = new Accept;
         $accept->addMediaType('application/json');
 
@@ -105,14 +115,17 @@ class JsonRestfulControllerGetTest extends AbstractHttpControllerTestCase{
         $result = json_decode($this->getResponse()->getContent(), true);
 
         $this->assertResponseStatusCode(404);
-        $this->assertEquals('Content-Type: application/api-problem+json', $this->getResponse()->getHeaders()->get('Content-Type')->toString());
+        $this->assertEquals(
+            'Content-Type: application/api-problem+json',
+            $this->getResponse()->getHeaders()->get('Content-Type')->toString()
+        );
 
         $this->assertEquals('/exception/document-not-found', $result['describedBy']);
         $this->assertEquals('Document not found', $result['title']);
     }
 
-    public function testGetProperty404(){
-
+    public function testGetProperty404()
+    {
         $accept = new Accept;
         $accept->addMediaType('application/json');
 
@@ -124,14 +137,17 @@ class JsonRestfulControllerGetTest extends AbstractHttpControllerTestCase{
 
         $result = json_decode($this->getResponse()->getContent(), true);
         $this->assertResponseStatusCode(404);
-        $this->assertEquals('Content-Type: application/api-problem+json', $this->getResponse()->getHeaders()->get('Content-Type')->toString());
+        $this->assertEquals(
+            'Content-Type: application/api-problem+json',
+            $this->getResponse()->getHeaders()->get('Content-Type')->toString()
+        );
 
         $this->assertEquals('/exception/document-not-found', $result['describedBy']);
         $this->assertEquals('Document not found', $result['title']);
     }
 
-    public function testGetSerializerIgnoreFail(){
-
+    public function testGetSerializerIgnoreFail()
+    {
         $accept = new Accept;
         $accept->addMediaType('application/json');
 
@@ -142,15 +158,18 @@ class JsonRestfulControllerGetTest extends AbstractHttpControllerTestCase{
         $this->dispatch('/rest/author/james/secret');
 
         $this->assertResponseStatusCode(404);
-        $this->assertEquals('Content-Type: application/api-problem+json', $this->getResponse()->getHeaders()->get('Content-Type')->toString());
+        $this->assertEquals(
+            'Content-Type: application/api-problem+json',
+            $this->getResponse()->getHeaders()->get('Content-Type')->toString()
+        );
 
         $result = json_decode($this->getResponse()->getContent(), true);
         $this->assertEquals('/exception/document-not-found', $result['describedBy']);
         $this->assertEquals('Document not found', $result['title']);
     }
 
-    public function testGetPartial(){
-
+    public function testGetPartial()
+    {
         $accept = new Accept;
         $accept->addMediaType('application/json');
 
@@ -174,8 +193,8 @@ class JsonRestfulControllerGetTest extends AbstractHttpControllerTestCase{
         $this->assertFalse(isset($result['author']));
     }
 
-    public function testGetEmbedded(){
-
+    public function testGetEmbedded()
+    {
         $accept = new Accept;
         $accept->addMediaType('application/json');
 
@@ -195,8 +214,8 @@ class JsonRestfulControllerGetTest extends AbstractHttpControllerTestCase{
         $this->assertEquals('gamewright', $result['name']);
     }
 
-    public function testGetEmbeddedListItem(){
-
+    public function testGetEmbeddedListItem()
+    {
         $accept = new Accept;
         $accept->addMediaType('application/json');
 
@@ -216,8 +235,8 @@ class JsonRestfulControllerGetTest extends AbstractHttpControllerTestCase{
         $this->assertEquals('die', $result['type']);
     }
 
-    public function testGetReference(){
-
+    public function testGetReference()
+    {
         $accept = new Accept;
         $accept->addMediaType('application/json');
 
@@ -236,8 +255,8 @@ class JsonRestfulControllerGetTest extends AbstractHttpControllerTestCase{
         $this->assertEquals('james', $result['name']);
     }
 
-    public function testGetReferenceListItem(){
-
+    public function testGetReferenceListItem()
+    {
         $accept = new Accept;
         $accept->addMediaType('application/json');
 
@@ -257,8 +276,8 @@ class JsonRestfulControllerGetTest extends AbstractHttpControllerTestCase{
         $this->assertEquals('great-review', $result['title']);
     }
 
-    public function testGetEmbeddedDeep(){
-
+    public function testGetEmbeddedDeep()
+    {
         $accept = new Accept;
         $accept->addMediaType('application/json');
 
@@ -278,8 +297,8 @@ class JsonRestfulControllerGetTest extends AbstractHttpControllerTestCase{
         $this->assertEquals('us', $result['name']);
     }
 
-    public function testGetReallyDeep(){
-
+    public function testGetReallyDeep()
+    {
         $accept = new Accept;
         $accept->addMediaType('application/json');
 

@@ -2,8 +2,6 @@
 
 namespace Zoop\ShardModule\Test\TestAsset\Document;
 
-use Doctrine\Common\Collections\ArrayCollection;
-
 //Annotation imports
 use Doctrine\ODM\MongoDB\Mapping\Annotations as ODM;
 use Zoop\Shard\Annotation\Annotations as Shard;
@@ -14,8 +12,8 @@ use Zoop\Shard\Annotation\Annotations as Shard;
  *     @Shard\Permission\Basic(roles="*", allow="*")
  * })
  */
-class Review {
-
+class Review
+{
     /**
      * @ODM\Id(strategy="NONE")
      */
@@ -37,35 +35,43 @@ class Review {
      */
     protected $content;
 
-    public function getTitle() {
+    public function getTitle()
+    {
         return $this->title;
     }
 
-    public function setTitle($title) {
+    public function setTitle($title)
+    {
         $this->title = $title;
     }
 
-    public function getGame() {
+    public function getGame()
+    {
         return $this->game;
     }
 
-    public function setGame($game) {
+    public function setGame($game)
+    {
         $this->game = $game;
     }
 
-    public function getAuthor() {
+    public function getAuthor()
+    {
         return $this->author;
     }
 
-    public function setAuthor($author) {
+    public function setAuthor($author)
+    {
         $this->author = $author;
     }
 
-    public function getContent() {
+    public function getContent()
+    {
         return $this->content;
     }
 
-    public function setContent($content) {
+    public function setContent($content)
+    {
         $this->content = $content;
     }
 }

@@ -51,56 +51,69 @@ class Author
      */
     protected $nickname;
 
-    public function __construct(){
+    public function __construct()
+    {
         $this->games = new ArrayCollection();
         $this->reviews = new ArrayCollection();
     }
 
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
-    public function setName($name) {
+    public function setName($name)
+    {
         $this->name = $name;
     }
 
-    public function getCountry() {
+    public function getCountry()
+    {
         return $this->country;
     }
 
-    public function setCountry($country) {
+    public function setCountry($country)
+    {
         $this->country = $country;
     }
 
-    public function getGames() {
+    public function getGames()
+    {
         return $this->games;
     }
 
-    public function setGames($games) {
+    public function setGames($games)
+    {
         $this->games = $games;
     }
 
-    public function getReviews() {
+    public function getReviews()
+    {
         return $this->reviews;
     }
 
-    public function setReviews($reviews) {
+    public function setReviews($reviews)
+    {
         $this->reviews = $reviews;
     }
 
-    public function getSecret() {
+    public function getSecret()
+    {
         return $this->secret;
     }
 
-    public function setSecret($secret) {
+    public function setSecret($secret)
+    {
         $this->secret = $secret;
     }
 
-    public function getNickname() {
+    public function getNickname()
+    {
         return $this->nickname;
     }
 
-    public function setNickname($nickname) {
+    public function setNickname($nickname)
+    {
         $this->nickname = $nickname;
     }
 }

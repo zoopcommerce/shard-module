@@ -20,13 +20,13 @@ class DeleteListAssistant extends AbstractAssistant
      *
      * If metadata is not suppled, it will be retrieved using $this->options->getDocumentClass()
      *
-     * @param array $list
+     * @param  array $list
      * @return type
      */
-    public function doDeleteList($list = null){
-
-        if ($list){
-            foreach ($list as $key => $item){
+    public function doDeleteList($list = null)
+    {
+        if ($list) {
+            foreach ($list as $key => $item) {
                 $list->remove($key);
             }
         } else {

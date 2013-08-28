@@ -5,7 +5,6 @@ return [
     'zoop' => [
         'shard' => [
             'extensionConfigs' => [
-                'extension.dojo' => false,
                 'extension.freeze' => false,
                 'extension.softdelete' => false,
                 'extension.state' => false,

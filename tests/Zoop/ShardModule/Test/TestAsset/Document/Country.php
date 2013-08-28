@@ -14,8 +14,8 @@ use Zoop\Shard\Annotation\Annotations as Shard;
  *     @Shard\Permission\Basic(roles="*", allow="*")
  * })
  */
-class Country {
-
+class Country
+{
     /**
      * @ODM\Id(strategy="NONE")
      */
@@ -26,23 +26,28 @@ class Country {
      */
     protected $authors;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->authors = new ArrayCollection();
     }
 
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
-    public function setName($name) {
+    public function setName($name)
+    {
         $this->name = $name;
     }
 
-    public function getAuthors() {
+    public function getAuthors()
+    {
         return $this->authors;
     }
 
-    public function setAuthors($authors) {
+    public function setAuthors($authors)
+    {
         $this->authors = $authors;
     }
 }

@@ -55,19 +55,19 @@ class ConfigMergeListener implements ListenerAggregateInterface
      *
      * @param \Zend\ModuleManager\ModuleEvent $event
      */
-    public function onConfigMerge(ModuleEvent $event) {
-
+    public function onConfigMerge(ModuleEvent $event)
+    {
         $config = $event->getConfigListener()->getMergedConfig(false);
 
-        foreach($config['zoop']['shard']['manifest'] as $name => $manifestConfig){
-            if (!isset($manifestConfig['initalized']) || !$manifestConfig['initalized']){
+        foreach ($config['zoop']['shard']['manifest'] as $name => $manifestConfig) {
+            if (!isset($manifestConfig['initalized']) || !$manifestConfig['initalized']) {
                 $manifest = new Manifest($manifestConfig);
                 $manifestConfig = $manifest->toArray();
                 $config['zoop']['shard']['manifest'][$name] = $manifestConfig;
 
                 //add delegators
                 $documentManagerConfig = $config;
-                foreach(explode('.', $manifestConfig['document_manager']) as $key){
+                foreach (explode('.', $manifestConfig['document_manager']) as $key) {
                     $documentManagerConfig = $documentManagerConfig[$key];
                 }
 
@@ -80,13 +80,6 @@ class ConfigMergeListener implements ListenerAggregateInterface
                 ];
                 $config['service_manager'] = ArrayUtils::merge($config['service_manager'], $delegatorConfig);
             }
-        }
-
-        if (!isset($config['zoop']['shard']['manifest']['default']) ||
-            !isset($config['zoop']['shard']['manifest']['default']['extension_configs']['extension.dojo'])
-        ) {
-            //remove dojo_src.default route if shard.dojo.default is not configured
-            unset($config['router']['routes']['dojo.default']);
         }
 
         if (!isset($config['zoop']['shard']['manifest']['default']) ||

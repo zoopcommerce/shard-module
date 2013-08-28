@@ -7,18 +7,19 @@ use Zend\Test\PHPUnit\Controller\AbstractHttpControllerTestCase;
 use Zend\Http\Header\Accept;
 use Zend\Http\Header\ContentType;
 
-class JsonRestfulControllerCreateTest extends AbstractHttpControllerTestCase{
-
+class JsonRestfulControllerCreateTest extends AbstractHttpControllerTestCase
+{
     protected static $staticDcumentManager;
 
     protected static $dbDataCreated = false;
 
-    public static function tearDownAfterClass(){
+    public static function tearDownAfterClass()
+    {
         TestData::remove(static::$staticDcumentManager);
     }
 
-    public function setUp(){
-
+    public function setUp()
+    {
         $this->setApplicationConfig(
             include __DIR__ . '/../../../../test.application.config.php'
         );
@@ -28,15 +29,15 @@ class JsonRestfulControllerCreateTest extends AbstractHttpControllerTestCase{
         $this->documentManager = $this->getApplicationServiceLocator()->get('doctrine.odm.documentmanager.default');
         static::$staticDcumentManager = $this->documentManager;
 
-        if ( ! static::$dbDataCreated){
+        if (! static::$dbDataCreated) {
             //Create data in the db to query against
             TestData::create($this->documentManager);
             static::$dbDataCreated = true;
         }
     }
 
-    public function testCreate(){
-
+    public function testCreate()
+    {
         $accept = new Accept;
         $accept->addMediaType('application/json');
 
@@ -51,15 +52,19 @@ class JsonRestfulControllerCreateTest extends AbstractHttpControllerTestCase{
         $result = json_decode($response->getContent(), true);
 
         $this->assertResponseStatusCode(201);
-        $this->assertEquals('Location: /rest/game/forbidden-island', $response->getHeaders()->get('Location')->toString());
+        $this->assertEquals(
+            'Location: /rest/game/forbidden-island',
+            $response->getHeaders()->get('Location')->toString()
+        );
         $this->assertFalse(isset($result));
 
-        $game = $this->documentManager->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Game')->find('forbidden-island');
+        $game = $this->documentManager
+            ->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Game')->find('forbidden-island');
         $this->assertEquals('co-op', $game->getType());
     }
 
-    public function testCreateDeep404(){
-
+    public function testCreateDeep404()
+    {
         $accept = new Accept;
         $accept->addMediaType('application/json');
 
@@ -76,8 +81,8 @@ class JsonRestfulControllerCreateTest extends AbstractHttpControllerTestCase{
         $this->assertResponseStatusCode(404);
     }
 
-    public function testCreateValidationFail(){
-
+    public function testCreateValidationFail()
+    {
         $accept = new Accept;
         $accept->addMediaType('application/json');
 
@@ -89,7 +94,10 @@ class JsonRestfulControllerCreateTest extends AbstractHttpControllerTestCase{
         $this->dispatch('/rest/game');
 
         $this->assertResponseStatusCode(500);
-        $this->assertEquals('Content-Type: application/api-problem+json', $this->getResponse()->getHeaders()->get('Content-Type')->toString());
+        $this->assertEquals(
+            'Content-Type: application/api-problem+json',
+            $this->getResponse()->getHeaders()->get('Content-Type')->toString()
+        );
 
         $result = json_decode($this->getResponse()->getContent(), true);
 
@@ -98,8 +106,8 @@ class JsonRestfulControllerCreateTest extends AbstractHttpControllerTestCase{
         $this->assertEquals('type: This value is required', $result['validatorMessages'][0]);
     }
 
-    public function testCreateAlreadyExistsFail(){
-
+    public function testCreateAlreadyExistsFail()
+    {
         $accept = new Accept;
         $accept->addMediaType('application/json');
 
@@ -113,22 +121,22 @@ class JsonRestfulControllerCreateTest extends AbstractHttpControllerTestCase{
         $result = json_decode($this->getResponse()->getContent(), true);
 
         $this->assertResponseStatusCode(500);
-        $this->assertEquals('Content-Type: application/api-problem+json', $this->getResponse()->getHeaders()->get('Content-Type')->toString());
+        $this->assertEquals(
+            'Content-Type: application/api-problem+json',
+            $this->getResponse()->getHeaders()->get('Content-Type')->toString()
+        );
         $this->assertEquals('/exception/document-already-exists', $result['describedBy']);
         $this->assertEquals('Document already exists', $result['title']);
     }
 
-    public function testEmbeddedCreateListItem(){
-
+    public function testEmbeddedCreateListItem()
+    {
         $accept = new Accept;
         $accept->addMediaType('application/json');
 
         $this->getRequest()
             ->setMethod('POST')
-            ->setContent('{
-                "name": "age-I",
-                "type": "card"
-            }')
+            ->setContent('{"name": "age-I", "type": "card"}')
             ->getHeaders()->addHeaders([$accept, ContentType::fromString('Content-type: application/json')]);
 
         $this->dispatch('/rest/game/seven-wonders/components');
@@ -137,17 +145,21 @@ class JsonRestfulControllerCreateTest extends AbstractHttpControllerTestCase{
         $result = json_decode($response->getContent(), true);
 
         $this->assertResponseStatusCode(201);
-        $this->assertEquals('Location: /rest/game/seven-wonders/components/age-I', $response->getHeaders()->get('Location')->toString());
+        $this->assertEquals(
+            'Location: /rest/game/seven-wonders/components/age-I',
+            $response->getHeaders()->get('Location')->toString()
+        );
         $this->assertFalse(isset($result));
 
-        $game = $this->documentManager->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Game')->find('seven-wonders');
+        $game = $this->documentManager
+            ->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Game')->find('seven-wonders');
         $this->assertEquals('card', $game->getComponents()[2]->getType());
         $game->getComponents()->remove(2);
         $this->documentManager->flush();
     }
 
-    public function testEmbeddedCreateListItemParentDoesNotExistFail(){
-
+    public function testEmbeddedCreateListItemParentDoesNotExistFail()
+    {
         $accept = new Accept;
         $accept->addMediaType('application/json');
 
@@ -159,14 +171,17 @@ class JsonRestfulControllerCreateTest extends AbstractHttpControllerTestCase{
         $this->dispatch('/rest/game/not-seven-wonders/components');
 
         $this->assertResponseStatusCode(404);
-        $this->assertEquals('Content-Type: application/api-problem+json', $this->getResponse()->getHeaders()->get('Content-Type')->toString());
+        $this->assertEquals(
+            'Content-Type: application/api-problem+json',
+            $this->getResponse()->getHeaders()->get('Content-Type')->toString()
+        );
         $result = json_decode($this->getResponse()->getContent(), true);
         $this->assertEquals('/exception/document-not-found', $result['describedBy']);
         $this->assertEquals('Document not found', $result['title']);
     }
 
-    public function testEmbeddedCreateListItemAlreadyExistsFail(){
-
+    public function testEmbeddedCreateListItemAlreadyExistsFail()
+    {
         $accept = new Accept;
         $accept->addMediaType('application/json');
 
@@ -180,22 +195,23 @@ class JsonRestfulControllerCreateTest extends AbstractHttpControllerTestCase{
         $result = json_decode($this->getResponse()->getContent(), true);
 
         $this->assertResponseStatusCode(500);
-        $this->assertEquals('Content-Type: application/api-problem+json', $this->getResponse()->getHeaders()->get('Content-Type')->toString());
+        $this->assertEquals(
+            'Content-Type: application/api-problem+json',
+            $this->getResponse()->getHeaders()->get('Content-Type')->toString()
+        );
 
         $this->assertEquals('/exception/document-already-exists', $result['describedBy']);
         $this->assertEquals('Document already exists', $result['title']);
     }
 
-    public function testReferencedCreateWithNewDocument(){
-
+    public function testReferencedCreateWithNewDocument()
+    {
         $accept = new Accept;
         $accept->addMediaType('application/json');
 
         $this->getRequest()
             ->setMethod('POST')
-            ->setContent('{
-                "title": "good-review"
-            }')
+            ->setContent('{"title": "good-review"}')
             ->getHeaders()->addHeaders([$accept, ContentType::fromString('Content-type: application/json')]);
 
         $this->dispatch('/rest/game/seven-wonders/reviews');
@@ -206,23 +222,25 @@ class JsonRestfulControllerCreateTest extends AbstractHttpControllerTestCase{
         $result = json_decode($response->getContent(), true);
 
         $this->assertResponseStatusCode(201);
-        $this->assertEquals('Location: /rest/game/seven-wonders/reviews/good-review', $response->getHeaders()->get('Location')->toString());
+        $this->assertEquals(
+            'Location: /rest/game/seven-wonders/reviews/good-review',
+            $response->getHeaders()->get('Location')->toString()
+        );
         $this->assertFalse(isset($result));
 
-        $game = $this->documentManager->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Game')->find('seven-wonders');
+        $game = $this->documentManager
+            ->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Game')->find('seven-wonders');
         $this->assertCount(2, $game->getReviews());
     }
 
-    public function testReferencedCreateWithExistingDocument(){
-
+    public function testReferencedCreateWithExistingDocument()
+    {
         $accept = new Accept;
         $accept->addMediaType('application/json');
 
         $this->getRequest()
             ->setMethod('POST')
-            ->setContent('{
-                "$ref": "review/bad-review"
-            }')
+            ->setContent('{"$ref": "review/bad-review"}')
             ->getHeaders()->addHeaders([$accept, ContentType::fromString('Content-type: application/json')]);
 
         $this->dispatch('/rest/game/seven-wonders/reviews');
@@ -233,15 +251,19 @@ class JsonRestfulControllerCreateTest extends AbstractHttpControllerTestCase{
         $result = json_decode($response->getContent(), true);
 
         $this->assertResponseStatusCode(201);
-        $this->assertEquals('Location: /rest/game/seven-wonders/reviews/bad-review', $response->getHeaders()->get('Location')->toString());
+        $this->assertEquals(
+            'Location: /rest/game/seven-wonders/reviews/bad-review',
+            $response->getHeaders()->get('Location')->toString()
+        );
         $this->assertFalse(isset($result));
 
-        $game = $this->documentManager->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Game')->find('seven-wonders');
+        $game = $this->documentManager
+            ->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Game')->find('seven-wonders');
         $this->assertCount(3, $game->getReviews());
     }
 
-    public function testReferencedCreateAlreadyExistsFail(){
-
+    public function testReferencedCreateAlreadyExistsFail()
+    {
         $accept = new Accept;
         $accept->addMediaType('application/json');
 
@@ -255,13 +277,16 @@ class JsonRestfulControllerCreateTest extends AbstractHttpControllerTestCase{
         $result = json_decode($this->getResponse()->getContent(), true);
 
         $this->assertResponseStatusCode(500);
-        $this->assertEquals('Content-Type: application/api-problem+json', $this->getResponse()->getHeaders()->get('Content-Type')->toString());
+        $this->assertEquals(
+            'Content-Type: application/api-problem+json',
+            $this->getResponse()->getHeaders()->get('Content-Type')->toString()
+        );
         $this->assertEquals('/exception/document-already-exists', $result['describedBy']);
         $this->assertEquals('Document already exists', $result['title']);
     }
 
-    public function testDeedNestedReferencedCreate(){
-
+    public function testDeedNestedReferencedCreate()
+    {
         $accept = new Accept;
         $accept->addMediaType('application/json');
 
@@ -276,15 +301,19 @@ class JsonRestfulControllerCreateTest extends AbstractHttpControllerTestCase{
         $result = json_decode($response->getContent(), true);
 
         $this->assertResponseStatusCode(201);
-        $this->assertEquals('Location: /rest/author/harry/reviews/happy-review/game/components/new', $response->getHeaders()->get('Location')->toString());
+        $this->assertEquals(
+            'Location: /rest/author/harry/reviews/happy-review/game/components/new',
+            $response->getHeaders()->get('Location')->toString()
+        );
         $this->assertFalse(isset($result));
 
-        $game = $this->documentManager->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Game')->find('seven-wonders');
+        $game = $this->documentManager
+            ->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Game')->find('seven-wonders');
         $this->assertEquals('test', $game->getComponents()[2]->getType());
     }
 
-    public function testDeedNestedEmbeddedCreate(){
-
+    public function testDeedNestedEmbeddedCreate()
+    {
         $accept = new Accept;
         $accept->addMediaType('application/json');
 
@@ -299,15 +328,19 @@ class JsonRestfulControllerCreateTest extends AbstractHttpControllerTestCase{
         $result = json_decode($response->getContent(), true);
 
         $this->assertResponseStatusCode(201);
-        $this->assertEquals('Location: /rest/game/seven-wonders/components/wonders/manufacturers/A1-boards', $response->getHeaders()->get('Location')->toString());
+        $this->assertEquals(
+            'Location: /rest/game/seven-wonders/components/wonders/manufacturers/A1-boards',
+            $response->getHeaders()->get('Location')->toString()
+        );
         $this->assertFalse(isset($result));
 
-        $game = $this->documentManager->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Game')->find('seven-wonders');
+        $game = $this->documentManager
+            ->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Game')->find('seven-wonders');
         $this->assertEquals('contact@here.com', $game->getComponents()[0]->getManufacturers()[0]->getEmail());
     }
 
-    public function testDeedNestedEmbeddedOneCreate(){
-
+    public function testDeedNestedEmbeddedOneCreate()
+    {
         //I something is wrong in AbstractControllerTestCase. The documentManager shouldn't have to be cleared here.
         $this->documentManager->clear();
 
@@ -325,11 +358,15 @@ class JsonRestfulControllerCreateTest extends AbstractHttpControllerTestCase{
         $result = json_decode($response->getContent(), true);
 
         $this->assertResponseStatusCode(201);
-        $this->assertEquals('Location: /rest/game/seven-wonders/publisher/country/authors/samson', $response->getHeaders()->get('Location')->toString());
+        $this->assertEquals(
+            'Location: /rest/game/seven-wonders/publisher/country/authors/samson',
+            $response->getHeaders()->get('Location')->toString()
+        );
         $this->assertFalse(isset($result));
 
         $this->documentManager->clear();
-        $country = $this->documentManager->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Country')->find('belgum');
+        $country = $this->documentManager
+            ->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Country')->find('belgum');
         $this->assertEquals('samson', $country->getAuthors()[0]->getName());
     }
 }

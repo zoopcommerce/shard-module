@@ -19,24 +19,32 @@ use Zend\ServiceManager\ServiceLocatorInterface;
 class BatchRestControllerAbstractFactory implements AbstractFactoryInterface
 {
 
-    public function canCreateServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName){
+    public function canCreateServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
+    {
         return (bool) $this->getManifestName($name);
     }
 
-    public function createServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName){
-
+    public function createServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
+    {
         $manifestName = $this->getManifestName($name);
 
-        $options = new BatchJsonRestfulControllerOptions([
-            'documentManager' => $serviceLocator->getServiceLocator()->get('config')['zoop']['shard']['manifest'][$manifestName]['document_manager'],
-            'manifestName' => $manifestName,
-            'serviceLocator' => $serviceLocator->getServiceLocator()->get('shard.' . $manifestName . '.serviceManager')
-        ]);
+        $appServiceLocator = $serviceLocator->getServiceLocator();
+
+        $options = new BatchJsonRestfulControllerOptions(
+            [
+                'documentManager' => $appServiceLocator
+                    ->get('config')['zoop']['shard']['manifest'][$manifestName]['document_manager'],
+                'manifestName' => $manifestName,
+                'serviceLocator' => $appServiceLocator
+                    ->get('shard.' . $manifestName . '.serviceManager')
+            ]
+        );
+
         return new BatchJsonRestfulController($options);
     }
 
-    protected function getManifestName($name){
-
+    protected function getManifestName($name)
+    {
         $matches = [];
 
         if (! preg_match('/^rest\.(?<manifestName>[a-z0-9_]+)\.batch$/', $name, $matches)) {

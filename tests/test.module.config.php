@@ -18,9 +18,6 @@ return [
                         'extension.accessControl' => true,
                         'extension.annotation' => true,
                         'extension.crypt' => true,
-                        'extension.dojo' => [
-                            'flat_file_strategy' => 'ignore'
-                        ],
                         'extension.freeze' => true,
                         'extension.generator' => [
                             'resource_map' => [

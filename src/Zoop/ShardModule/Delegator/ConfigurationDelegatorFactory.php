@@ -28,15 +28,15 @@ class ConfigurationDelegatorFactory implements DelegatorFactoryInterface, Manife
     public function createDelegatorWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName, $callback)
     {
 
-        if (isset($this->configurations[$name])){
+        if (isset($this->configurations[$name])) {
             return $this->configurations[$name];
         } else {
             $this->configurations[$name] = call_user_func($callback);
-            foreach ($this->manifest->getFilters() as $filterName => $filterClass){
+            foreach ($this->manifest->getFilters() as $filterName => $filterClass) {
                 $this->configurations[$name]->addFilter($filterName, $filterClass);
             }
             $chain = $this->configurations[$name]->getMetadataDriverImpl();
-            foreach ($this->manifest->getDocuments() as $namespace => $path){
+            foreach ($this->manifest->getDocuments() as $namespace => $path) {
                 $driver = new AnnotationDriver(new AnnotationReader, $path);
                 $chain->addDriver($driver, $namespace);
             }

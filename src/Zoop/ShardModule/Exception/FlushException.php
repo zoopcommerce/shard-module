@@ -17,11 +17,13 @@ class FlushException extends \Exception implements ExceptionInterface
 {
     protected $innerExceptions;
 
-    public function getInnerExceptions() {
+    public function getInnerExceptions()
+    {
         return $this->innerExceptions;
     }
 
-    public function setInnerExceptions($innerExceptions) {
+    public function setInnerExceptions($innerExceptions)
+    {
         $this->innerExceptions = $innerExceptions;
     }
 }

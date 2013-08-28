@@ -25,22 +25,27 @@ class BatchJsonRestfulControllerOptions extends AbstractControllerOptions
 
     protected $exceptionViewModelPreparer = 'Zoop\MaggottModule\JsonExceptionStrategy';
 
-    public function getAcceptCriteria() {
+    public function getAcceptCriteria()
+    {
         return $this->acceptCriteria;
     }
 
-    public function setAcceptCriteria(array $acceptCriteria) {
+    public function setAcceptCriteria(array $acceptCriteria)
+    {
         $this->acceptCriteria = $acceptCriteria;
     }
 
-    public function getExceptionViewModelPreparer() {
+    public function getExceptionViewModelPreparer()
+    {
         if (is_string($this->exceptionViewModelPreparer)) {
             $this->exceptionViewModelPreparer = $this->serviceLocator->get($this->exceptionViewModelPreparer);
         }
+
         return $this->exceptionViewModelPreparer;
     }
 
-    public function setExceptionViewModelPreparer($exceptionViewModelPreparer) {
+    public function setExceptionViewModelPreparer($exceptionViewModelPreparer)
+    {
         $this->exceptionViewModelPreparer = $exceptionViewModelPreparer;
     }
 }

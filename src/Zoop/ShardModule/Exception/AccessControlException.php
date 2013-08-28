@@ -22,27 +22,33 @@ class AccessControlException extends \Exception implements ExceptionInterface
 
     protected $documentClass;
 
-    public function getAction() {
+    public function getAction()
+    {
         return $this->action;
     }
 
-    public function setAction($action) {
+    public function setAction($action)
+    {
         $this->action = $action;
     }
 
-    public function getDocument() {
+    public function getDocument()
+    {
         return $this->document;
     }
 
-    public function setDocument($document) {
+    public function setDocument($document)
+    {
         $this->document = $document;
     }
 
-    public function getDocumentClass() {
+    public function getDocumentClass()
+    {
         return $this->documentClass;
     }
 
-    public function setDocumentClass($documentClass) {
+    public function setDocumentClass($documentClass)
+    {
         $this->documentClass = $documentClass;
     }
 }

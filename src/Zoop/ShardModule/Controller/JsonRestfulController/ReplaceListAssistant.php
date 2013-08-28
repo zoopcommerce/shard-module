@@ -16,8 +16,8 @@ use Zoop\Shard\Serializer\Serializer;
 class ReplaceListAssistant extends AbstractAssistant
 {
 
-    public function doReplaceList(array $data, $list = []){
-
+    public function doReplaceList(array $data, $list = [])
+    {
         $metadata = $this->metadata;
 
         $deleteListAssistant = $this->options->getDeleteListAssistant();
@@ -28,9 +28,9 @@ class ReplaceListAssistant extends AbstractAssistant
         $createAssistant->setController($this->controller);
 
         $documentManager = $this->options->getDocumentManager();
-        foreach ($data as $key => $item){
+        foreach ($data as $key => $item) {
             $document = $this->unserialize($item, null, $metadata, Serializer::UNSERIALIZE_UPDATE);
-            if ($documentManager->contains($document)){
+            if ($documentManager->contains($document)) {
                 $list[$key] = $document;
             } else {
                 $list[$key] = $createAssistant->doCreate($item, $document, []);

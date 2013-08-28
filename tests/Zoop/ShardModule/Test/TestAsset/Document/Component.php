@@ -14,8 +14,8 @@ use Zoop\Shard\Annotation\Annotations as Shard;
  *     @Shard\Permission\Basic(roles="*", allow="*")
  * })
  */
-class Component {
-
+class Component
+{
     /**
      * @ODM\String
      * @ODM\UniqueIndex
@@ -33,31 +33,38 @@ class Component {
      */
     protected $manufacturers;
 
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
-    public function setName($name) {
+    public function setName($name)
+    {
         $this->name = $name;
     }
 
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
     }
 
-    public function getManufacturers() {
+    public function getManufacturers()
+    {
         return $this->manufacturers;
     }
 
-    public function setManufacturers($manufacturers) {
+    public function setManufacturers($manufacturers)
+    {
         $this->manufacturers = $manufacturers;
     }
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->manufacturers = new ArrayCollection();
     }
 }

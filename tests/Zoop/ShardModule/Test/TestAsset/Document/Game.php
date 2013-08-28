@@ -15,8 +15,8 @@ use Zoop\Shard\Annotation\Annotations as Shard;
  *     @Shard\Permission\Basic(roles="*", allow="*")
  * })
  */
-class Game {
-
+class Game
+{
     use UpdatedOnTrait;
 
     /**
@@ -50,56 +50,69 @@ class Game {
      */
     protected $reviews;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->components = new ArrayCollection();
         $this->reviews = new ArrayCollection();
     }
 
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
-    public function setName($name) {
+    public function setName($name)
+    {
         $this->name = $name;
     }
 
-    public function getType() {
+    public function getType()
+    {
         return $this->type;
     }
 
-    public function setType($type) {
+    public function setType($type)
+    {
         $this->type = $type;
     }
 
-    public function getPublisher() {
+    public function getPublisher()
+    {
         return $this->publisher;
     }
 
-    public function setPublisher($publisher) {
+    public function setPublisher($publisher)
+    {
         $this->publisher = $publisher;
     }
 
-    public function getComponents() {
+    public function getComponents()
+    {
         return $this->components;
     }
 
-    public function setComponents($components) {
+    public function setComponents($components)
+    {
         $this->components = $components;
     }
 
-    public function getAuthor() {
+    public function getAuthor()
+    {
         return $this->author;
     }
 
-    public function setAuthor($author) {
+    public function setAuthor($author)
+    {
         $this->author = $author;
     }
 
-    public function getReviews() {
+    public function getReviews()
+    {
         return $this->reviews;
     }
 
-    public function setReviews($reviews) {
+    public function setReviews($reviews)
+    {
         $this->reviews = $reviews;
     }
 }

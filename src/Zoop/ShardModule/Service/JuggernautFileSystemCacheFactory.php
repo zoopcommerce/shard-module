@@ -18,6 +18,7 @@ class JuggernautFileSystemCacheFactory implements FactoryInterface
         $config = $serviceLocator->get('Config');
         $juggernautInstance = new FileSystem($config['zoop']['juggernaut']['file_system']['directory']);
         $juggernautInstance->setTtl(2419200); //one month
+
         return new JuggernautCache($juggernautInstance);
     }
 }

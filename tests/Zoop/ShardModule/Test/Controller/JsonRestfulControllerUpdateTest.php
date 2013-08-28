@@ -7,19 +7,20 @@ use Zend\Test\PHPUnit\Controller\AbstractHttpControllerTestCase;
 use Zend\Http\Header\Accept;
 use Zend\Http\Header\ContentType;
 
-class JsonRestfulControllerUpdateTest extends AbstractHttpControllerTestCase{
-
+class JsonRestfulControllerUpdateTest extends AbstractHttpControllerTestCase
+{
     protected static $staticDcumentManager;
 
     protected static $dbDataCreated = false;
 
-    public static function tearDownAfterClass(){
+    public static function tearDownAfterClass()
+    {
         //Cleanup db after all tests have run
         TestData::remove(static::$staticDcumentManager);
     }
 
-    public function setUp(){
-
+    public function setUp()
+    {
         $this->setApplicationConfig(
             include __DIR__ . '/../../../../test.application.config.php'
         );
@@ -29,15 +30,15 @@ class JsonRestfulControllerUpdateTest extends AbstractHttpControllerTestCase{
         $this->documentManager = $this->getApplicationServiceLocator()->get('doctrine.odm.documentmanager.default');
         static::$staticDcumentManager = $this->documentManager;
 
-        if ( ! static::$dbDataCreated){
+        if (! static::$dbDataCreated) {
             //Create data in the db to query against
             TestData::create($this->documentManager);
             static::$dbDataCreated = true;
         }
     }
 
-    public function testCreateViaUpdate(){
-
+    public function testCreateViaUpdate()
+    {
         $accept = new Accept;
         $accept->addMediaType('application/json');
 
@@ -58,8 +59,8 @@ class JsonRestfulControllerUpdateTest extends AbstractHttpControllerTestCase{
         $this->assertEquals('card', $game->getType());
     }
 
-    public function testUpdateValidationFail(){
-
+    public function testUpdateValidationFail()
+    {
         $accept = new Accept;
         $accept->addMediaType('application/json');
 
@@ -71,7 +72,10 @@ class JsonRestfulControllerUpdateTest extends AbstractHttpControllerTestCase{
         $this->dispatch('/rest/game/feed-the-kitty');
 
         $this->assertResponseStatusCode(500);
-        $this->assertEquals('Content-Type: application/api-problem+json', $this->getResponse()->getHeaders()->get('Content-Type')->toString());
+        $this->assertEquals(
+            'Content-Type: application/api-problem+json',
+            $this->getResponse()->getHeaders()->get('Content-Type')->toString()
+        );
 
         $result = json_decode($this->getResponse()->getContent(), true);
 
@@ -79,13 +83,14 @@ class JsonRestfulControllerUpdateTest extends AbstractHttpControllerTestCase{
         $this->assertEquals('Document validation failed', $result['title']);
         $this->assertEquals('type: This value is required', $result['validatorMessages'][0]);
 
-        $game = $this->documentManager->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Game')->find('feed-the-kitty');
+        $game = $this->documentManager
+            ->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Game')->find('feed-the-kitty');
         $components = $game->getComponents();
         $this->assertCount(3, $components);
     }
 
-    public function testUpdateEmbedded404(){
-
+    public function testUpdateEmbedded404()
+    {
         $accept = new Accept;
         $accept->addMediaType('application/json');
 
@@ -98,13 +103,16 @@ class JsonRestfulControllerUpdateTest extends AbstractHttpControllerTestCase{
 
         $result = json_decode($this->getResponse()->getContent(), true);
         $this->assertResponseStatusCode(404);
-        $this->assertEquals('Content-Type: application/api-problem+json', $this->getResponse()->getHeaders()->get('Content-Type')->toString());
+        $this->assertEquals(
+            'Content-Type: application/api-problem+json',
+            $this->getResponse()->getHeaders()->get('Content-Type')->toString()
+        );
         $this->assertEquals('/exception/document-not-found', $result['describedBy']);
         $this->assertEquals('Document not found', $result['title']);
     }
 
-    public function testUpdateEmbeddedOne(){
-
+    public function testUpdateEmbeddedOne()
+    {
         $accept = new Accept;
         $accept->addMediaType('application/json');
 
@@ -121,15 +129,18 @@ class JsonRestfulControllerUpdateTest extends AbstractHttpControllerTestCase{
         $this->assertResponseStatusCode(204);
         $this->assertFalse(isset($result));
 
-        $game = $this->documentManager->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Game')->find('feed-the-kitty');
+        $game = $this->documentManager
+            ->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Game')
+            ->find('feed-the-kitty');
+
         $publisher = $game->getPublisher();
         $this->assertEquals('gamewright', $publisher->getName());
         $this->assertEquals('germany', $publisher->getCountry()->getName());
         $this->assertNull($publisher->getCity());
     }
 
-    public function testUpdateEmbeddedListItem(){
-
+    public function testUpdateEmbeddedListItem()
+    {
         $accept = new Accept;
         $accept->addMediaType('application/json');
 
@@ -146,14 +157,17 @@ class JsonRestfulControllerUpdateTest extends AbstractHttpControllerTestCase{
         $this->assertResponseStatusCode(204);
         $this->assertFalse(isset($result));
 
-        $game = $this->documentManager->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Game')->find('feed-the-kitty');
+        $game = $this->documentManager
+             ->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Game')
+             ->find('feed-the-kitty');
+
         $components = $game->getComponents();
         $this->assertEquals('custom', $components[0]->getType());
         $this->assertCount(0, $components[0]->getManufacturers());
     }
 
-    public function testUpdateEmbeddedListItemWithNew(){
-
+    public function testUpdateEmbeddedListItemWithNew()
+    {
         $accept = new Accept;
         $accept->addMediaType('application/json');
 
@@ -170,22 +184,27 @@ class JsonRestfulControllerUpdateTest extends AbstractHttpControllerTestCase{
         $this->assertResponseStatusCode(204);
         $this->assertFalse(isset($result));
 
-        $game = $this->documentManager->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Game')->find('feed-the-kitty');
+        $game = $this->documentManager
+            ->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Game')
+            ->find('feed-the-kitty');
+
         $components = $game->getComponents();
         $this->assertEquals('paper', $components[3]->getType());
     }
 
-    public function testReplaceEmbeddedList(){
-
+    public function testReplaceEmbeddedList()
+    {
         $accept = new Accept;
         $accept->addMediaType('application/json');
 
         $this->getRequest()
             ->setMethod('PUT')
-            ->setContent('[
+            ->setContent(
+                '[
                     {"name": "instructions", "type": "paper"},
                     {"name": "game-box", "type": "telescoping"}
-                ]')
+                ]'
+            )
             ->getHeaders()->addHeaders([$accept, ContentType::fromString('Content-type: application/json')]);
 
         $this->dispatch('/rest/game/feed-the-kitty/components');
@@ -196,15 +215,18 @@ class JsonRestfulControllerUpdateTest extends AbstractHttpControllerTestCase{
         $this->assertResponseStatusCode(204);
         $this->assertFalse(isset($result));
 
-        $game = $this->documentManager->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Game')->find('feed-the-kitty');
+        $game = $this->documentManager
+             ->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Game')
+             ->find('feed-the-kitty');
+
         $components = $game->getComponents();
         $this->assertEquals('paper', $components[0]->getType());
         $this->assertEquals('telescoping', $components[1]->getType());
         $this->assertCount(2, $components);
     }
 
-    public function testUpdateReferencedOne(){
-
+    public function testUpdateReferencedOne()
+    {
         $accept = new Accept;
         $accept->addMediaType('application/json');
 
@@ -221,14 +243,17 @@ class JsonRestfulControllerUpdateTest extends AbstractHttpControllerTestCase{
         $this->assertResponseStatusCode(204);
         $this->assertFalse(isset($result));
 
-        $game = $this->documentManager->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Game')->find('feed-the-kitty');
+        $game = $this->documentManager
+            ->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Game')
+            ->find('feed-the-kitty');
+
         $author = $game->getAuthor();
         $this->assertEquals('james', $author->getName());
         $this->assertEquals('us', $author->getCountry()->getName());
     }
 
-    public function testUpdateReferencedOneWithReference(){
-
+    public function testUpdateReferencedOneWithReference()
+    {
         $accept = new Accept;
         $accept->addMediaType('application/json');
 
@@ -245,14 +270,17 @@ class JsonRestfulControllerUpdateTest extends AbstractHttpControllerTestCase{
         $this->assertResponseStatusCode(204);
         $this->assertFalse(isset($result));
 
-        $game = $this->documentManager->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Game')->find('feed-the-kitty');
+        $game = $this->documentManager
+            ->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Game')
+            ->find('feed-the-kitty');
+
         $author = $game->getAuthor();
         $this->assertEquals('bill', $author->getName());
         $this->assertEquals('germany', $author->getCountry()->getName());
     }
 
-    public function testUpdateReferencedOneWithNew(){
-
+    public function testUpdateReferencedOneWithNew()
+    {
         $accept = new Accept;
         $accept->addMediaType('application/json');
 
@@ -270,16 +298,22 @@ class JsonRestfulControllerUpdateTest extends AbstractHttpControllerTestCase{
         $this->assertFalse(isset($result));
 
         $this->documentManager->clear();
-        $game = $this->documentManager->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Game')->find('feed-the-kitty');
+        $game = $this->documentManager
+             ->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Game')
+             ->find('feed-the-kitty');
+
         $author = $game->getAuthor();
         $this->assertEquals('oscar', $author->getName());
 
-        $author = $this->documentManager->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Author')->find('oscar');
+        $author = $this->documentManager
+            ->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Author')
+            ->find('oscar');
+
         $this->assertTrue(isset($author));
     }
 
-    public function testUpdateReferencedListItem(){
-
+    public function testUpdateReferencedListItem()
+    {
         $accept = new Accept;
         $accept->addMediaType('application/json');
 
@@ -296,15 +330,18 @@ class JsonRestfulControllerUpdateTest extends AbstractHttpControllerTestCase{
         $this->assertResponseStatusCode(204);
         $this->assertFalse(isset($result));
 
-        $game = $this->documentManager->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Game')->find('feed-the-kitty');
+        $game = $this->documentManager
+            ->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Game')
+             ->find('feed-the-kitty');
+
         $review = $game->getReviews()[0];
         $this->assertEquals('great-review', $review->getTitle());
         $this->assertEquals('james', $review->getAuthor()->getName());
 
     }
 
-    public function testUpdateReferencedListItemWithNew(){
-
+    public function testUpdateReferencedListItemWithNew()
+    {
         $accept = new Accept;
         $accept->addMediaType('application/json');
 
@@ -321,14 +358,17 @@ class JsonRestfulControllerUpdateTest extends AbstractHttpControllerTestCase{
         $this->assertResponseStatusCode(204);
         $this->assertFalse(isset($result));
 
-        $game = $this->documentManager->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Game')->find('feed-the-kitty');
+        $game = $this->documentManager
+            ->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Game')
+            ->find('feed-the-kitty');
+
         $review = $game->getReviews()[2];
         $this->assertEquals('another-review', $review->getTitle());
 
     }
 
-    public function testUpdateExistingDocument(){
-
+    public function testUpdateExistingDocument()
+    {
         $accept = new Accept;
         $accept->addMediaType('application/json');
 
@@ -345,15 +385,18 @@ class JsonRestfulControllerUpdateTest extends AbstractHttpControllerTestCase{
         $this->assertResponseStatusCode(204);
         $this->assertFalse(isset($result));
 
-        $game = $this->documentManager->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Game')->find('feed-the-kitty');
+        $game = $this->documentManager
+             ->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Game')
+             ->find('feed-the-kitty');
+
         $this->assertEquals('childrens', $game->getType());
         $this->assertEquals('harry', $game->getAuthor()->getName());
         $this->assertEquals(null, $game->getPublisher());
         $this->assertCount(0, $game->getReviews());
     }
 
-    public function testUpdateExistingDocumentId(){
-
+    public function testUpdateExistingDocumentId()
+    {
         $accept = new Accept;
         $accept->addMediaType('application/json');
 
@@ -370,30 +413,42 @@ class JsonRestfulControllerUpdateTest extends AbstractHttpControllerTestCase{
         $this->assertResponseStatusCode(204);
         $this->assertFalse(isset($result));
 
-        $this->assertEquals('Location: /rest/author/thomas-dean', $response->getHeaders()->get('Location')->toString());
+        $this->assertEquals(
+            'Location: /rest/author/thomas-dean',
+            $response->getHeaders()->get('Location')->toString()
+        );
 
         $this->documentManager->clear();
-        $author = $this->documentManager->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Author')->find('thomas');
+        $author = $this->documentManager
+            ->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Author')->find('thomas');
+
         $this->assertFalse(isset($author));
-        $author = $this->documentManager->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Author')->find('thomas-dean');
+
+        $author = $this->documentManager
+            ->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Author')->find('thomas-dean');
+
         $this->assertTrue(isset($author));
         $this->assertEquals('deano', $author->getNickname());
 
-        $review = $this->documentManager->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Review')->find('bad-review');
+        $review = $this->documentManager
+            ->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Review')->find('bad-review');
+
         $this->assertEquals('thomas-dean', $review->getAuthor()->getName());
     }
 
-    public function testReplaceReferencedList(){
-
+    public function testReplaceReferencedList()
+    {
         $accept = new Accept;
         $accept->addMediaType('application/json');
 
         $this->getRequest()
             ->setMethod('PUT')
-            ->setContent('[
+            ->setContent(
+                '[
                     {"title" : "new-review-1"},
                     {"title" : "new-review-2"}
-                ]')
+                ]'
+            )
             ->getHeaders()->addHeaders([$accept, ContentType::fromString('Content-type: application/json')]);
 
         $this->dispatch('/rest/game/feed-the-kitty/reviews', 'PUT');
@@ -404,25 +459,29 @@ class JsonRestfulControllerUpdateTest extends AbstractHttpControllerTestCase{
         $this->assertResponseStatusCode(204);
         $this->assertFalse(isset($result));
 
-        $game = $this->documentManager->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Game')->find('feed-the-kitty');
+        $game = $this->documentManager
+            ->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Game')->find('feed-the-kitty');
+
         $review = $game->getReviews()[0];
         $this->assertEquals('new-review-1', $review->getTitle());
         $review = $game->getReviews()[1];
         $this->assertEquals('new-review-2', $review->getTitle());
     }
 
-    public function testReplaceList(){
-
+    public function testReplaceList()
+    {
         $accept = new Accept;
         $accept->addMediaType('application/json');
 
         $this->getRequest()
             ->setMethod('PUT')
-            ->setContent('[
+            ->setContent(
+                '[
                     {"name": "dweebies", "type": "card"},
                     {"name": "exploding-chicken", "type": "dice"},
                     {"name": "kings-at-arms", "type": "card"}
-                ]')
+                ]'
+            )
             ->getHeaders()->addHeaders([$accept, ContentType::fromString('Content-type: application/json')]);
 
         $this->dispatch('/rest/game', 'PUT');

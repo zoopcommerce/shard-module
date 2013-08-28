@@ -27,7 +27,8 @@ class AbstractControllerOptions extends AbstractOptions
      *
      * @return ServiceLocatorInterface
      */
-    public function getServiceLocator() {
+    public function getServiceLocator()
+    {
         return $this->serviceLocator;
     }
 
@@ -35,7 +36,8 @@ class AbstractControllerOptions extends AbstractOptions
      *
      * @param \Zend\ServiceManager\ServiceLocatorInterface $serviceLocator
      */
-    public function setServiceLocator(ServiceLocatorInterface $serviceLocator) {
+    public function setServiceLocator(ServiceLocatorInterface $serviceLocator)
+    {
         $this->serviceLocator = $serviceLocator;
     }
 
@@ -43,10 +45,12 @@ class AbstractControllerOptions extends AbstractOptions
      *
      * @return \Doctrine\ODM\Mongo\DocumentManager
      */
-    public function getDocumentManager() {
+    public function getDocumentManager()
+    {
         if (is_string($this->documentManager)) {
             $this->documentManager = $this->serviceLocator->get($this->documentManager);
         }
+
         return $this->documentManager;
     }
 
@@ -54,7 +58,8 @@ class AbstractControllerOptions extends AbstractOptions
      *
      * @param string | \Doctrine\ODM\Mongo\DocumentManager $documentManager
      */
-    public function setDocumentManager($documentManager) {
+    public function setDocumentManager($documentManager)
+    {
         $this->documentManager = $documentManager;
     }
 
@@ -62,7 +67,8 @@ class AbstractControllerOptions extends AbstractOptions
      *
      * @return string
      */
-    public function getManifestName() {
+    public function getManifestName()
+    {
         return $this->manifestName;
     }
 
@@ -70,7 +76,8 @@ class AbstractControllerOptions extends AbstractOptions
      *
      * @param string $manifestName
      */
-    public function setManifestName($manifestName) {
+    public function setManifestName($manifestName)
+    {
         $this->manifestName = (string) $manifestName;
     }
 }

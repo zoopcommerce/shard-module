@@ -27,15 +27,18 @@ abstract class AbstractAssistant
 
     protected $options;
 
-    public function getMetadata() {
+    public function getMetadata()
+    {
         return $this->metadata;
     }
 
-    public function getEndpoint() {
+    public function getEndpoint()
+    {
         return $this->endpoint;
     }
 
-    public function setController(JsonRestfulController $controller){
+    public function setController(JsonRestfulController $controller)
+    {
         $this->controller = $controller;
         $this->pluginManager = $controller->getServiceLocator()->get('ControllerPluginManager');
         $this->options = $controller->getOptions();
@@ -55,23 +58,23 @@ abstract class AbstractAssistant
 
     protected function getSelect()
     {
-        foreach ($this->controller->getRequest()->getQuery() as $key => $value){
-            if (substr($key, 0, 6) == 'select' && (! isset($value) || $value == '')){
+        foreach ($this->controller->getRequest()->getQuery() as $key => $value) {
+            if (substr($key, 0, 6) == 'select' && (! isset($value) || $value == '')) {
                 $select = $key;
                 break;
             }
         }
 
-        if ( ! isset($select)){
+        if (! isset($select)) {
             return;
         }
 
         return explode(',', str_replace(')', '', str_replace('select(', '', $select)));
     }
 
-    protected function unserialize(array $data, $document, ClassMetadata $metadata, $mode = null){
-
-        if (is_string($document)){
+    protected function unserialize(array $data, $document, ClassMetadata $metadata, $mode = null)
+    {
+        if (is_string($document)) {
             $data[$this->endpoint->getProperty()] = $document;
             $document = null;
         } elseif (is_object($document) && isset($metadata->identifier)) {
@@ -80,6 +83,7 @@ abstract class AbstractAssistant
 
         $serializer = $this->options->getSerializer();
         $document = $serializer->fromArray($data, $metadata->name, $mode, $document);
+
         return $document;
     }
 }

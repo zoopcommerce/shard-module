@@ -22,18 +22,18 @@ class PatchAssistant extends AbstractAssistant
         array $data,
         $document,
         array $deeperResource
-    ){
+    ) {
         $documentManager = $this->options->getDocumentManager();
         $metadata = $this->metadata;
         $endpoint = $this->endpoint;
 
-        if (count($deeperResource) == 0 ){
+        if (count($deeperResource) == 0) {
 
-            if (isset($data[$metadata->identifier])){
+            if (isset($data[$metadata->identifier])) {
                 //Remember data id for possible id update
                 $dataId = $data[$metadata->identifier];
             }
-            if (is_string($document)){
+            if (is_string($document)) {
                 $data[$endpoint->getProperty()] = $document;
                 $document = $documentManager
                     ->createQueryBuilder()
@@ -42,37 +42,38 @@ class PatchAssistant extends AbstractAssistant
                     ->getQuery()
                     ->getSingleResult();
             }
-            if (isset($document) && isset($metadata->identifier)){
+            if (isset($document) && isset($metadata->identifier)) {
                 $documentId = $metadata->reflFields[$metadata->identifier]->getValue($document);
                 $data[$metadata->identifier] = $documentId;
-                if (isset($dataId) && $dataId != $documentId){
+                if (isset($dataId) && $dataId != $documentId) {
                     $newId = $dataId;
                 }
             }
 
             $document = $this->unserialize($data, $document, $metadata, Serializer::UNSERIALIZE_PATCH);
-            if ( ! $documentManager->contains($document) && ! $metadata->isEmbeddedDocument){
+            if (! $documentManager->contains($document) && ! $metadata->isEmbeddedDocument) {
                 $createAssistant = $this->options->getCreateAssistant();
                 $createAssistant->setController($this->controller);
+
                 return $createAssistant->doCreate([], $document, []);
             }
 
-            if (isset($newId)){
+            if (isset($newId)) {
                 $deleteAssistant = $this->options->getDeleteAssistant();
-                $deleteAssistant->setController($this->controller);                
+                $deleteAssistant->setController($this->controller);
                 $deleteAssistant->doDelete($document, []);
 
                 //clone the document
                 $newDocument = $metadata->newInstance();
-                foreach ($metadata->reflFields as $field => $refl){
+                foreach ($metadata->reflFields as $field => $refl) {
                     $refl->setValue($newDocument, $refl->getValue($document));
                 }
                 $metadata->reflFields[$metadata->identifier]->setValue($newDocument, $newId);
 
                 //update references
                 $referenceMap = $this->options->getReferenceMap()->getMap();
-                if (isset($referenceMap[$metadata->name])){
-                    foreach ($referenceMap[$metadata->name] as $mapping){
+                if (isset($referenceMap[$metadata->name])) {
+                    foreach ($referenceMap[$metadata->name] as $mapping) {
                         $documentManager
                             ->createQueryBuilder($mapping['class'])
                             ->update()
@@ -86,12 +87,14 @@ class PatchAssistant extends AbstractAssistant
 
                 $createAssistant = $this->options->getCreateAssistant();
                 $createAssistant->setController($this->controller);
+
                 return $createAssistant->doCreate([], $newDocument, []);
             }
+
             return $document;
         }
 
-        if (is_string($document)){
+        if (is_string($document)) {
             $document = $documentManager
                 ->createQueryBuilder()
                 ->find($metadata->name)
@@ -99,19 +102,19 @@ class PatchAssistant extends AbstractAssistant
                 ->getQuery()
                 ->getSingleResult();
 
-            if ( ! $document){
+            if (! $document) {
                 throw new Exception\DocumentNotFoundException();
             }
         }
 
         $field = $deeperResource[0];
         array_shift($deeperResource);
-        if ( ! isset($metadata->fieldMappings[$field])){
+        if (! isset($metadata->fieldMappings[$field])) {
             throw new Exception\DocumentNotFoundException();
         }
         $mapping = $metadata->fieldMappings[$field];
 
-        if (isset($mapping['reference']) && $mapping['reference'] && $mapping['type'] == 'many'){
+        if (isset($mapping['reference']) && $mapping['reference'] && $mapping['type'] == 'many') {
             $referenceMetadata = $this->options
                 ->getDocumentManager()
                 ->getClassMetadata($metadata->fieldMappings[$field]['targetDocument']);
@@ -125,47 +128,55 @@ class PatchAssistant extends AbstractAssistant
                     'surpressResponse' => true
                 ]
             );
-            if ( ! is_array($referencedDocuments)){
+            if (! is_array($referencedDocuments)) {
                 $referencedDocuments = [$referencedDocuments];
             }
-            foreach ($referencedDocuments as $referencedDocument){
+            foreach ($referencedDocuments as $referencedDocument) {
                 $referenceMetadata->reflFields[$metadata->fieldMappings[$field]['mappedBy']]->setValue(
                     $referencedDocument,
                     $document
                 );
             }
+
             return $document;
         }
 
-        if (isset($mapping['reference']) && $mapping['reference'] && $mapping['type'] == 'one'){
+        if (isset($mapping['reference']) && $mapping['reference'] && $mapping['type'] == 'one') {
 
-            if ( ! $referencedDocument = $metadata->reflFields[$field]->getValue($document)){
+            if (! $referencedDocument = $metadata->reflFields[$field]->getValue($document)) {
                 throw new Exception\DocumentNotFoundException;
             }
-            $referencedMetadata = $documentManager->getClassMetadata($metadata->fieldMappings[$field]['targetDocument']);
+            $referencedMetadata = $documentManager
+                ->getClassMetadata($metadata->fieldMappings[$field]['targetDocument']);
+
             $referencedEndpoint = $this->options
                 ->getEndpointMap()
                 ->getEndpointsFromClass($referencedMetadata->name)[0];
-            if (is_string($referencedDocument)){
-                $referencedDocument = $this->options->getDocumentManager()->getRepository($referencedMetadata->name)->find($referencedDocument);
+            if (is_string($referencedDocument)) {
+                $referencedDocument = $this->options
+                    ->getDocumentManager()->getRepository($referencedMetadata->name)->find($referencedDocument);
             }
-            if ($referencedDocument instanceof Proxy){
+            if ($referencedDocument instanceof Proxy) {
                 $referencedDocument->__load();
             }
-            array_unshift($deeperResource, $referencedMetadata->reflFields[$referencedEndpoint->getProperty()]->getValue($referencedDocument));
+            array_unshift(
+                $deeperResource,
+                $referencedMetadata->reflFields[$referencedEndpoint->getProperty()]->getValue($referencedDocument)
+            );
 
             $updatedDocument = $this->forward()->dispatch(
                 'rest.' . $this->options->getManifestName() . '.' . $referencedEndpoint->getName(),
                 ['id' => implode('/', $deeperResource), 'surpressResponse' => true]
             );
 
-            if (count($deeperResource) == 1){
+            if (count($deeperResource) == 1) {
                 $metadata->reflFields[$field]->setValue($document, $updatedDocument);
             }
+
             return $document;
         }
 
-        if (isset($mapping['embedded']) && $mapping['embedded'] && $mapping['type'] == 'many'){
+        if (isset($mapping['embedded']) && $mapping['embedded'] && $mapping['type'] == 'many') {
             $embeddedMetadata = $this->options
                 ->getDocumentManager()
                 ->getClassMetadata($metadata->fieldMappings[$field]['targetDocument']);
@@ -174,30 +185,34 @@ class PatchAssistant extends AbstractAssistant
             $this->metadata = $embeddedMetadata;
             $collection = $metadata->reflFields[$field]->getValue($document);
 
-            if (count($deeperResource) > 0){
+            if (count($deeperResource) > 0) {
 
                 $reflField = $embeddedMetadata->reflFields[$embeddedEndpointProperty];
-                foreach ($collection as $key => $embeddedDocument){ //this iteration is slow. Should be replaced when upgrade to new version of mongo happens
-                    if ($reflField->getValue($embeddedDocument) == $deeperResource[0]){
+                foreach ($collection as $key => $embeddedDocument) {
+                    //this iteration is slow. Should be replaced when upgrade to new version of mongo happens
+                    if ($reflField->getValue($embeddedDocument) == $deeperResource[0]) {
                         array_shift($deeperResource);
                         $this->endpoint = $embeddedEndpoint;
                         $updatedDocument = $this->doPatch($data, $embeddedDocument, $deeperResource);
                         $collection[$key] = $updatedDocument;
+
                         return $document;
                     }
                 }
                 $patchedDocument = $this->doPatch($data, array_shift($deeperResource), $deeperResource);
                 $collection[] = $patchedDocument;
+
                 return $document;
             } else {
                 $patchListAssistant = $this->options->getPatchListAssistant();
                 $patchListAssistant->setController($this->controller);
                 $patchListAssistant->doPatchList($data, $collection);
+
                 return $document;
             }
         }
 
-        if (isset($mapping['embedded']) && $mapping['embedded'] && $mapping['type'] == 'one'){
+        if (isset($mapping['embedded']) && $mapping['embedded'] && $mapping['type'] == 'one') {
             $this->metadata = $this->options
                 ->getDocumentManager()
                 ->getClassMetadata($metadata->fieldMappings[$field]['targetDocument']);
@@ -207,6 +222,7 @@ class PatchAssistant extends AbstractAssistant
                 $deeperResource
             );
             $metadata->reflFields[$field]->setValue($document, $patchedDocument);
+
             return $document;
         }
 

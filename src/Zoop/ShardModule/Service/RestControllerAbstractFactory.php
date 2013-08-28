@@ -21,15 +21,18 @@ class RestControllerAbstractFactory implements AbstractFactoryInterface
 {
     protected $endpointMap;
 
-    public function canCreateServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName){
-        if ($factoryMapping = $this->getFactoryMapping($name)){
-            return $this->getEndpointMap($factoryMapping['manifestName'], $serviceLocator)->hasEndpoint($factoryMapping['endpoint']);
+    public function canCreateServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
+    {
+        if ($factoryMapping = $this->getFactoryMapping($name)) {
+            return $this->getEndpointMap($factoryMapping['manifestName'], $serviceLocator)
+                ->hasEndpoint($factoryMapping['endpoint']);
         }
+
         return false;
     }
 
-    public function createServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName){
-
+    public function createServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
+    {
         $factoryMapping = $this->getFactoryMapping($name);
 
         $endpointMap = $this->getEndpointMap($factoryMapping['manifestName'], $serviceLocator);
@@ -39,9 +42,12 @@ class RestControllerAbstractFactory implements AbstractFactoryInterface
             'end_point'        => $endpoint,
             'endpoint_map'     => $endpointMap,
             'document_class'   => $endpoint->getClass(),
-            'document_manager' => $serviceLocator->getServiceLocator()->get('config')['zoop']['shard']['manifest'][$factoryMapping['manifestName']]['document_manager'],
+            'document_manager' => $serviceLocator
+                ->getServiceLocator()
+                ->get('config')['zoop']['shard']['manifest'][$factoryMapping['manifestName']]['document_manager'],
             'manifest_name'    => $factoryMapping['manifestName'],
-            'service_locator'  => $serviceLocator->getServiceLocator()->get('shard.' . $factoryMapping['manifestName'] . '.serviceManager')
+            'service_locator'  => $serviceLocator
+                ->getServiceLocator()->get('shard.' . $factoryMapping['manifestName'] . '.serviceManager')
         ];
 
         //load any custom option overrides from config
@@ -51,7 +57,10 @@ class RestControllerAbstractFactory implements AbstractFactoryInterface
             isset($config['controllers']['rest'][$factoryMapping['manifestName']]) &&
             isset($config['controllers']['rest'][$factoryMapping['manifestName']][$factoryMapping['endpoint']])
         ) {
-            $options = array_merge($options, $config['controllers']['rest'][$factoryMapping['manifestName']][$factoryMapping['endpoint']]);
+            $options = array_merge(
+                $options,
+                $config['controllers']['rest'][$factoryMapping['manifestName']][$factoryMapping['endpoint']]
+            );
         }
 
         $options = new JsonRestfulControllerOptions($options);
@@ -62,15 +71,17 @@ class RestControllerAbstractFactory implements AbstractFactoryInterface
         return $instance;
     }
 
-    protected function getEndpointMap($manifestName, $serviceLocator){
-        if (!isset($this->endpointMap)){
+    protected function getEndpointMap($manifestName, $serviceLocator)
+    {
+        if (!isset($this->endpointMap)) {
             $this->endpointMap = $serviceLocator->getServiceLocator()->get('shard.' . $manifestName . '.endpointMap');
         }
+
         return $this->endpointMap;
     }
 
-    protected function getFactoryMapping($name){
-
+    protected function getFactoryMapping($name)
+    {
         $matches = [];
 
         if (! preg_match('/^rest\.(?<manifestName>[a-z0-9_]+)\.(?<endpoint>[a-z0-9_]+)$/', $name, $matches)) {

@@ -17,11 +17,13 @@ class DocumentAlreadyExistsException extends \Exception implements ExceptionInte
 {
     protected $document;
 
-    public function getDocument() {
+    public function getDocument()
+    {
         return $this->document;
     }
 
-    public function setDocument($document) {
+    public function setDocument($document)
+    {
         $this->document = $document;
     }
 }

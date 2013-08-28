@@ -22,21 +22,22 @@ class CreateAssistant extends AbstractAssistant
         array $data,
         $document,
         array $deeperResource
-    ){
+    ) {
 
         $metadata = $this->metadata;
         $documentManager = $this->options->getDocumentManager();
 
-        if (count($deeperResource) == 0){
+        if (count($deeperResource) == 0) {
             $createdDocument = $this->unserialize($data, $document, $metadata, Serializer::UNSERIALIZE_PATCH);
-            if ($documentManager->contains($createdDocument)){
+            if ($documentManager->contains($createdDocument)) {
                 $exception = new Exception\DocumentAlreadyExistsException();
                 $exception->setDocument($createdDocument);
                 throw $exception;
             }
-            if ( ! $metadata->isEmbeddedDocument){
+            if (! $metadata->isEmbeddedDocument) {
                 $documentManager->persist($createdDocument);
             }
+
             return $createdDocument;
         }
 
@@ -45,7 +46,7 @@ class CreateAssistant extends AbstractAssistant
 
         $mapping = $metadata->fieldMappings[$field];
 
-        if (is_string($document)){
+        if (is_string($document)) {
             $document = $documentManager
                 ->createQueryBuilder()
                 ->find($metadata->name)
@@ -54,12 +55,12 @@ class CreateAssistant extends AbstractAssistant
                 ->getQuery()
                 ->getSingleResult();
 
-            if ( ! $document){
+            if (! $document) {
                 throw new Exception\DocumentNotFoundException();
             }
         }
 
-        if (isset($mapping['reference']) && $mapping['reference'] && $mapping['type'] == 'many'){
+        if (isset($mapping['reference']) && $mapping['reference'] && $mapping['type'] == 'many') {
             $referencedMetadata = $this
                 ->options
                 ->getDocumentManager()
@@ -75,37 +76,43 @@ class CreateAssistant extends AbstractAssistant
                         'surpressResponse' => true
                     ]
                 );
-            } catch (Exception\DocumentAlreadyExistsException $exception){
+            } catch (Exception\DocumentAlreadyExistsException $exception) {
                 $createdDocument = $exception->getDocument();
             }
             $collection = $metadata->reflFields[$field]->getValue($document);
-            if ($collection->contains($createdDocument)){
+            if ($collection->contains($createdDocument)) {
                 throw new Exception\DocumentAlreadyExistsException();
             }
-            if (isset($mapping['mappedBy'])){
-                if ($createdDocument instanceof Proxy){
+            if (isset($mapping['mappedBy'])) {
+                if ($createdDocument instanceof Proxy) {
                     $createdDocument->__load();
                 }
                 $referencedMetadata->reflFields[$mapping['mappedBy']]->setValue($createdDocument, $document);
             }
+
             return $createdDocument;
         }
 
-        if (isset($mapping['reference']) && $mapping['reference'] && $mapping['type'] == 'one'){
-            if ( ! $referencedDocument = $metadata->reflFields[$field]->getValue($document)){
+        if (isset($mapping['reference']) && $mapping['reference'] && $mapping['type'] == 'one') {
+            if (! $referencedDocument = $metadata->reflFields[$field]->getValue($document)) {
                 throw new Exception\DocumentNotFoundException;
             }
-            $referencedMetadata = $documentManager->getClassMetadata($metadata->fieldMappings[$field]['targetDocument']);
+            $referencedMetadata = $documentManager
+                ->getClassMetadata($metadata->fieldMappings[$field]['targetDocument']);
             $referencedEndpoint = $this->options
                 ->getEndpointMap()
                 ->getEndpointsFromClass($referencedMetadata->name)[0];
-            if (is_string($referencedDocument)){
-                $referencedDocument = $this->options->getDocumentManager()->getRepository($referencedMetadata->name)->find($referencedDocument);
+            if (is_string($referencedDocument)) {
+                $referencedDocument = $this->options
+                    ->getDocumentManager()->getRepository($referencedMetadata->name)->find($referencedDocument);
             }
-            if ($referencedDocument instanceof Proxy){
+            if ($referencedDocument instanceof Proxy) {
                 $referencedDocument->__load();
             }
-            array_unshift($deeperResource, $referencedMetadata->reflFields[$referencedEndpoint->getProperty()]->getValue($referencedDocument));
+            array_unshift(
+                $deeperResource,
+                $referencedMetadata->reflFields[$referencedEndpoint->getProperty()]->getValue($referencedDocument)
+            );
 
             return $this->forward()->dispatch(
                 'rest.' . $this->options->getManifestName() . '.' . $referencedEndpoint->getName(),
@@ -116,7 +123,7 @@ class CreateAssistant extends AbstractAssistant
             );
         }
 
-        if (isset($mapping['embedded']) && $mapping['embedded'] && $mapping['type'] == 'many'){
+        if (isset($mapping['embedded']) && $mapping['embedded'] && $mapping['type'] == 'many') {
             $embeddedMetadata = $this
                 ->options
                 ->getDocumentManager()
@@ -126,11 +133,13 @@ class CreateAssistant extends AbstractAssistant
             $embeddedEndpointProperty = $embeddedEndpoint->getProperty();
             $reflField = $embeddedMetadata->reflFields[$embeddedEndpointProperty];
             $collection = $metadata->reflFields[$field]->getValue($document);
-            if (count($deeperResource) > 0){
-                foreach ($collection as $embeddedDocument){ //this iteration is slow. Should be replaced when upgrade to new version of mongo happens
-                    if ($reflField->getValue($embeddedDocument) == $deeperResource[0]){
+            if (count($deeperResource) > 0) {
+                foreach ($collection as $embeddedDocument) {
+                    //this iteration is slow. Should be replaced when upgrade to new version of mongo happens
+                    if ($reflField->getValue($embeddedDocument) == $deeperResource[0]) {
                         array_shift($deeperResource);
                         $this->endpoint = $embeddedEndpoint;
+
                         return $this->doCreate($data, $embeddedDocument, $deeperResource);
                     }
                 }
@@ -142,21 +151,23 @@ class CreateAssistant extends AbstractAssistant
                     null,
                     $deeperResource
                 );
-                foreach ($collection as $embeddedDocument){
-                    if ($reflField->getValue($embeddedDocument) == $reflField->getValue($createdDocument)){
+                foreach ($collection as $embeddedDocument) {
+                    if ($reflField->getValue($embeddedDocument) == $reflField->getValue($createdDocument)) {
                         throw new Exception\DocumentAlreadyExistsException();
                     }
                 }
                 $collection[] = $createdDocument;
+
                 return $createdDocument;
             }
         }
 
-        if (isset($mapping['embedded']) && $mapping['embedded'] && $mapping['type'] == 'one'){
+        if (isset($mapping['embedded']) && $mapping['embedded'] && $mapping['type'] == 'one') {
             $this->metadata = $this
                 ->options
                 ->getDocumentManager()
                 ->getClassMetadata($metadata->fieldMappings[$field]['targetDocument']);
+
             return $this->doCreate(
                 $data,
                 $metadata->reflFields[$field]->getValue($document),

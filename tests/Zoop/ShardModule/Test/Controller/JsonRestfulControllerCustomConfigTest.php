@@ -6,18 +6,19 @@ use Zoop\ShardModule\Test\TestAsset\TestData;
 use Zend\Test\PHPUnit\Controller\AbstractHttpControllerTestCase;
 use Zend\Http\Header\Accept;
 
-class JsonRestfulControllerCustomConfigTest extends AbstractHttpControllerTestCase{
-
+class JsonRestfulControllerCustomConfigTest extends AbstractHttpControllerTestCase
+{
     protected static $staticDcumentManager;
 
     protected static $dbDataCreated = false;
 
-    public static function tearDownAfterClass(){
+    public static function tearDownAfterClass()
+    {
         TestData::remove(static::$staticDcumentManager);
     }
 
-    public function setUp(){
-
+    public function setUp()
+    {
         $this->setApplicationConfig(
             include __DIR__ . '/../../../../test.application.config.php'
         );
@@ -27,15 +28,15 @@ class JsonRestfulControllerCustomConfigTest extends AbstractHttpControllerTestCa
         $this->documentManager = $this->getApplicationServiceLocator()->get('doctrine.odm.documentmanager.default');
         static::$staticDcumentManager = $this->documentManager;
 
-        if ( ! static::$dbDataCreated){
+        if (! static::$dbDataCreated) {
             //Create data in the db to query against
             TestData::create($this->documentManager);
             static::$dbDataCreated = true;
         }
     }
 
-    public function testGetLimitedList(){
-
+    public function testGetLimitedList()
+    {
         $accept = new Accept;
         $accept->addMediaType('application/json');
 
@@ -53,6 +54,9 @@ class JsonRestfulControllerCustomConfigTest extends AbstractHttpControllerTestCa
         $this->assertMatchedRouteName('rest.default');
 
         $this->assertCount(2, $result);
-        $this->assertEquals('Content-Range: 0-1/3', $this->getResponse()->getHeaders()->get('Content-Range')->toString());
+        $this->assertEquals(
+            'Content-Range: 0-1/3',
+            $this->getResponse()->getHeaders()->get('Content-Range')->toString()
+        );
     }
 }

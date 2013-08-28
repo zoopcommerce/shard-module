@@ -7,18 +7,19 @@ use Zend\Test\PHPUnit\Controller\AbstractHttpControllerTestCase;
 use Zend\Http\Header\Accept;
 use Zend\Http\Header\ContentType;
 
-class BatchJsonRestfulControllerTest extends AbstractHttpControllerTestCase{
-
+class BatchJsonRestfulControllerTest extends AbstractHttpControllerTestCase
+{
     protected static $staticDcumentManager;
 
     protected static $dbDataCreated = false;
 
-    public static function tearDownAfterClass(){
+    public static function tearDownAfterClass()
+    {
         TestData::remove(static::$staticDcumentManager);
     }
 
-    public function setUp(){
-
+    public function setUp()
+    {
         $this->setApplicationConfig(
             include __DIR__ . '/../../../../test.application.config.php'
         );
@@ -28,38 +29,40 @@ class BatchJsonRestfulControllerTest extends AbstractHttpControllerTestCase{
         $this->documentManager = $this->getApplicationServiceLocator()->get('doctrine.odm.documentmanager.default');
         static::$staticDcumentManager = $this->documentManager;
 
-        if ( ! static::$dbDataCreated){
+        if (! static::$dbDataCreated) {
             //Create data in the db to query against
             TestData::create($this->documentManager);
             static::$dbDataCreated = true;
         }
     }
 
-    public function testBatchGet(){
-
+    public function testBatchGet()
+    {
         $accept = new Accept;
         $accept->addMediaType('application/json');
 
         $this->getRequest()
             ->setMethod('POST')
-            ->setContent('{
-                "request1": {
-                    "uri": "/rest/game/feed-the-kitty",
-                    "method": "GET"
-                },
-                "request2": {
-                    "uri": "/rest/game/seven-wonders",
-                    "method": "GET"
-                },
-                "request3": {
-                    "uri": "/rest/game/does-not-extist",
-                    "method": "GET"
-                },
-                "request4": {
-                    "uri": "/rest/does-not-extist",
-                    "method": "GET"
-                }
-            }')
+            ->setContent(
+                '{
+                    "request1": {
+                        "uri": "/rest/game/feed-the-kitty",
+                        "method": "GET"
+                    },
+                    "request2": {
+                        "uri": "/rest/game/seven-wonders",
+                        "method": "GET"
+                    },
+                    "request3": {
+                        "uri": "/rest/game/does-not-extist",
+                        "method": "GET"
+                    },
+                    "request4": {
+                        "uri": "/rest/does-not-extist",
+                        "method": "GET"
+                    }
+                }'
+            )
             ->getHeaders()->addHeaders([$accept, ContentType::fromString('Content-type: application/json')]);
 
         $this->dispatch('/rest/batch');
@@ -86,38 +89,40 @@ class BatchJsonRestfulControllerTest extends AbstractHttpControllerTestCase{
         $this->assertEquals('Application Exception', $result['request4']['content']['title']);
     }
 
-    public function testBatchGetList(){
-
+    public function testBatchGetList()
+    {
         $accept = new Accept;
         $accept->addMediaType('application/json');
 
         $this->getRequest()
             ->setMethod('POST')
-            ->setContent('{
-                "request1": {
-                    "uri": "/rest/author",
-                    "method": "GET"
-                },
-                "request2": {
-                    "uri": "/rest/author?select(name)",
-                    "method": "GET"
-                },
-                "request3": {
-                    "uri": "/rest/author?country=germany",
-                    "method": "GET"
-                },
-                "request4": {
-                    "uri": "/rest/author?' . urlencode('sort(+country,+name)') . '",
-                    "method": "GET"
-                },
-                "request5": {
-                    "uri": "/rest/author",
-                    "method": "GET",
-                    "headers": {
-                        "Range": "items=2-100"
+            ->setContent(
+                '{
+                    "request1": {
+                        "uri": "/rest/author",
+                        "method": "GET"
+                    },
+                    "request2": {
+                        "uri": "/rest/author?select(name)",
+                        "method": "GET"
+                    },
+                    "request3": {
+                        "uri": "/rest/author?country=germany",
+                        "method": "GET"
+                    },
+                    "request4": {
+                        "uri": "/rest/author?' . urlencode('sort(+country,+name)') . '",
+                        "method": "GET"
+                    },
+                    "request5": {
+                        "uri": "/rest/author",
+                        "method": "GET",
+                        "headers": {
+                            "Range": "items=2-100"
+                        }
                     }
-                }
-            }')
+                }'
+            )
             ->getHeaders()->addHeaders([$accept, ContentType::fromString('Content-type: application/json')]);
 
         $this->dispatch('/rest/batch');
@@ -152,34 +157,36 @@ class BatchJsonRestfulControllerTest extends AbstractHttpControllerTestCase{
         $this->assertEquals('2-3/4', $result['request5']['headers']['Content-Range']);
     }
 
-    public function testBatchMixed(){
-
+    public function testBatchMixed()
+    {
         $accept = new Accept;
         $accept->addMediaType('application/json');
 
         $this->getRequest()
             ->setMethod('POST')
-            ->setContent('{
-                "request1": {
-                    "uri": "/rest/game",
-                    "method": "POST",
-                    "content": {"name": "forbidden-island", "type": "co-op"}
-                },
-                "request2": {
-                    "uri": "/rest/author/harry",
-                    "method": "DELETE"
-                },
-                "request3": {
-                    "uri": "/rest/game/feed-the-kitty",
-                    "method": "PUT",
-                    "content": {"type": "childrens", "author": {"$ref": "author/harry"}}
-                },
-                "request4": {
-                    "uri": "/rest/game/feed-the-kitty",
-                    "method": "PATCH",
-                    "content": {"type": "kids"}
-                }
-            }')
+            ->setContent(
+                '{
+                    "request1": {
+                        "uri": "/rest/game",
+                        "method": "POST",
+                        "content": {"name": "forbidden-island", "type": "co-op"}
+                    },
+                    "request2": {
+                        "uri": "/rest/author/harry",
+                        "method": "DELETE"
+                    },
+                    "request3": {
+                        "uri": "/rest/game/feed-the-kitty",
+                        "method": "PUT",
+                        "content": {"type": "childrens", "author": {"$ref": "author/harry"}}
+                    },
+                    "request4": {
+                        "uri": "/rest/game/feed-the-kitty",
+                        "method": "PATCH",
+                        "content": {"type": "kids"}
+                    }
+                }'
+            )
             ->getHeaders()->addHeaders([$accept, ContentType::fromString('Content-type: application/json')]);
 
         $this->dispatch('/rest/batch');

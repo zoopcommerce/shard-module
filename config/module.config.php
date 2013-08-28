@@ -13,7 +13,6 @@ return [
 //                        'extension.accessControl' => true,
 //                        'extension.annotation' => true,
 //                        'extension.crypt' => true,
-//                        'extension.dojo' => true,
 //                        'extension.freeze' => true,
 //                        'extension.generator' => true,
 //                        'extension.owner' => true,
@@ -43,7 +42,7 @@ return [
                 'Zoop\ShardModule\Exception\FlushException' => [
                     'described_by' => 'flush-exception',
                     'title' => 'Exception occured when writing data to the database',
-                    'extension_fields' => ['innerExceptions']
+                    'restricted_extra_fields' => ['innerExceptions']
                 ],
                 'Zoop\ShardModule\Exception\DocumentNotFoundException' => [
                     'described_by' => 'document-not-found',
@@ -58,7 +57,7 @@ return [
                 'Zoop\ShardModule\Exception\InvalidDocumentException' => [
                     'described_by' => 'document-validation-failed',
                     'title' => 'Document validation failed',
-                    'extension_fields' => ['validatorMessages']
+                    'extra_fields' => ['validatorMessages']
                 ],
                 'Zoop\ShardModule\Exception\DocumentAlreadyExistsException' => [
                     'described_by' => 'document-already-exists',
@@ -68,7 +67,7 @@ return [
                     'described_by' => 'access-control-exception',
                     'title' => 'Access denied',
                     'status_code' => 403,
-                    'extension_fields' => ['action', 'documentClass']
+                    'extra_fields' => ['action', 'documentClass']
                 ]
             ]
         ],
@@ -107,30 +106,13 @@ return [
                     ]
                 ],
             ],
-            'dojo.default' => [
-                //this route will look to load a controller
-                //service called `dojo.<manifestName>`
-                'type' => 'Zend\Mvc\Router\Http\Segment',
-                'options' => [
-                    'route'    => '/dojo/:module',
-                    'constraints' => [
-                        'module'     => '[a-zA-Z][a-zA-Z0-9/_-]+.js',
-                    ],
-                    'defaults' => [
-                        'extension'    => 'dojo',
-                        'manifestName' => 'default',
-                        'action'     => 'index',
-                    ],
-                ],
-            ]
         ]
     ],
 
     'controllers' => [
         'abstract_factories' => [
             'Zoop\ShardModule\Service\BatchRestControllerAbstractFactory',
-            'Zoop\ShardModule\Service\RestControllerAbstractFactory',
-            'Zoop\ShardModule\Service\DojoControllerAbstractFactory'
+            'Zoop\ShardModule\Service\RestControllerAbstractFactory'
         ]
     ],
 

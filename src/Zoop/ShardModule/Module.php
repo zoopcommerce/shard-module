@@ -17,8 +17,8 @@ use Zend\Mvc\MvcEvent;
 class Module
 {
 
-    public function init(ModuleManager $moduleManager) {
-
+    public function init(ModuleManager $moduleManager)
+    {
         $eventManager = $moduleManager->getEventManager();
         $sharedEventManager = $eventManager->getSharedManager();
 
