@@ -36,9 +36,5 @@
         "psr-0": {
             "Zoop\\ShardModule": "src/"
         }
-    },
-    "config": {
-		"process-timeout" :	1000,
-        "github-protocols": ["http", "https", "git"]
     }
 }
