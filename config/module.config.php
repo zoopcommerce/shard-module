@@ -68,6 +68,11 @@ return [
                     'title' => 'Access denied',
                     'status_code' => 403,
                     'extra_fields' => ['action', 'documentClass']
+                ],
+                'Zoop\ShardModule\Exception\MethodNotAllowedException' => [
+                    'described_by' => 'method-not-allowed-exception',
+                    'title' => 'Method Not Allowed',
+                    'status_code' => 405
                 ]
             ]
         ],

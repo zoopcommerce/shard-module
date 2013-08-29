@@ -32,8 +32,6 @@ class BatchRestControllerAbstractFactory implements AbstractFactoryInterface
 
         $options = new BatchJsonRestfulControllerOptions(
             [
-                'documentManager' => $appServiceLocator
-                    ->get('config')['zoop']['shard']['manifest'][$manifestName]['document_manager'],
                 'manifestName' => $manifestName,
                 'serviceLocator' => $appServiceLocator
                     ->get('shard.' . $manifestName . '.serviceManager')

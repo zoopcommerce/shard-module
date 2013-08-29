@@ -42,9 +42,6 @@ class RestControllerAbstractFactory implements AbstractFactoryInterface
             'end_point'        => $endpoint,
             'endpoint_map'     => $endpointMap,
             'document_class'   => $endpoint->getClass(),
-            'document_manager' => $serviceLocator
-                ->getServiceLocator()
-                ->get('config')['zoop']['shard']['manifest'][$factoryMapping['manifestName']]['document_manager'],
             'manifest_name'    => $factoryMapping['manifestName'],
             'service_locator'  => $serviceLocator
                 ->getServiceLocator()->get('shard.' . $factoryMapping['manifestName'] . '.serviceManager')

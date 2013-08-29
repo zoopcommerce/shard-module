@@ -47,7 +47,9 @@ class AbstractControllerOptions extends AbstractOptions
      */
     public function getDocumentManager()
     {
-        if (is_string($this->documentManager)) {
+        if (! isset($this->documentManager)){
+            $this->documentManager = $this->serviceLocator->get($this->serviceLocator->get('manifest')->getDocumentManager());
+        } else if (is_string($this->documentManager)) {
             $this->documentManager = $this->serviceLocator->get($this->documentManager);
         }
 

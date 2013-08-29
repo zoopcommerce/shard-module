@@ -207,4 +207,55 @@ class BatchJsonRestfulControllerTest extends AbstractHttpControllerTestCase
         $this->assertEquals(204, $result['request4']['status']);
         $this->assertFalse(isset($result['request4']['content']));
     }
+
+    public function testGet405()
+    {
+        $accept = new Accept;
+        $accept->addMediaType('application/json');
+
+        $this->getRequest()
+            ->setMethod('GET')
+            ->getHeaders()->addHeaders([$accept, ContentType::fromString('Content-type: application/json')]);
+
+        $this->dispatch('/rest/batch');
+
+        $response = $this->getResponse();
+        $result = json_decode($response->getContent(), true);
+
+        $this->assertResponseStatusCode(405);
+    }
+
+    public function testPut405()
+    {
+        $accept = new Accept;
+        $accept->addMediaType('application/json');
+
+        $this->getRequest()
+            ->setMethod('PUT')
+            ->getHeaders()->addHeaders([$accept, ContentType::fromString('Content-type: application/json')]);
+
+        $this->dispatch('/rest/batch');
+
+        $response = $this->getResponse();
+        $result = json_decode($response->getContent(), true);
+
+        $this->assertResponseStatusCode(405);
+    }
+
+    public function testPatch405()
+    {
+        $accept = new Accept;
+        $accept->addMediaType('application/json');
+
+        $this->getRequest()
+            ->setMethod('PATCH')
+            ->getHeaders()->addHeaders([$accept, ContentType::fromString('Content-type: application/json')]);
+
+        $this->dispatch('/rest/batch');
+
+        $response = $this->getResponse();
+        $result = json_decode($response->getContent(), true);
+
+        $this->assertResponseStatusCode(405);
+    }
 }

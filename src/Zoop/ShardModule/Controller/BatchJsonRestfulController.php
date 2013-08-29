@@ -148,51 +148,41 @@ class BatchJsonRestfulController extends AbstractRestfulController
 
     public function getList()
     {
-        throw new Exception\RuntimeException(
-            sprintf(
-                '%s is not supported',
-                __METHOD__
-            )
-        );
+        throw new Exception\MethodNotAllowedException;
     }
 
     public function get($id)
     {
-        throw new Exception\RuntimeException(
-            sprintf(
-                '%s is not supported',
-                __METHOD__
-            )
-        );
+        throw new Exception\MethodNotAllowedException;
     }
 
     public function delete($id)
     {
-        throw new Exception\RuntimeException(
-            sprintf(
-                '%s is not supported',
-                __METHOD__
-            )
-        );
+        throw new Exception\MethodNotAllowedException;
     }
 
     public function deleteList()
     {
-        throw new Exception\RuntimeException(
-            sprintf(
-                '%s is not supported',
-                __METHOD__
-            )
-        );
+        throw new Exception\MethodNotAllowedException;
     }
 
     public function update($id, $data)
     {
-        throw new Exception\RuntimeException(
-            sprintf(
-                '%s is not supported',
-                __METHOD__
-            )
-        );
+        throw new Exception\MethodNotAllowedException;
+    }
+
+    public function replaceList($data)
+    {
+        throw new Exception\MethodNotAllowedException;
+    }
+
+    public function patch($id, $data)
+    {
+        throw new Exception\MethodNotAllowedException;
+    }
+
+    public function patchList($data)
+    {
+        throw new Exception\MethodNotAllowedException;
     }
 }
