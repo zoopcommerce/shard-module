@@ -32,7 +32,7 @@ class JsonRestfulController extends AbstractRestfulController
         $result = parent::onDispatch($e);
 
         //set the template
-        if ($result instanceof ModelInterface) {
+        if ($result instanceof ModelInterface && ! ($template = $result->getTemplate())) {
             $action = $e->getRouteMatch()->getParam('action');
             if ($action == 'get') {
                 $result->setTemplate($this->options->getGetTemplate());
