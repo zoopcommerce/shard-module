@@ -42,6 +42,7 @@ return [
                 'Zoop\ShardModule\Exception\FlushException' => [
                     'described_by' => 'flush-exception',
                     'title' => 'Exception occured when writing data to the database',
+                    'extra_fields' => ['statusCode'],
                     'restricted_extra_fields' => ['innerExceptions']
                 ],
                 'Zoop\ShardModule\Exception\DocumentNotFoundException' => [

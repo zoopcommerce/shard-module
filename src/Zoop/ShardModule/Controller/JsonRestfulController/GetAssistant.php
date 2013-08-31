@@ -88,7 +88,7 @@ class GetAssistant extends AbstractAssistant
                 ->getClassMetadata($metadata->fieldMappings[$field]['targetDocument']);
             $referenceEndpoint = $this->options
                 ->getEndpointMap()
-                ->getEndpointsFromClass($referenceMetadata->name)[0];
+                ->getEndpointsFromMetadata($referenceMetadata)[0];
 
             return $this->forward()->dispatch(
                 'rest.' . $this->options->getManifestName() . '.' . $referenceEndpoint->getName(),
@@ -120,7 +120,7 @@ class GetAssistant extends AbstractAssistant
                 ->getClassMetadata($metadata->fieldMappings[$field]['targetDocument']);
             $referencedEndpoint = $this->options
                 ->getEndpointMap()
-                ->getEndpointsFromClass($referencedMetadata->name)[0];
+                ->getEndpointsFromMetadata($referencedMetadata)[0];
             if (is_string($referencedDocument)) {
                 $referencedDocument = $this->options
                     ->getDocumentManager()->getRepository($referencedMetadata->name)->find($referencedDocument);

@@ -138,7 +138,7 @@ class JsonRestfulController extends AbstractRestfulController
                 '/' .
                 $createdMetadata->reflFields[
                 $this->options
-                    ->getEndpointMap()->getEndpointsFromClass($createdMetadata->name)[0]->getProperty()
+                    ->getEndpointMap()->getEndpointsFromMetadata($createdMetadata)[0]->getProperty()
                 ]->getValue($createdDocument)
             )
         );
@@ -301,8 +301,17 @@ class JsonRestfulController extends AbstractRestfulController
         } elseif (count($flushExceptions) > 1) {
             $flushException = new Exception\FlushException;
             $exceptionSerializer = $this->options->getExceptionSerializer();
+            $identicalStatusCodes = true;
             foreach ($flushExceptions as $exception) {
                 $exceptions[] = $exceptionSerializer->serializeException($exception);
+                if (! isset($statusCode) && isset($exceptions['status_code'])) {
+                    $statusCode = $exceptions['status_code'];
+                } else if (isset($exceptions['status_code']) && $statusCode != $exceptions['status_code']) {
+                    $identicalStatusCodes = false;
+                }
+            }
+            if (isset($statusCode) && $identicalStatusCodes){
+                $flushException->setStatusCode($statusCode);
             }
             $flushException->setInnerExceptions($exceptions);
             throw $flushException;

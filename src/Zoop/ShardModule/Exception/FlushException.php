@@ -17,6 +17,8 @@ class FlushException extends \Exception implements ExceptionInterface
 {
     protected $innerExceptions;
 
+    protected $statusCode = 500;
+
     public function getInnerExceptions()
     {
         return $this->innerExceptions;
@@ -25,5 +27,13 @@ class FlushException extends \Exception implements ExceptionInterface
     public function setInnerExceptions($innerExceptions)
     {
         $this->innerExceptions = $innerExceptions;
+    }
+
+    public function getStatusCode() {
+        return $this->statusCode;
+    }
+
+    public function setStatusCode($statusCode) {
+        $this->statusCode = $statusCode;
     }
 }

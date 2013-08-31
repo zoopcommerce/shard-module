@@ -68,7 +68,7 @@ class CreateAssistant extends AbstractAssistant
             try {
                 $endpoint = $this->options
                     ->getEndpointMap()
-                    ->getEndpointsFromClass($referencedMetadata->name)[0];
+                    ->getEndpointsFromMetadata($referencedMetadata)[0];
                 $createdDocument = $this->forward()->dispatch(
                     'rest.' . $this->options->getManifestName() . '.' . $endpoint->getName(),
                     [
@@ -101,7 +101,7 @@ class CreateAssistant extends AbstractAssistant
                 ->getClassMetadata($metadata->fieldMappings[$field]['targetDocument']);
             $referencedEndpoint = $this->options
                 ->getEndpointMap()
-                ->getEndpointsFromClass($referencedMetadata->name)[0];
+                ->getEndpointsFromMetadata($referencedMetadata)[0];
             if (is_string($referencedDocument)) {
                 $referencedDocument = $this->options
                     ->getDocumentManager()->getRepository($referencedMetadata->name)->find($referencedDocument);
