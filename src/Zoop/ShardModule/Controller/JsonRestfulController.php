@@ -302,13 +302,15 @@ class JsonRestfulController extends AbstractRestfulController
             $flushException = new Exception\FlushException;
             $exceptionSerializer = $this->options->getExceptionSerializer();
             $identicalStatusCodes = true;
+            $exceptions = [];
             foreach ($flushExceptions as $exception) {
-                $exceptions[] = $exceptionSerializer->serializeException($exception);
-                if (! isset($statusCode) && isset($exceptions['status_code'])) {
-                    $statusCode = $exceptions['status_code'];
-                } else if (isset($exceptions['status_code']) && $statusCode != $exceptions['status_code']) {
+                $exception = $exceptionSerializer->serializeException($exception);
+                if (! isset($statusCode) && isset($exception['statusCode'])) {
+                    $statusCode = $exception['statusCode'];
+                } else if (isset($exception['statusCode']) && $statusCode != $exception['statusCode']) {
                     $identicalStatusCodes = false;
                 }
+                $exceptions[] = $exception;
             }
             if (isset($statusCode) && $identicalStatusCodes){
                 $flushException->setStatusCode($statusCode);
