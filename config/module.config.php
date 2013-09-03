@@ -98,13 +98,13 @@ return [
         'routes' => [
             'rest.default' => [
                 //this route will look to load a controller
-                //service called `rest.<manifestName>.<endpoint>`
+                //service called `rest.default.<endpoint>`
                 'type' => 'Zend\Mvc\Router\Http\Segment',
                 'options' => [
                     'route' => '/rest/:endpoint[/:id]',
                     'constraints' => [
-                        'controller' => '[a-zA-Z][a-zA-Z0-9_-]+',
-                        'id'         => '[a-zA-Z][a-zA-Z0-9/_-]+',
+                        'endpoint' => '[a-zA-Z][a-zA-Z0-9_-]+',
+                        'id'       => '[a-zA-Z][a-zA-Z0-9/_-]+',
                     ],
                     'defaults' => [
                         'extension'    => 'rest',
@@ -120,9 +120,6 @@ return [
             'Zoop\ShardModule\Service\BatchRestControllerAbstractFactory',
             'Zoop\ShardModule\Service\RestControllerAbstractFactory'
         ]
-    ],
-
-    'controller_plugins' => [
     ],
 
     'service_manager' => [

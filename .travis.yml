@@ -21,4 +21,4 @@ script:
   - cd ./tests
   - ../vendor/bin/phpunit --coverage-clover ./build/clover.xml
   - php build/coverage-checker.php build/clover.xml 25
-  - ../vendor/bin/phpcs --standard=PSR2 ../src/ ../tests/Zoop/
+  - ../vendor/bin/phpcs --standard=PSR2 ../src/ ./Zoop/

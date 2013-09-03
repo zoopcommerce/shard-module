@@ -73,7 +73,9 @@ class UpdateAssistant extends AbstractAssistant
                 //update references
                 $referenceMap = $this->options->getReferenceMap()->getMap();
                 if (isset($referenceMap[$metadata->name])) {
+                    $identityMap = $documentManager->getUnitOfWork()->getIdentityMap();
                     foreach ($referenceMap[$metadata->name] as $mapping) {
+                        //update all references in the db
                         $documentManager
                             ->createQueryBuilder($mapping['class'])
                             ->update()
@@ -82,6 +84,26 @@ class UpdateAssistant extends AbstractAssistant
                             ->field($mapping['field'])->set($newId)
                             ->getQuery()
                             ->execute();
+                    }
+
+                    //update all references for docs currently loaded in the uow
+                    if (isset($identityMap[$mapping['class']])) {
+                        $doucmentUsingRefMetadata = $documentManager->getClassMetadata($mapping['class']);
+                        foreach ($identityMap[$mapping['class']] as $documentUsingRef) {
+                            if ($mapping['type'] == 'one' &&
+                                $documentId == $metadata->reflFields[$metadata->identifier]->getValue(
+                                    $doucmentUsingRefMetadata->reflFields[$mapping['field']]->getValue(
+                                        $documentUsingRef
+                                    )
+                                )
+                            ) {
+                                $doucmentUsingRefMetadata
+                                    ->reflFields[$mapping['field']]
+                                    ->setValue($documentUsingRef, $newDocument);
+                            } else {
+                                //TODO: mapping type == many
+                            }
+                        }
                     }
                 }
 

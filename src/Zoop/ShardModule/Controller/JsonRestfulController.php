@@ -307,12 +307,12 @@ class JsonRestfulController extends AbstractRestfulController
                 $exception = $exceptionSerializer->serializeException($exception);
                 if (! isset($statusCode) && isset($exception['statusCode'])) {
                     $statusCode = $exception['statusCode'];
-                } else if (isset($exception['statusCode']) && $statusCode != $exception['statusCode']) {
+                } elseif (isset($exception['statusCode']) && $statusCode != $exception['statusCode']) {
                     $identicalStatusCodes = false;
                 }
                 $exceptions[] = $exception;
             }
-            if (isset($statusCode) && $identicalStatusCodes){
+            if (isset($statusCode) && $identicalStatusCodes) {
                 $flushException->setStatusCode($statusCode);
             }
             $flushException->setInnerExceptions($exceptions);

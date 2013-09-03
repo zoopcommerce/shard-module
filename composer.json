@@ -16,16 +16,15 @@
             "email": "superdweebie@gmail.com"
         }
     ],
-    "repositories": [{ "type": "vcs", "url": "http://github.com/superdweebie/mongodb-odm"}],
     "require": {
         "php": ">=5.4",
-        "zoopcommerce/shard"                 : "~1.2",
+        "zoopcommerce/shard"                 : "~1.3",
         "zoopcommerce/maggott-module"        : "~1.1",
         "zoopcommerce/juggernaut"            : "~1.0",
         "doctrine/doctrine-mongo-odm-module" : "1.0.x-dev",
         "doctrine/doctrine-module"           : "1.0.x-dev as 1.0",
         "doctrine/common"                    : "2.4.x-dev as 2.4",
-        "doctrine/mongodb-odm"               : "dev-filter as 1.0.0-BETA9",
+        "doctrine/mongodb-odm"               : "dev-master#3515b2cfb4779a804fbabef2dd3f0a1c12baa994 as 1.0.0-BETA9",
         "zendframework/zendframework"        : "2.3.x-dev"
     },
     "require-dev": {

@@ -29,11 +29,13 @@ class FlushException extends \Exception implements ExceptionInterface
         $this->innerExceptions = $innerExceptions;
     }
 
-    public function getStatusCode() {
+    public function getStatusCode()
+    {
         return $this->statusCode;
     }
 
-    public function setStatusCode($statusCode) {
+    public function setStatusCode($statusCode)
+    {
         $this->statusCode = $statusCode;
     }
 }
