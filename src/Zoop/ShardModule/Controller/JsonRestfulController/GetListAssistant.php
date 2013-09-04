@@ -151,13 +151,14 @@ class GetListAssistant extends AbstractAssistant
     protected function getCriteria($metadata)
     {
         $result = [];
+        $dotPlaceholder = $this->controller->getOptions()->getQueryDotPlaceholder();
         foreach ($this->controller->getRequest()->getQuery() as $key => $value) {
             //ignore criteria that are null
             if (isset($value) && $value !== '') {
                 if (substr($value, 0, 1) == '[') {
                     $value = explode(',', substr($value, 1, -1));
                 }
-                $result[$key] = $value;
+                $result[str_replace($dotPlaceholder, '.', $key)] = $value;
             }
         }
 

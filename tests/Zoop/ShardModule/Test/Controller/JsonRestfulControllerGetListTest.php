@@ -109,6 +109,29 @@ class JsonRestfulControllerGetListTest extends AbstractHttpControllerTestCase
         );
     }
 
+    public function testGetFilteredListWithFilterOnEmbeddedDoc()
+    {
+        $accept = new Accept;
+        $accept->addMediaType('application/json');
+
+        $this->getRequest()
+            ->setMethod('GET')
+            ->getHeaders()->addHeader($accept);
+
+        $this->dispatch('/rest/game?publisher.city=' . urlencode('Little Rock'));
+
+        $this->assertResponseStatusCode(200);
+
+        $result = json_decode($this->getResponse()->getContent(), true);
+
+        $this->assertCount(1, $result);
+        $this->assertEquals(
+            'Content-Range: 0-0/1',
+            $this->getResponse()->getHeaders()->get('Content-Range')->toString()
+        );
+        $this->assertEquals('feed-the-kitty', $result[0]['name']);
+    }
+
     public function testGetOrFilteredList()
     {
         $accept = new Accept;

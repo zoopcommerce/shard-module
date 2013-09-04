@@ -45,6 +45,8 @@ class JsonRestfulControllerOptions extends AbstractControllerOptions
 
     protected $getListTemplate = 'zoop/rest/get-list';
 
+    protected $queryDotPlaceholder = '_';
+
     protected $createAssistant = 'zoop.shardmodule.assistant.create';
 
     protected $deleteAssistant = 'zoop.shardmodule.assistant.delete';
@@ -187,6 +189,16 @@ class JsonRestfulControllerOptions extends AbstractControllerOptions
     public function setGetListTemplate($getListTemplate)
     {
         $this->getListTemplate = (string) $getListTemplate;
+    }
+
+    public function getQueryDotPlaceholder()
+    {
+        return $this->queryDotPlaceholder;
+    }
+
+    public function setQueryDotPlaceholder($queryDotPlaceholder)
+    {
+        $this->queryDotPlaceholder = $queryDotPlaceholder;
     }
 
     public function getCreateAssistant()
