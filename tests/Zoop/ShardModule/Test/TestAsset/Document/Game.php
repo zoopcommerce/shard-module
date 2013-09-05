@@ -36,7 +36,7 @@ class Game
     protected $publisher;
 
     /**
-     * @ODM\EmbedMany(targetDocument="Component")
+     * @ODM\EmbedMany(targetDocument="Component", strategy="set")
      */
     protected $components;
 

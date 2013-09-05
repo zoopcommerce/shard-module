@@ -187,22 +187,39 @@ class PatchAssistant extends AbstractAssistant
 
             if (count($deeperResource) > 0) {
 
-                $reflField = $embeddedMetadata->reflFields[$embeddedEndpointProperty];
-                foreach ($collection as $key => $embeddedDocument) {
-                    //this iteration is slow. Should be replaced when upgrade to new version of mongo happens
-                    if ($reflField->getValue($embeddedDocument) == $deeperResource[0]) {
-                        array_shift($deeperResource);
+                if ($embeddedEndpointProperty == '$set') {
+                    if (isset($collection[$deeperResource[0]])) {
+                        $embeddedDocument = $collection[$deeperResource[0]];
+                        $set = array_shift($deeperResource);
                         $this->endpoint = $embeddedEndpoint;
                         $updatedDocument = $this->doPatch($data, $embeddedDocument, $deeperResource);
-                        $collection[$key] = $updatedDocument;
-
+                        $collection[$set] = $updatedDocument;
                         return $document;
                     }
-                }
-                $patchedDocument = $this->doPatch($data, array_shift($deeperResource), $deeperResource);
-                $collection[] = $patchedDocument;
 
-                return $document;
+                    $set = array_shift($deeperResource);
+                    $updatedDocument = $this->doPatch($data, $set, $deeperResource);
+                    $collection[$set] = $updatedDocument;
+
+                    return $document;
+                } else {
+                    $reflField = $embeddedMetadata->reflFields[$embeddedEndpointProperty];
+                    foreach ($collection as $key => $embeddedDocument) {
+                        //this iteration is slow. Should be replaced when upgrade to new version of mongo happens
+                        if ($reflField->getValue($embeddedDocument) == $deeperResource[0]) {
+                            array_shift($deeperResource);
+                            $this->endpoint = $embeddedEndpoint;
+                            $updatedDocument = $this->doPatch($data, $embeddedDocument, $deeperResource);
+                            $collection[$key] = $updatedDocument;
+
+                            return $document;
+                        }
+                    }
+                    $patchedDocument = $this->doPatch($data, array_shift($deeperResource), $deeperResource);
+                    $collection[] = $patchedDocument;
+
+                    return $document;
+                }
             } else {
                 $patchListAssistant = $this->options->getPatchListAssistant();
                 $patchListAssistant->setController($this->controller);

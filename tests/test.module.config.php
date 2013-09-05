@@ -39,7 +39,7 @@ return [
                                     ],
                                     'embedded_lists' => [
                                         'components' => [
-                                            'property' => 'name',
+                                            'property' => '$set',
                                             'class' => 'Zoop\ShardModule\Test\TestAsset\Document\Component',
                                             'embedded_lists' => [
                                                 'manufacturers' => [

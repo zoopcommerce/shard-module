@@ -148,13 +148,23 @@ class GetAssistant extends AbstractAssistant
                 $collection = $document[$field];
                 $embeddedEndpoint = $endpoint->getEmbeddedLists()[$field];
                 $embeddedEndpointProperty = $embeddedEndpoint->getProperty();
-                foreach ($collection as $embeddedDocument) {
-                    //this iteration is slow. Should be replaced when upgrade to new version of mongo happens
-                    if ($embeddedDocument[$embeddedEndpointProperty] == $deeperResource[0]) {
-                        array_shift($deeperResource);
-                        $this->endpoint = $embeddedEndpoint;
 
+                if ($embeddedEndpointProperty == '$set') {
+                    if (isset($collection[$deeperResource[0]])) {
+                        $embeddedDocument = $collection[$deeperResource[0]];
+                        $this->endpoint = $embeddedEndpoint;
+                        array_shift($deeperResource);
                         return $this->doGet($embeddedDocument, $deeperResource);
+                    }
+                } else {
+                    foreach ($collection as $embeddedDocument) {
+                        //this iteration is slow. Should be replaced when upgrade to new version of mongo happens
+                        if ($embeddedDocument[$embeddedEndpointProperty] == $deeperResource[0]) {
+                            array_shift($deeperResource);
+                            $this->endpoint = $embeddedEndpoint;
+
+                            return $this->doGet($embeddedDocument, $deeperResource);
+                        }
                     }
                 }
                 //embedded document not found in collection

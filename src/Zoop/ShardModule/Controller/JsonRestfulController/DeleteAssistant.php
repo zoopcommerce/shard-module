@@ -117,24 +117,26 @@ class DeleteAssistant extends AbstractAssistant
             $this->metadata = $embeddedMetadata;
             $collection = $metadata->reflFields[$field]->getValue($document);
             if (count($deeperResource) > 0) {
-                $embeddedId = $deeperResource[0];
-                array_shift($deeperResource);
-                if (! ($embeddedDocument = $collection->filter(
-                    function ($item) use ($embeddedId, $embeddedMetadata, $embeddedEndpointProperty) {
-                    return ($embeddedMetadata->reflFields[$embeddedEndpointProperty]->getValue($item) == $embeddedId);
-                    }
-                )[0])
-                ) {
+                if ($embeddedEndpointProperty == '$set') {
+                    $embeddedDocument = $collection[$deeperResource[0]];
+                } else {
+                    $embeddedId = $deeperResource[0];
+                    $embeddedDocument = $collection->filter(
+                        function ($item) use ($embeddedId, $embeddedMetadata, $embeddedEndpointProperty) {
+                        return ($embeddedMetadata->reflFields[$embeddedEndpointProperty]->getValue($item) == $embeddedId);
+                        }
+                    )[0];
+                }
+                if (! isset($embeddedDocument)) {
                     throw new Exception\DocumentNotFoundException;
-                };
+                }
+                $set = array_shift($deeperResource);
                 if (count($deeperResource) == 0) {
                     $collection->removeElement($embeddedDocument);
-
                     return;
                 } else {
                     return $this->doDelete(
                         $embeddedDocument,
-                        $embeddedMetadata,
                         $deeperResource
                     );
                 }

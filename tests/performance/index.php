@@ -15,7 +15,7 @@ chdir($applicationRoot);
 $loader = require_once($loaderPath);
 $loader->add('Zoop\\ShardModule\\Test', __DIR__ . '/../');
 
-if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] == 'GET') {
     //use juggernaut cache for GET requests
     $pageTtl = 1; //1 seconds, very low cache time, but helps page speed massively with concurrent requests
     $cacheDirectory = __DIR__ . '/cache/fullpage';
