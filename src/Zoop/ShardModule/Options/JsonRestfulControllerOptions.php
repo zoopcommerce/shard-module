@@ -29,6 +29,8 @@ class JsonRestfulControllerOptions extends AbstractControllerOptions
 
     protected $serializer = 'serializer';
 
+    protected $unserializer = 'unserializer';
+
     protected $referenceMap = 'referenceMap';
 
     protected $documentClass;
@@ -101,6 +103,18 @@ class JsonRestfulControllerOptions extends AbstractControllerOptions
         }
 
         return $this->serializer;
+    }
+
+    public function getUnserializer() {
+        if (is_string($this->unserializer)) {
+            $this->unserializer = $this->serviceLocator->get($this->unserializer);
+        }
+
+        return $this->unserializer;
+    }
+
+    public function setUnserializer($unserializer) {
+        $this->unserializer = $unserializer;
     }
 
     public function setReferenceMap($referenceMap)

@@ -6,7 +6,7 @@
 namespace Zoop\ShardModule\Controller\JsonRestfulController;
 
 use Doctrine\ODM\MongoDB\Proxy\Proxy;
-use Zoop\Shard\Serializer\Serializer;
+use Zoop\Shard\Serializer\Unserializer;
 use Zoop\ShardModule\Exception;
 
 /**
@@ -29,7 +29,7 @@ class CreateAssistant extends AbstractAssistant
         $documentManager = $this->options->getDocumentManager();
 
         if (count($deeperResource) == 0) {
-            $createdDocument = $this->unserialize($data, $document, $metadata, Serializer::UNSERIALIZE_PATCH);
+            $createdDocument = $this->unserialize($data, $document, $metadata, Unserializer::UNSERIALIZE_PATCH);
             if ($documentManager->contains($createdDocument)) {
                 $exception = new Exception\DocumentAlreadyExistsException();
                 $exception->setDocument($createdDocument);

@@ -88,7 +88,7 @@ return [
         'odm' => [
             'configuration' => [
                 'default' => [
-                    'class_metadata_factory_name' => 'Zoop\Shard\ClassMetadataFactory'
+                    'class_metadata_factory_name' => 'Zoop\Shard\ODMCore\ClassMetadataFactory'
                 ]
             ],
         ],

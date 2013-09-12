@@ -81,8 +81,8 @@ abstract class AbstractAssistant
             $data[$metadata->identifier] = $metadata->reflFields[$metadata->identifier]->getValue($document);
         }
 
-        $serializer = $this->options->getSerializer();
-        $document = $serializer->fromArray($data, $metadata->name, $mode, $document);
+        $serializer = $this->options->getUnserializer();
+        $document = $serializer->fromArray($data, $metadata->name, $document, $mode);
 
         return $document;
     }

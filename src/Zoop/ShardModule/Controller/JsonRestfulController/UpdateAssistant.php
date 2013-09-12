@@ -6,7 +6,7 @@
 namespace Zoop\ShardModule\Controller\JsonRestfulController;
 
 use Doctrine\ODM\MongoDB\Proxy\Proxy;
-use Zoop\Shard\Serializer\Serializer;
+use Zoop\Shard\Serializer\Unserializer;
 use Zoop\ShardModule\Exception;
 
 /**
@@ -50,7 +50,7 @@ class UpdateAssistant extends AbstractAssistant
                 }
             }
 
-            $document = $this->unserialize($data, $document, $metadata, Serializer::UNSERIALIZE_UPDATE);
+            $document = $this->unserialize($data, $document, $metadata, Unserializer::UNSERIALIZE_UPDATE);
             if (! $documentManager->contains($document) && ! $metadata->isEmbeddedDocument) {
                 $createAssistant = $this->options->getCreateAssistant();
                 $createAssistant->setController($this->controller);

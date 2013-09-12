@@ -305,9 +305,9 @@ class JsonRestfulControllerGetListTest extends AbstractHttpControllerTestCase
 
         $this->dispatch('/rest/game/feed-the-kitty/components?type=[die]');
 
-        $this->assertResponseStatusCode(200);
-
         $result = json_decode($this->getResponse()->getContent(), true);
+
+        $this->assertResponseStatusCode(200);
 
         $this->assertCount(1, $result);
         $this->assertEquals('die', $result[0]['type']);
