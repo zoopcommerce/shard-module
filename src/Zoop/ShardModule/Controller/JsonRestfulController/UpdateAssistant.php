@@ -6,7 +6,7 @@
 namespace Zoop\ShardModule\Controller\JsonRestfulController;
 
 use Doctrine\ODM\MongoDB\Proxy\Proxy;
-use Zoop\Shard\Serializer\Serializer;
+use Zoop\Shard\Serializer\Unserializer;
 use Zoop\ShardModule\Exception;
 
 /**
@@ -50,7 +50,7 @@ class UpdateAssistant extends AbstractAssistant
                 }
             }
 
-            $document = $this->unserialize($data, $document, $metadata, Serializer::UNSERIALIZE_UPDATE);
+            $document = $this->unserialize($data, $document, $metadata, Unserializer::UNSERIALIZE_UPDATE);
             if (! $documentManager->contains($document) && ! $metadata->isEmbeddedDocument) {
                 $createAssistant = $this->options->getCreateAssistant();
                 $createAssistant->setController($this->controller);
@@ -209,22 +209,39 @@ class UpdateAssistant extends AbstractAssistant
 
             if (count($deeperResource) > 0) {
 
-                $reflField = $embeddedMetadata->reflFields[$embeddedEndpointProperty];
-                foreach ($collection as $key => $embeddedDocument) {
-                    //this iteration is slow. Should be replaced when upgrade to new version of mongo happens
-                    if ($reflField->getValue($embeddedDocument) == $deeperResource[0]) {
-                        array_shift($deeperResource);
+                if ($embeddedEndpointProperty == '$set') {
+                    if (isset($collection[$deeperResource[0]])) {
+                        $embeddedDocument = $collection[$deeperResource[0]];
+                        $set = array_shift($deeperResource);
                         $this->endpoint = $embeddedEndpoint;
                         $updatedDocument = $this->doUpdate($data, $embeddedDocument, $deeperResource);
-                        $collection[$key] = $updatedDocument;
-
+                        $collection[$set] = $updatedDocument;
                         return $document;
                     }
-                }
-                $updatedDocument = $this->doUpdate($data, array_shift($deeperResource), $deeperResource);
-                $collection[] = $updatedDocument;
 
-                return $document;
+                    $set = array_shift($deeperResource);
+                    $updatedDocument = $this->doUpdate($data, $set, $deeperResource);
+                    $collection[$set] = $updatedDocument;
+
+                    return $document;
+                } else {
+                    $reflField = $embeddedMetadata->reflFields[$embeddedEndpointProperty];
+                    foreach ($collection as $key => $embeddedDocument) {
+                        //this iteration is slow. Should be replaced when upgrade to new version of mongo happens
+                        if ($reflField->getValue($embeddedDocument) == $deeperResource[0]) {
+                            array_shift($deeperResource);
+                            $this->endpoint = $embeddedEndpoint;
+                            $updatedDocument = $this->doUpdate($data, $embeddedDocument, $deeperResource);
+                            $collection[$key] = $updatedDocument;
+
+                            return $document;
+                        }
+                    }
+                    $updatedDocument = $this->doUpdate($data, array_shift($deeperResource), $deeperResource);
+                    $collection[] = $updatedDocument;
+
+                    return $document;
+                }
             } else {
                 $replaceListAssistant = $this->options->getReplaceListAssistant();
                 $replaceListAssistant->setController($this->controller);

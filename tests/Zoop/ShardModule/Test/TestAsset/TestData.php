@@ -29,25 +29,27 @@ class TestData
 
         $m1 = new Document\Manufacturer;
         $m1->setName('Ludo Fact');
+        $m2 = new Document\Manufacturer;
+        $m2->setName('Panda');
 
         $c1 = new Document\Component;
-        $c1->setName('action-dice');
+        $c1->setName('Action Dice');
         $c1->setType('die');
-        $c1->setManufacturers([$m1]);
+        $c1->setManufacturers([$m1, $m2]);
         $c2 = new Document\Component;
-        $c2->setName('kitty-bowl');
+        $c2->setName('Kitty Bowl');
         $c2->setType('bowl');
         $c3 = new Document\Component;
         $c3->setType('mice');
-        $components1 = [$c1, $c2, $c3];
+        $components1 = ['action-dice' => $c1, 'kitty-bowl' => $c2, 'mice' => $c3];
 
         $c4 = new Document\Component;
-        $c4->setName('wonders');
+        $c4->setName('Wonders');
         $c4->setType('board');
         $c5 = new Document\Component;
-        $c5->setName('money');
+        $c5->setName('Money');
         $c5->setType('coin');
-        $components2 = [$c4, $c5];
+        $components2 = ['wonders' => $c4, 'money' => $c5];
 
         $author1 = new Document\Author;
         $author1->setName('harry');

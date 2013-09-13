@@ -25,12 +25,16 @@ class GetListAssistant extends AbstractAssistant
      *
      * If metadata is not suppled, it will be retrieved using $this->options->getDocumentClass()
      *
-     * @param  array $list
+     * @param  ArrayCollection $list
      * @return type
      */
     public function doGetList($list = null)
     {
         unset($this->range);
+
+        if ($list) {
+            $list = $list->getValues();
+        }
 
         $response = $this->controller->getResponse();
         $documentManager = $this->options->getDocumentManager();
@@ -75,7 +79,7 @@ class GetListAssistant extends AbstractAssistant
             }
             $list = array_slice($list, $offset, $this->getLimit());
             foreach ($list as $item) {
-                $items[] = $serializer->applySerializeMetadataToArray($item, $metadata->name);
+                $items[] = $serializer->toArray($item);
             }
         } else {
             $resultsQuery = $documentManager->createQueryBuilder()
@@ -89,7 +93,7 @@ class GetListAssistant extends AbstractAssistant
                 ->getQuery()
                 ->execute();
             foreach ($resultsCursor as $result) {
-                $items[] = $serializer->toArray($result, $metadata->name);
+                $items[] = $serializer->toArray($result);
             }
         }
 
@@ -151,13 +155,14 @@ class GetListAssistant extends AbstractAssistant
     protected function getCriteria($metadata)
     {
         $result = [];
+        $dotPlaceholder = $this->controller->getOptions()->getQueryDotPlaceholder();
         foreach ($this->controller->getRequest()->getQuery() as $key => $value) {
             //ignore criteria that are null
             if (isset($value) && $value !== '') {
                 if (substr($value, 0, 1) == '[') {
                     $value = explode(',', substr($value, 1, -1));
                 }
-                $result[$key] = $value;
+                $result[str_replace($dotPlaceholder, '.', $key)] = $value;
             }
         }
 
@@ -188,12 +193,14 @@ class GetListAssistant extends AbstractAssistant
 
     protected function applyCriteriaToList($list, $criteria)
     {
+        $metadata = $this->options->getDocumentManager()->getClassMetadata(get_class($list[0]));
+
         return array_filter(
             $list,
-            function ($item) use ($criteria) {
+            function ($item) use ($criteria, $metadata) {
                 foreach ($criteria as $field => $criteriaValue) {
                     $pieces = explode('.', $field);
-                    $fieldValue = $item[$pieces[0]];
+                    $fieldValue = $metadata->getFieldValue($item, $pieces[0]);
                     array_shift($pieces);
                     foreach ($pieces as $piece) {
                         $fieldValue = $fieldValue[$piece];
@@ -233,20 +240,22 @@ class GetListAssistant extends AbstractAssistant
 
     protected function applySortToList(&$list, $sort)
     {
+        $metadata = $this->options->getDocumentManager()->getClassMetadata(get_class($list[0]));
+
         usort(
             $list,
-            function ($a, $b) use ($sort) {
+            function ($a, $b) use ($sort, $metadata) {
                 foreach ($sort as $s) {
                     if ($s['direction'] == 'asc') {
-                        if ($a[$s['field']] < $b[$s['field']]) {
+                        if ($metadata->getFieldValue($a, $s['field']) < $metadata->getFieldValue($b, $s['field'])) {
                             return -1;
-                        } elseif ($a[$s['field']] > $b[$s['field']]) {
+                        } elseif ($metadata->getFieldValue($a, $s['field']) > $metadata->getFieldValue($b, $s['field'])) {
                             return 1;
                         }
                     } else {
-                        if ($a[$s['field']] > $b[$s['field']]) {
+                        if ($metadata->getFieldValue($a, $s['field']) > $metadata->getFieldValue($b, $s['field'])) {
                             return -1;
-                        } elseif ($a[$s['field']] < $b[$s['field']]) {
+                        } elseif ($metadata->getFieldValue($a, $s['field']) < $metadata->getFieldValue($b, $s['field'])) {
                             return 1;
                         }
                     }

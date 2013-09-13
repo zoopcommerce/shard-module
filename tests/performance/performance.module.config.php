@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     'zoop' => [
         'shard' => [
             'extensionConfigs' => [
@@ -9,6 +8,7 @@ return [
                 'extension.softdelete' => false,
                 'extension.state' => false,
                 'extension.zone' => false,
+                'extension.odmcore' => false,
             ],
         ],
         'juggernaut' => [

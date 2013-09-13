@@ -25,12 +25,11 @@ class EventManagerDelegatorFactory implements DelegatorFactoryInterface, Manifes
 
     public function createDelegatorWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName, $callback)
     {
-
         if (isset($this->eventManagers[$name])) {
             return $this->eventManagers[$name];
         } else {
             $this->eventManagers[$name] = call_user_func($callback);
-            $manifestServiceManager = $serviceLocator->get('shard.' . $this->manifestName . '.serviceManager');
+            $manifestServiceManager = $serviceLocator->get('shard.' . $this->manifestName . '.servicemanager');
             foreach ($this->manifest->getSubscribers() as $subscriber) {
                 $this->eventManagers[$name]->addEventSubscriber($manifestServiceManager->get($subscriber));
             }

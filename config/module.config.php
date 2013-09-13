@@ -2,13 +2,12 @@
 return [
     'zoop' => [
         'shard' => [
-
-            //shard supports multiple manifest-documentManager pairs.
-            //each manifest should be configured with it's own documentManager.
+            //shard supports multiple manifest-objectManager pairs.
+            //each manifest should be configured with it's own objectManager.
             //a default manifest is pre-configured with the default documentManager
             'manifest' => [
                 'default' => [
-                    'document_manager' => 'doctrine.odm.documentmanager.default',
+                    'object_manager' => 'doctrine.odm.documentmanager.default',
                     'extension_configs' => [
 //                        'extension.accessControl' => true,
 //                        'extension.annotation' => true,
@@ -27,8 +26,11 @@ return [
                     ],
                     'service_manager_config' => [
                         'invokables' => [
-                            'eventManagerDelegatorFactory' => 'Zoop\ShardModule\Delegator\EventManagerDelegatorFactory',
-                            'configurationDelegatorFactory' => 'Zoop\ShardModule\Delegator\ConfigurationDelegatorFactory'
+                            'eventmanager.delegator.factory' => 'Zoop\ShardModule\Delegator\EventManagerDelegatorFactory',
+                            'configuration.delegator.factory' => 'Zoop\ShardModule\Delegator\ConfigurationDelegatorFactory'
+                        ],
+                        'factories' => [
+                            'objectmanager' => 'Zoop\ShardModule\Service\DefaultObjectManagerFactory'
                         ],
                         'abstract_factories' => [
                             'Zoop\ShardModule\Service\UserAbstractFactory'
@@ -88,7 +90,7 @@ return [
         'odm' => [
             'configuration' => [
                 'default' => [
-                    'class_metadata_factory_name' => 'Zoop\Shard\ClassMetadataFactory'
+                    'class_metadata_factory_name' => 'Zoop\Shard\ODMCore\ClassMetadataFactory'
                 ]
             ],
         ],

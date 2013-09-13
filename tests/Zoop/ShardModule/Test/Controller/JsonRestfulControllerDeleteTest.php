@@ -173,7 +173,7 @@ class JsonRestfulControllerDeleteTest extends AbstractHttpControllerTestCase
         $game = $this->documentManager
             ->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Game')->find('feed-the-kitty');
         $compoents = $game->getComponents();
-        $this->assertEquals('kitty-bowl', $compoents[0]->getName());
+        $this->assertFalse(isset($compoents['action-dice']));
     }
 
     public function testDeleteEmbeddedList()

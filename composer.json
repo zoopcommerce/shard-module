@@ -17,10 +17,10 @@
         }
     ],
     "require": {
-        "php": ">=5.4",
-        "zoopcommerce/shard"                 : "~1.3",
+        "php"                                : ">=5.4",
+        "zoopcommerce/shard"                 : "~2.0",
         "zoopcommerce/maggott-module"        : "~1.1",
-        "zoopcommerce/juggernaut"            : "~1.0",
+        "zoopcommerce/juggernaut"            : "~1.1",
         "doctrine/doctrine-mongo-odm-module" : "1.0.x-dev",
         "doctrine/doctrine-module"           : "1.0.x-dev as 1.0",
         "doctrine/common"                    : "2.4.x-dev as 2.4",
@@ -28,8 +28,9 @@
         "zendframework/zendframework"        : "2.3.x-dev"
     },
     "require-dev": {
-        "phpunit/phpunit": ">=3.7",
-        "squizlabs/php_codesniffer": "1.4.*"
+        "phpunit/phpunit"           : ">=3.7",
+        "squizlabs/php_codesniffer" : "1.4.*",
+        "zoopcommerce/slipstream"   : "~0.1"
     },
     "autoload": {
         "psr-0": {

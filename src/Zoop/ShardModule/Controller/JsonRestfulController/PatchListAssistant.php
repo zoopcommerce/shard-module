@@ -5,7 +5,7 @@
  */
 namespace Zoop\ShardModule\Controller\JsonRestfulController;
 
-use Zoop\Shard\Serializer\Serializer;
+use Zoop\Shard\Serializer\Unserializer;
 
 /**
  *
@@ -26,7 +26,7 @@ class PatchListAssistant extends AbstractAssistant
         $createAssistant->setController($this->controller);
 
         foreach ($data as $key => $item) {
-            $document = $this->unserialize($item, null, $metadata, Serializer::UNSERIALIZE_PATCH);
+            $document = $this->unserialize($item, null, $metadata, Unserializer::UNSERIALIZE_PATCH);
             if ($documentManager->contains($document)) {
                 $list[$key] = $document;
             } else {

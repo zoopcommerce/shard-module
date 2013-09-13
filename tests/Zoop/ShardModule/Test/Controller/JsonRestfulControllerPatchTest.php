@@ -205,13 +205,9 @@ class JsonRestfulControllerPatchTest extends AbstractHttpControllerTestCase
 
         $game = $this->documentManager
             ->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Game')->find('feed-the-kitty');
-        foreach ($game->getComponents() as $component) {
-            if ($component->getName() == 'action-dice') {
-                break;
-            }
-        }
-        $this->assertEquals('custom', $component->getType());
-        $this->assertCount(1, $component->getManufacturers());
+
+        $this->assertEquals('custom', $game->getComponents()['action-dice']->getType());
+        $this->assertTrue(0 < count($game->getComponents()['action-dice']->getManufacturers()));
     }
 
     public function testPatchEmbeddedList()

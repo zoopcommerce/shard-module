@@ -32,7 +32,6 @@ class GetAssistant extends AbstractAssistant
                     ->createQueryBuilder()
                     ->find($metadata->name)
                     ->field($endpoint->getProperty())->equals($document)
-                    ->hydrate(false)
                     ->getQuery();
                 $document = $document->getSingleResult();
 
@@ -43,8 +42,8 @@ class GetAssistant extends AbstractAssistant
 
             if (isset($metadata->stamp['updatedOn'])) {
                 $lastModified = new LastModified;
-                $sec = $document[$metadata->stamp['updatedOn']]->sec;
-                $lastModified->setDate(new \DateTime("@$sec"));
+                //$sec = $metadata->getFieldValue($document, $metadata->stamp['updatedOn'])->sec;
+                $lastModified->setDate($metadata->getFieldValue($document, $metadata->stamp['updatedOn']));
                 $this->controller->getResponse()->getHeaders()->addHeader($lastModified);
             }
 
@@ -64,11 +63,13 @@ class GetAssistant extends AbstractAssistant
             }
             $this->controller->getResponse()->getHeaders()->addHeader($cacheControl);
 
+            $result = $serializer->toArray($document);
+
             if ($select = $this->getSelect()) {
-                $document = array_intersect_key($document, array_fill_keys($select, 0));
+                $result = array_intersect_key($result, array_fill_keys($select, 0));
             }
 
-            return $serializer->applySerializeMetadataToArray($document, $metadata->name);
+            return $result;
         }
 
         $field = $deeperResource[0];
@@ -103,7 +104,6 @@ class GetAssistant extends AbstractAssistant
                 ->field($endpoint->getProperty())->equals($document)
                 ->field($field)->exists(true)
                 ->select($field)
-                ->hydrate(false)
                 ->getQuery()
                 ->getSingleResult();
 
@@ -113,7 +113,7 @@ class GetAssistant extends AbstractAssistant
         }
 
         if (isset($mapping['reference']) && $mapping['reference'] && $mapping['type'] == 'one') {
-            if (! $referencedDocument = $document[$field]) {
+            if (! $referencedDocument = $metadata->getFieldValue($document, $field)) {
                 throw new Exception\DocumentNotFoundException;
             }
             $referencedMetadata = $documentManager
@@ -145,16 +145,26 @@ class GetAssistant extends AbstractAssistant
                 ->getDocumentManager()
                 ->getClassMetadata($metadata->fieldMappings[$field]['targetDocument']);
             if (count($deeperResource) > 0) {
-                $collection = $document[$field];
+                $collection = $metadata->getFieldValue($document, $field);
                 $embeddedEndpoint = $endpoint->getEmbeddedLists()[$field];
                 $embeddedEndpointProperty = $embeddedEndpoint->getProperty();
-                foreach ($collection as $embeddedDocument) {
-                    //this iteration is slow. Should be replaced when upgrade to new version of mongo happens
-                    if ($embeddedDocument[$embeddedEndpointProperty] == $deeperResource[0]) {
-                        array_shift($deeperResource);
-                        $this->endpoint = $embeddedEndpoint;
 
+                if ($embeddedEndpointProperty == '$set') {
+                    if (isset($collection[$deeperResource[0]])) {
+                        $embeddedDocument = $collection[$deeperResource[0]];
+                        $this->endpoint = $embeddedEndpoint;
+                        array_shift($deeperResource);
                         return $this->doGet($embeddedDocument, $deeperResource);
+                    }
+                } else {
+                    foreach ($collection as $embeddedDocument) {
+                        //this iteration is slow. Should be replaced when upgrade to new version of mongo happens
+                        if ($embeddedDocument[$embeddedEndpointProperty] == $deeperResource[0]) {
+                            array_shift($deeperResource);
+                            $this->endpoint = $embeddedEndpoint;
+
+                            return $this->doGet($embeddedDocument, $deeperResource);
+                        }
                     }
                 }
                 //embedded document not found in collection
@@ -163,7 +173,7 @@ class GetAssistant extends AbstractAssistant
                 $getListAssistant = $this->options->getGetListAssistant();
                 $getListAssistant->setController($this->controller);
 
-                return $getListAssistant->doGetList($document[$field]);
+                return $getListAssistant->doGetList($metadata->getFieldValue($document, $field));
             }
         }
 
@@ -173,7 +183,7 @@ class GetAssistant extends AbstractAssistant
                 ->getDocumentManager()
                 ->getClassMetadata($metadata->fieldMappings[$field]['targetDocument']);
 
-            return $this->doGet($document[$field], $deeperResource);
+            return $this->doGet($metadata->getFieldValue($document, $field), $deeperResource);
         }
 
         throw new Exception\DocumentNotFoundException();

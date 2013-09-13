@@ -15,7 +15,8 @@ return [
             'manifest' => [
                 'default' => [
                     'extension_configs' => [
-                        'extension.accessControl' => true,
+                        'extension.odmcore' => true,
+                        'extension.accesscontrol' => true,
                         'extension.annotation' => true,
                         'extension.crypt' => true,
                         'extension.freeze' => true,
@@ -39,7 +40,7 @@ return [
                                     ],
                                     'embedded_lists' => [
                                         'components' => [
-                                            'property' => 'name',
+                                            'property' => '$set',
                                             'class' => 'Zoop\ShardModule\Test\TestAsset\Document\Component',
                                             'embedded_lists' => [
                                                 'manufacturers' => [

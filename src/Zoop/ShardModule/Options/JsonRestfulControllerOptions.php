@@ -29,6 +29,8 @@ class JsonRestfulControllerOptions extends AbstractControllerOptions
 
     protected $serializer = 'serializer';
 
+    protected $unserializer = 'unserializer';
+
     protected $referenceMap = 'referenceMap';
 
     protected $documentClass;
@@ -44,6 +46,8 @@ class JsonRestfulControllerOptions extends AbstractControllerOptions
     protected $getTemplate = 'zoop/rest/get';
 
     protected $getListTemplate = 'zoop/rest/get-list';
+
+    protected $queryDotPlaceholder = '_';
 
     protected $createAssistant = 'zoop.shardmodule.assistant.create';
 
@@ -99,6 +103,18 @@ class JsonRestfulControllerOptions extends AbstractControllerOptions
         }
 
         return $this->serializer;
+    }
+
+    public function getUnserializer() {
+        if (is_string($this->unserializer)) {
+            $this->unserializer = $this->serviceLocator->get($this->unserializer);
+        }
+
+        return $this->unserializer;
+    }
+
+    public function setUnserializer($unserializer) {
+        $this->unserializer = $unserializer;
     }
 
     public function setReferenceMap($referenceMap)
@@ -187,6 +203,16 @@ class JsonRestfulControllerOptions extends AbstractControllerOptions
     public function setGetListTemplate($getListTemplate)
     {
         $this->getListTemplate = (string) $getListTemplate;
+    }
+
+    public function getQueryDotPlaceholder()
+    {
+        return $this->queryDotPlaceholder;
+    }
+
+    public function setQueryDotPlaceholder($queryDotPlaceholder)
+    {
+        $this->queryDotPlaceholder = $queryDotPlaceholder;
     }
 
     public function getCreateAssistant()
