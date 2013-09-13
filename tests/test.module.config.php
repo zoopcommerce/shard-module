@@ -15,7 +15,8 @@ return [
             'manifest' => [
                 'default' => [
                     'extension_configs' => [
-                        'extension.accessControl' => true,
+                        'extension.odmcore' => true,
+                        'extension.accesscontrol' => true,
                         'extension.annotation' => true,
                         'extension.crypt' => true,
                         'extension.freeze' => true,

@@ -17,8 +17,8 @@
         }
     ],
     "require": {
-        "php": ">=5.4",
-        "zoopcommerce/shard"                 : "~1.3",
+        "php"                                : ">=5.4",
+        "zoopcommerce/shard"                 : "~2.0",
         "zoopcommerce/maggott-module"        : "~1.1",
         "zoopcommerce/juggernaut"            : "~1.1",
         "doctrine/doctrine-mongo-odm-module" : "1.0.x-dev",
