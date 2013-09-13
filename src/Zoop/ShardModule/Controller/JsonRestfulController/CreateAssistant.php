@@ -6,7 +6,7 @@
 namespace Zoop\ShardModule\Controller\JsonRestfulController;
 
 use Doctrine\ODM\MongoDB\Proxy\Proxy;
-use Zoop\Shard\Serializer\Serializer;
+use Zoop\Shard\Serializer\Unserializer;
 use Zoop\ShardModule\Exception;
 
 /**
@@ -21,14 +21,15 @@ class CreateAssistant extends AbstractAssistant
     public function doCreate(
         array $data,
         $document,
-        array $deeperResource
+        array $deeperResource,
+        $set = null
     ) {
 
         $metadata = $this->metadata;
         $documentManager = $this->options->getDocumentManager();
 
         if (count($deeperResource) == 0) {
-            $createdDocument = $this->unserialize($data, $document, $metadata, Serializer::UNSERIALIZE_PATCH);
+            $createdDocument = $this->unserialize($data, $document, $metadata, Unserializer::UNSERIALIZE_PATCH);
             if ($documentManager->contains($createdDocument)) {
                 $exception = new Exception\DocumentAlreadyExistsException();
                 $exception->setDocument($createdDocument);
@@ -131,16 +132,25 @@ class CreateAssistant extends AbstractAssistant
             $this->metadata = $embeddedMetadata;
             $embeddedEndpoint = $this->endpoint->getEmbeddedLists()[$field];
             $embeddedEndpointProperty = $embeddedEndpoint->getProperty();
-            $reflField = $embeddedMetadata->reflFields[$embeddedEndpointProperty];
             $collection = $metadata->reflFields[$field]->getValue($document);
-            if (count($deeperResource) > 0) {
-                foreach ($collection as $embeddedDocument) {
-                    //this iteration is slow. Should be replaced when upgrade to new version of mongo happens
-                    if ($reflField->getValue($embeddedDocument) == $deeperResource[0]) {
-                        array_shift($deeperResource);
-                        $this->endpoint = $embeddedEndpoint;
 
-                        return $this->doCreate($data, $embeddedDocument, $deeperResource);
+            if (count($deeperResource) > 0) {
+                if ($embeddedEndpointProperty == '$set') {
+                    if (isset($collection[$deeperResource[0]])) {
+                        $embeddedDocument = $collection[$deeperResource[0]];
+                        $set = array_shift($deeperResource);
+                        $this->endpoint = $embeddedEndpoint;
+                        return $this->doCreate($data, $embeddedDocument, $deeperResource, $set);
+                    }
+                } else {
+                    $reflField = $embeddedMetadata->reflFields[$embeddedEndpointProperty];
+                    foreach ($collection as $embeddedDocument) {
+                        //this iteration is slow. Use the set strategy when you can
+                        if ($reflField->getValue($embeddedDocument) == $deeperResource[0]) {
+                            array_shift($deeperResource);
+                            $this->endpoint = $embeddedEndpoint;
+                            return $this->doCreate($data, $embeddedDocument, $deeperResource);
+                        }
                     }
                 }
                 //embedded document not found in collection
@@ -151,12 +161,17 @@ class CreateAssistant extends AbstractAssistant
                     null,
                     $deeperResource
                 );
-                foreach ($collection as $embeddedDocument) {
-                    if ($reflField->getValue($embeddedDocument) == $reflField->getValue($createdDocument)) {
-                        throw new Exception\DocumentAlreadyExistsException();
+                if ($embeddedEndpointProperty == '$set') {
+                    $collection[$set] = $createdDocument;
+                } else {
+                    $reflField = $embeddedMetadata->reflFields[$embeddedEndpointProperty];
+                    foreach ($collection as $embeddedDocument) {
+                        if ($reflField->getValue($embeddedDocument) == $reflField->getValue($createdDocument)) {
+                            throw new Exception\DocumentAlreadyExistsException();
+                        }
                     }
+                    $collection[] = $createdDocument;
                 }
-                $collection[] = $createdDocument;
 
                 return $createdDocument;
             }

@@ -5,7 +5,7 @@
  */
 namespace Zoop\ShardModule\Controller\JsonRestfulController;
 
-use Zoop\Shard\Serializer\Serializer;
+use Zoop\Shard\Serializer\Unserializer;
 
 /**
  *
@@ -29,7 +29,7 @@ class ReplaceListAssistant extends AbstractAssistant
 
         $documentManager = $this->options->getDocumentManager();
         foreach ($data as $key => $item) {
-            $document = $this->unserialize($item, null, $metadata, Serializer::UNSERIALIZE_UPDATE);
+            $document = $this->unserialize($item, null, $metadata, Unserializer::UNSERIALIZE_UPDATE);
             if ($documentManager->contains($document)) {
                 $list[$key] = $document;
             } else {

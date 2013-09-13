@@ -42,8 +42,7 @@ class DoctrineSubscriber implements EventSubscriber
             SoftDeleteEvents::SOFT_DELETED_UPDATE_DENIED,
             StateEvents::TRANSITION_DENIED,
             StateEvents::BAD_STATE,
-            ValidatorEvents::INVALID_CREATE,
-            ValidatorEvents::INVALID_UPDATE,
+            ValidatorEvents::INVALID_OBJECT,
         ];
     }
 
@@ -52,12 +51,7 @@ class DoctrineSubscriber implements EventSubscriber
         return $this->flushExceptions;
     }
 
-    public function invalidCreate(ValidatorEventArgs $eventArgs)
-    {
-        $this->validationEvent($eventArgs);
-    }
-
-    public function invalidUpdate(ValidatorEventArgs $eventArgs)
+    public function invalidObject(ValidatorEventArgs $eventArgs)
     {
         $this->validationEvent($eventArgs);
     }

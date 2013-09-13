@@ -162,8 +162,8 @@ class JsonRestfulControllerUpdateTest extends AbstractHttpControllerTestCase
              ->find('feed-the-kitty');
 
         $components = $game->getComponents();
-        $this->assertEquals('custom', $components[0]->getType());
-        $this->assertCount(0, $components[0]->getManufacturers());
+        $this->assertEquals('custom', $components['action-dice']->getType());
+        $this->assertCount(0, $components['action-dice']->getManufacturers());
     }
 
     public function testUpdateEmbeddedListItemWithNew()
@@ -176,7 +176,7 @@ class JsonRestfulControllerUpdateTest extends AbstractHttpControllerTestCase
             ->setContent('{"type": "paper"}')
             ->getHeaders()->addHeaders([$accept, ContentType::fromString('Content-type: application/json')]);
 
-        $this->dispatch('/rest/game/feed-the-kitty/components/feeback-form');
+        $this->dispatch('/rest/game/feed-the-kitty/components/feedback-form');
 
         $response = $this->getResponse();
         $result = json_decode($response->getContent(), true);
@@ -189,7 +189,7 @@ class JsonRestfulControllerUpdateTest extends AbstractHttpControllerTestCase
             ->find('feed-the-kitty');
 
         $components = $game->getComponents();
-        $this->assertEquals('paper', $components[3]->getType());
+        $this->assertEquals('paper', $components['feedback-form']->getType());
     }
 
     public function testReplaceEmbeddedList()

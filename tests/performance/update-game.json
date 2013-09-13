@@ -1,0 +1,37 @@
+{
+    "author": {
+        "$ref": "Author\/james"
+    },
+    "components": [
+        {
+            "name": "action-dice",
+            "type": "die",
+            "manufacturers": [
+                {
+                    "name": "Ludo Fact"
+                }
+            ]
+        },
+        {
+            "name": "kitty-bowl",
+            "type": "bowl",
+            "manufacturers": [
+
+            ]
+        },
+        {
+            "type": "mice",
+            "manufacturers": [
+
+            ]
+        }
+    ],
+    "publisher": {
+        "name": "gamewright",
+        "country": {
+            "$ref": "Country\/us"
+        },
+        "city": "Little Rock"
+    },
+    "type": "childrens"
+}

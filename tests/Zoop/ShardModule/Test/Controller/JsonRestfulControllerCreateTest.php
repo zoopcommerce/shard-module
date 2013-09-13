@@ -136,25 +136,25 @@ class JsonRestfulControllerCreateTest extends AbstractHttpControllerTestCase
 
         $this->getRequest()
             ->setMethod('POST')
-            ->setContent('{"name": "age-I", "type": "card"}')
+            ->setContent('{"name": "win-go"}')
             ->getHeaders()->addHeaders([$accept, ContentType::fromString('Content-type: application/json')]);
 
-        $this->dispatch('/rest/game/seven-wonders/components');
+        $this->dispatch('/rest/game/feed-the-kitty/components/action-dice/manufacturers');
 
         $response = $this->getResponse();
         $result = json_decode($response->getContent(), true);
 
         $this->assertResponseStatusCode(201);
         $this->assertEquals(
-            'Location: /rest/game/seven-wonders/components/age-I',
+            'Location: /rest/game/feed-the-kitty/components/action-dice/manufacturers/win-go',
             $response->getHeaders()->get('Location')->toString()
         );
         $this->assertFalse(isset($result));
 
         $game = $this->documentManager
-            ->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Game')->find('seven-wonders');
-        $this->assertEquals('card', $game->getComponents()[2]->getType());
-        $game->getComponents()->remove(2);
+            ->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Game')->find('feed-the-kitty');
+        $this->assertEquals('win-go', $game->getComponents()['action-dice']->getManufacturers()[2]->getName());
+        $game->getComponents()['action-dice']->getManufacturers()->remove(2);
         $this->documentManager->flush();
     }
 
@@ -168,7 +168,7 @@ class JsonRestfulControllerCreateTest extends AbstractHttpControllerTestCase
             ->setContent('{"name": "box", "type": "box"}')
             ->getHeaders()->addHeaders([$accept, ContentType::fromString('Content-type: application/json')]);
 
-        $this->dispatch('/rest/game/not-seven-wonders/components');
+        $this->dispatch('/rest/game/not-feed-the-kitty/components');
 
         $this->assertResponseStatusCode(404);
         $this->assertEquals(
@@ -187,10 +187,10 @@ class JsonRestfulControllerCreateTest extends AbstractHttpControllerTestCase
 
         $this->getRequest()
             ->setMethod('POST')
-            ->setContent('{"name": "wonders", "type": "board"}')
+            ->setContent('{"name": "Panda"}')
             ->getHeaders()->addHeaders([$accept, ContentType::fromString('Content-type: application/json')]);
 
-        $this->dispatch('/rest/game/seven-wonders/components');
+        $this->dispatch('/rest/game/feed-the-kitty/components/action-dice/manufacturers');
 
         $result = json_decode($this->getResponse()->getContent(), true);
 
@@ -292,51 +292,24 @@ class JsonRestfulControllerCreateTest extends AbstractHttpControllerTestCase
 
         $this->getRequest()
             ->setMethod('POST')
-            ->setContent('{"name": "new", "type": "test"}')
+            ->setContent('{"name": "henderson"}')
             ->getHeaders()->addHeaders([$accept, ContentType::fromString('Content-type: application/json')]);
 
-        $this->dispatch('/rest/author/harry/reviews/happy-review/game/components');
+        $this->dispatch('/rest/author/harry/reviews/happy-review/game/components/wonders/manufacturers');
 
         $response = $this->getResponse();
         $result = json_decode($response->getContent(), true);
 
         $this->assertResponseStatusCode(201);
         $this->assertEquals(
-            'Location: /rest/author/harry/reviews/happy-review/game/components/new',
+            'Location: /rest/author/harry/reviews/happy-review/game/components/wonders/manufacturers/henderson',
             $response->getHeaders()->get('Location')->toString()
         );
         $this->assertFalse(isset($result));
 
         $game = $this->documentManager
             ->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Game')->find('seven-wonders');
-        $this->assertEquals('test', $game->getComponents()[2]->getType());
-    }
-
-    public function testDeedNestedEmbeddedCreate()
-    {
-        $accept = new Accept;
-        $accept->addMediaType('application/json');
-
-        $this->getRequest()
-            ->setMethod('POST')
-            ->setContent('{"name": "A1-boards", "email": "contact@here.com"}')
-            ->getHeaders()->addHeaders([$accept, ContentType::fromString('Content-type: application/json')]);
-
-        $this->dispatch('/rest/game/seven-wonders/components/wonders/manufacturers');
-
-        $response = $this->getResponse();
-        $result = json_decode($response->getContent(), true);
-
-        $this->assertResponseStatusCode(201);
-        $this->assertEquals(
-            'Location: /rest/game/seven-wonders/components/wonders/manufacturers/A1-boards',
-            $response->getHeaders()->get('Location')->toString()
-        );
-        $this->assertFalse(isset($result));
-
-        $game = $this->documentManager
-            ->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Game')->find('seven-wonders');
-        $this->assertEquals('contact@here.com', $game->getComponents()[0]->getManufacturers()[0]->getEmail());
+        $this->assertEquals('henderson', $game->getComponents()['wonders']->getManufacturers()[0]->getName());
     }
 
     public function testDeedNestedEmbeddedOneCreate()

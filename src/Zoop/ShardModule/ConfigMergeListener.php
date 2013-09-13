@@ -61,21 +61,26 @@ class ConfigMergeListener implements ListenerAggregateInterface
 
         foreach ($config['zoop']['shard']['manifest'] as $name => $manifestConfig) {
             if (!isset($manifestConfig['initalized']) || !$manifestConfig['initalized']) {
+
+                $objectManager = $manifestConfig['object_manager'];
+                unset($manifestConfig['object_manager']);
+
                 $manifest = new Manifest($manifestConfig);
                 $manifestConfig = $manifest->toArray();
+                $manifestConfig['object_manager'] = $objectManager;
                 $config['zoop']['shard']['manifest'][$name] = $manifestConfig;
 
                 //add delegators
-                $documentManagerConfig = $config;
-                foreach (explode('.', $manifestConfig['document_manager']) as $key) {
-                    $documentManagerConfig = $documentManagerConfig[$key];
+                $objectManagerConfig = $config;
+                foreach (explode('.', $objectManager) as $key) {
+                    $objectManagerConfig = $objectManagerConfig[$key];
                 }
 
                 $delegatorConfig = [
                     'delegators' => [
-                        $manifestConfig['document_manager'] => ['shard.' . $name . '.documentManagerDelegatorFactory'],
-                        $documentManagerConfig['eventmanager'] => ['shard.' . $name . '.eventManagerDelegatorFactory'],
-                        $documentManagerConfig['configuration'] => ['shard.' .$name . '.configurationDelegatorFactory']
+                        $objectManager => ['shard.' . $name . '.objectmanager.delegator.factory'],
+                        $objectManagerConfig['eventmanager'] => ['shard.' . $name . '.eventmanager.delegator.factory'],
+                        $objectManagerConfig['configuration'] => ['shard.' .$name . '.configuration.delegator.factory']
                     ]
                 ];
                 $config['service_manager'] = ArrayUtils::merge($config['service_manager'], $delegatorConfig);
