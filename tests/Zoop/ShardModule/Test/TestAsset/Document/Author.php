@@ -37,12 +37,6 @@ class Author
     protected $reviews;
 
     /**
-     * @ODM\ReferenceOne(targetDocument="Country", simple="true", cascade="all")
-     * @Shard\Serializer\Ignore
-     */
-    protected $secret;
-
-    /**
      * @ODM\String
      * @Shard\Validator\Chain({
      *     @Shard\Validator\NotRequired,
@@ -95,16 +89,6 @@ class Author
     public function setReviews($reviews)
     {
         $this->reviews = $reviews;
-    }
-
-    public function getSecret()
-    {
-        return $this->secret;
-    }
-
-    public function setSecret($secret)
-    {
-        $this->secret = $secret;
     }
 
     public function getNickname()

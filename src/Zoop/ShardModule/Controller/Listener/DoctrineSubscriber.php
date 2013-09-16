@@ -3,7 +3,7 @@
  * @package    Zoop
  * @license    MIT
  */
-namespace Zoop\ShardModule\Controller\JsonRestfulController;
+namespace Zoop\ShardModule\Controller\Listener;
 
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ODM\MongoDB\Event\OnFlushEventArgs;

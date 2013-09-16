@@ -7,7 +7,7 @@ use Zend\Test\PHPUnit\Controller\AbstractHttpControllerTestCase;
 use Zend\Http\Header\Accept;
 use Zend\Http\Header\ContentType;
 
-class JsonRestfulControllerCreateTest extends AbstractHttpControllerTestCase
+class RestfulControllerCreateTest extends AbstractHttpControllerTestCase
 {
     protected static $staticDcumentManager;
 
@@ -62,7 +62,7 @@ class JsonRestfulControllerCreateTest extends AbstractHttpControllerTestCase
             ->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Game')->find('forbidden-island');
         $this->assertEquals('co-op', $game->getType());
     }
-
+/*
     public function testCreateDeep404()
     {
         $accept = new Accept;
@@ -342,4 +342,6 @@ class JsonRestfulControllerCreateTest extends AbstractHttpControllerTestCase
             ->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Country')->find('belgum');
         $this->assertEquals('samson', $country->getAuthors()[0]->getName());
     }
+ *
+ */
 }

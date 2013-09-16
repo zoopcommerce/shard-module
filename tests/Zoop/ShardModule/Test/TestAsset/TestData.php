@@ -63,7 +63,6 @@ class TestData
         $author3 = new Document\Author;
         $author3->setName('james');
         $author3->setCountry($country2);
-        $author3->setSecret($country2);
 
         $author4 = new Document\Author;
         $author4->setName('bill');

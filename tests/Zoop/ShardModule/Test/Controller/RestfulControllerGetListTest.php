@@ -7,7 +7,7 @@ use Zend\Test\PHPUnit\Controller\AbstractHttpControllerTestCase;
 use Zend\Http\Header\Accept;
 use Zend\Http\Header\Range;
 
-class JsonRestfulControllerGetListTest extends AbstractHttpControllerTestCase
+class RestfulControllerGetListTest extends AbstractHttpControllerTestCase
 {
     protected static $staticDcumentManager;
 
@@ -51,7 +51,7 @@ class JsonRestfulControllerGetListTest extends AbstractHttpControllerTestCase
 
         $this->assertResponseStatusCode(200);
         $this->assertControllerName('rest.default.author');
-        $this->assertControllerClass('JsonRestfulController');
+        $this->assertControllerClass('RestfulController');
         $this->assertMatchedRouteName('rest.default');
 
         $this->assertCount(4, $result);
@@ -76,7 +76,7 @@ class JsonRestfulControllerGetListTest extends AbstractHttpControllerTestCase
 
         $this->assertResponseStatusCode(200);
         $this->assertControllerName('rest.default.author');
-        $this->assertControllerClass('JsonRestfulController');
+        $this->assertControllerClass('RestfulController');
         $this->assertMatchedRouteName('rest.default');
 
         $this->assertCount(4, $result);

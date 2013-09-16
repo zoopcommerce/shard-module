@@ -5,13 +5,11 @@
  */
 namespace Zoop\ShardModule\Controller;
 
-use Zoop\ShardModule\Controller\JsonRestfulController\DoctrineSubscriber;
 use Zoop\ShardModule\Exception;
-use Zoop\ShardModule\Options\JsonRestfulControllerOptions;
+use Zoop\ShardModule\Options\RestfulControllerOptions;
 use Zend\Http\Header\Location;
 use Zend\Mvc\Controller\AbstractRestfulController;
 use Zend\Mvc\MvcEvent;
-use Zend\View\Model\ModelInterface;
 use Zend\View\Model\JsonModel;
 
 /**
@@ -20,38 +18,20 @@ use Zend\View\Model\JsonModel;
  * @version $Revision$
  * @author  Tim Roediger <superdweebie@gmail.com>
  */
-class JsonRestfulController extends AbstractRestfulController
+class RestfulController extends AbstractRestfulController
 {
     protected $options;
 
-    protected $doctrineSubscriber;
-
-    public function onDispatch(MvcEvent $e)
+    public function onDispatch(MvcEvent $event)
     {
-        $this->options->getDocumentManager()->getEventManager()->addEventSubscriber($this->doctrineSubscriber);
-        $result = parent::onDispatch($e);
+        //attach listeners for shard/doctrine events
+        $this->options->getObjectManager()->getEventManager()->addEventSubscriber($this->options->getDoctrineSubscriber());
 
-        //set the template
-        if ($result instanceof ModelInterface && ! ($template = $result->getTemplate())) {
-            $action = $e->getRouteMatch()->getParam('action');
-            if ($action == 'get') {
-                $result->setTemplate($this->options->getGetTemplate());
-            } elseif ($action == 'getList') {
-                $result->setTemplate($this->options->getGetListTemplate());
-            }
-        }
+        $event->setResult(parent::onDispatch($event));
 
+        $result = $this->trigger(Event::PREPARE_VIEW_MODEL, $event)->last();
+        $event->setResult($result);
         return $result;
-    }
-
-    public function getDoctrineSubscriber()
-    {
-        return $this->doctrineSubscriber;
-    }
-
-    public function setDoctrineSubscriber(DoctrineSubscriber $doctrineSubscriber)
-    {
-        $this->doctrineSubscriber = $doctrineSubscriber;
     }
 
     public function getOptions()
@@ -59,76 +39,77 @@ class JsonRestfulController extends AbstractRestfulController
         return $this->options;
     }
 
-    public function setOptions(JsonRestfulControllerOptions $options)
+    public function setOptions(RestfulControllerOptions $options)
     {
         $this->options = $options;
     }
 
-    public function __construct(JsonRestfulControllerOptions $options = null)
+    public function __construct(RestfulControllerOptions $options = null)
     {
         if (!isset($options)) {
-            $options = new JsonRestfulControllerOptions;
+            $options = new RestfulControllerOptions;
         }
         $this->setOptions($options);
     }
 
+    public function trigger($name, $event)
+    {
+        //first lazy load the listener
+        $eventManager = $this->getEventManager();
+        $eventManager->attach($this->options->getListener($name));
+
+        //then trigger the event
+        return $eventManager->trigger($name, $event);
+    }
+
     public function getList()
     {
-        $assistant = $this->options->getGetListAssistant();
-        $assistant->setController($this);
-        $list = $assistant->doGetList();
-
-        $model = $this->acceptableViewModelSelector($this->options->getAcceptCriteria())->setVariables($list);
-
-        if (count($list) == 0 && $model instanceof JsonModel) {
-            return $this->response;
-        }
-
-        return $model;
+        //trigger event
+        return $this->trigger(Event::GET_LIST, $$this->getEvent())->last();
     }
 
     public function get($id)
     {
-        $parts = explode('/', $id);
-        $id = $parts[0];
+        $event = $this->getEvent();
 
-        array_shift($parts);
-        $deeperResource = $parts;
+        if ($event->getParam('id', null) == null) {
+            $parts = explode('/', $id);
+            $id = $parts[0];
 
-        $assistant = $this->options->getGetAssistant();
-        $assistant->setController($this);
-        $result = $assistant->doGet($id, $deeperResource);
+            array_shift($parts);
 
-        if ($result instanceof ModelInterface) {
-            return $result;
+            $event->setParam('id', $id);
+            $event->setParam('deeperResource', $parts);
         }
 
-        return $this->acceptableViewModelSelector($this->options->getAcceptCriteria())->setVariables($result);
+        //trigger event
+        return $this->trigger(Event::GET, $event)->last();
     }
 
     public function create($data)
     {
-        $documentManager = $this->options->getDocumentManager();
-        $document = null;
-        $deeperResource = [];
+        $event = $this->getEvent();
 
-        if ($path = $this->getEvent()->getRouteMatch()->getParam('id')) {
+        if ($event->getParam('id', null) == null && $path = $this->getEvent()->getRouteMatch()->getParam('id')) {
             $parts = explode('/', $path);
-            $document = $parts[0];
+            $id = $parts[0];
             array_shift($parts);
-            $deeperResource = $parts;
+            $event->setParam('id', $id);
+            $event->setParam('deeperResource', $parts);
         }
 
-        $assistant = $this->options->getCreateAssistant();
-        $assistant->setController($this);
-        $createdDocument = $assistant->doCreate($data, $document, $deeperResource);
+        $event->setParam('data', $data);
 
-        if ($this->getEvent()->getRouteMatch()->getParam('surpressResponse')) {
+        //trigger event
+        $createdDocument = $this->trigger(Event::CREATE, $event)->last();
+
+        if ($this->getEvent()->getParam('surpressResponse')) {
             return $createdDocument;
         }
 
-        $this->flush();
-        $createdMetadata = $documentManager->getClassMetadata(get_class($createdDocument));
+        $this->trigger(Event::FLUSH, $event);
+
+        $createdMetadata = $this->options->getObjectManager()->getClassMetadata(get_class($createdDocument));
 
         $this->response->setStatusCode(201);
         $this->response->getHeaders()->addHeader(
@@ -136,14 +117,14 @@ class JsonRestfulController extends AbstractRestfulController
                 'Location: ' .
                 $this->request->getUri()->getPath() .
                 '/' .
-                $createdMetadata->reflFields[
-                $this->options
-                    ->getEndpointMap()->getEndpointsFromMetadata($createdMetadata)[0]->getProperty()
-                ]->getValue($createdDocument)
+                $createdMetadata->getFieldValue(
+                    $createdDocument,
+                    $this->options->getEndpointMap()->getEndpointsFromMetadata($createdMetadata)[0]->getProperty()
+                )
             )
         );
 
-        return $this->response;
+        return [];
     }
 
     public function update($id, $data)

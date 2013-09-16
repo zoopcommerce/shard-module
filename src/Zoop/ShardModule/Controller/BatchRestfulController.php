@@ -19,7 +19,7 @@ use Zend\Stdlib\Parameters;
 use Zend\View\Model\JsonModel;
 use Zend\View\Model\ModelInterface;
 
-class BatchJsonRestfulController extends AbstractRestfulController
+class BatchRestfulController extends AbstractRestfulController
 {
 
     protected $options;
@@ -151,11 +151,17 @@ class BatchJsonRestfulController extends AbstractRestfulController
         throw new Exception\MethodNotAllowedException;
     }
 
+    /**
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     public function get($id)
     {
         throw new Exception\MethodNotAllowedException;
     }
 
+    /**
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     public function delete($id)
     {
         throw new Exception\MethodNotAllowedException;
@@ -166,21 +172,33 @@ class BatchJsonRestfulController extends AbstractRestfulController
         throw new Exception\MethodNotAllowedException;
     }
 
+    /**
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     public function update($id, $data)
     {
         throw new Exception\MethodNotAllowedException;
     }
 
+    /**
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     public function replaceList($data)
     {
         throw new Exception\MethodNotAllowedException;
     }
 
+    /**
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     public function patch($id, $data)
     {
         throw new Exception\MethodNotAllowedException;
     }
 
+    /**
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     public function patchList($data)
     {
         throw new Exception\MethodNotAllowedException;

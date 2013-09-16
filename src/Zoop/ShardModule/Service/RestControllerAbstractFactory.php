@@ -5,9 +5,8 @@
  */
 namespace Zoop\ShardModule\Service;
 
-use Zoop\ShardModule\Controller\JsonRestfulController;
-use Zoop\ShardModule\Controller\JsonRestfulController\DoctrineSubscriber;
-use Zoop\ShardModule\Options\JsonRestfulControllerOptions;
+use Zoop\ShardModule\Controller\RestfulController;
+use Zoop\ShardModule\Options\RestfulControllerOptions;
 use Zend\ServiceManager\AbstractFactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
@@ -60,12 +59,7 @@ class RestControllerAbstractFactory implements AbstractFactoryInterface
             );
         }
 
-        $options = new JsonRestfulControllerOptions($options);
-
-        $instance = new JsonRestfulController($options);
-        $instance->setDoctrineSubscriber(new DoctrineSubscriber);
-
-        return $instance;
+        return new RestfulController(new RestfulControllerOptions($options));
     }
 
     protected function getEndpointMap($manifestName, $serviceLocator)

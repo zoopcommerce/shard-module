@@ -3,10 +3,16 @@
  * @package    Zoop
  * @license    MIT
  */
-namespace Zoop\ShardModule\Controller\JsonRestfulController;
+namespace Zoop\ShardModule\Controller\Listener;
 
+use Doctrine\ODM\MongoDB\Proxy\Proxy;
+use Zend\EventManager\EventManagerInterface;
+use Zend\EventManager\ListenerAggregateInterface;
+use Zend\Http\Header\CacheControl;
+use Zend\Http\Header\LastModified;
+use Zend\Mvc\MvcEvent;
 use Zoop\ShardModule\Exception;
-use Zend\Http\Header\ContentRange;
+use Zoop\ShardModule\Controller\Event;
 
 /**
  *
@@ -14,32 +20,58 @@ use Zend\Http\Header\ContentRange;
  * @version $Revision$
  * @author  Tim Roediger <superdweebie@gmail.com>
  */
-class GetListAssistant extends AbstractAssistant
+class GetListListener implements ListenerAggregateInterface
 {
+    use SelectTrait;
 
-    protected $range;
+    protected $listeners = array();
 
     /**
-     * If list array is supplied, it will be filtered and sorted in php.
-     * If list is empty, it will be loaded from the db, (filter and sort will be applied by the db).
+     * Attach to an event manager
      *
-     * If metadata is not suppled, it will be retrieved using $this->options->getDocumentClass()
-     *
-     * @param  ArrayCollection $list
-     * @return type
+     * @param  EventManagerInterface $events
+     * @return void
      */
-    public function doGetList($list = null)
+    public function attach(EventManagerInterface $events)
     {
-        unset($this->range);
+        $this->listeners[] = $events->attach(Event::GET_LIST, [$this, 'onGetList']);
+    }
 
-        if ($list) {
-            $list = $list->getValues();
+    /**
+     * Detach all our listeners from the event manager
+     *
+     * @param  EventManagerInterface $events
+     * @return void
+     */
+    public function detach(EventManagerInterface $events)
+    {
+        foreach ($this->listeners as $index => $listener) {
+            if ($events->detach($listener)) {
+                unset($this->listeners[$index]);
+            }
+        }
+    }
+
+    public function onGetList(MvcEvent $event)
+    {
+        $options = $event->getTarget()->getOptions();
+        $documentManager = $options->getObjectManager();
+
+        if (! ($endpoint = $event->getParam('endpoint'))) {
+            $endpoint = $options->getEndpoint();
         }
 
-        $response = $this->controller->getResponse();
-        $documentManager = $this->options->getDocumentManager();
-        $serializer = $this->options->getSerializer();
-        $metadata = $this->metadata;
+        if ($document = $event->getParam('document')) {
+            $metadata = $documentManager->getClassMetadata(get_class($document));
+        } else {
+            $metadata = $documentManager->getClassMetadata($options->getDocumentClass());
+        }
+
+        unset($this->range);
+
+        if ($list = $event->getParam('list')) {
+            $list = $list->getValues();
+        }
 
         $criteria = $this->getCriteria($metadata);
 
@@ -61,8 +93,6 @@ class GetListAssistant extends AbstractAssistant
         }
 
         if ($total == 0) {
-            $response->setStatusCode(204);
-
             return [];
         }
 
@@ -78,9 +108,8 @@ class GetListAssistant extends AbstractAssistant
                 $this->applySortToList($list, $sort);
             }
             $list = array_slice($list, $offset, $this->getLimit());
-            foreach ($list as $item) {
-                $items[] = $serializer->toArray($item);
-            }
+            $event->setParam('list') = $list;
+            $items = $event->getTarget()->trigger(Event::SERIALIZE_LIST, $event)->last();
         } else {
             $resultsQuery = $documentManager->createQueryBuilder()
                 ->find($metadata->name);
@@ -92,9 +121,8 @@ class GetListAssistant extends AbstractAssistant
                 ->eagerCursor(true)
                 ->getQuery()
                 ->execute();
-            foreach ($resultsCursor as $result) {
-                $items[] = $serializer->toArray($result);
-            }
+            $event->setParam('list') = $resultsCursor;
+            $items = $event->getTarget()->trigger(Event::SERIALIZE_LIST, $event)->last();
         }
 
         //apply any select
@@ -106,7 +134,7 @@ class GetListAssistant extends AbstractAssistant
         }
 
         $max = $offset + count($items) - 1;
-        $response->getHeaders()->addHeader(ContentRange::fromString("Content-Range: $offset-$max/$total"));
+        $event->getResponse()->getHeaders()->addHeader(ContentRange::fromString("Content-Range: $offset-$max/$total"));
 
         return $items;
     }

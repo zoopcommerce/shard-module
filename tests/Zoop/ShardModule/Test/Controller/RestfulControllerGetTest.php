@@ -6,7 +6,7 @@ use Zoop\ShardModule\Test\TestAsset\TestData;
 use Zend\Test\PHPUnit\Controller\AbstractHttpControllerTestCase;
 use Zend\Http\Header\Accept;
 
-class JsonRestfulControllerGetTest extends AbstractHttpControllerTestCase
+class RestfulControllerGetTest extends AbstractHttpControllerTestCase
 {
     protected static $staticDcumentManager;
 
@@ -49,7 +49,7 @@ class JsonRestfulControllerGetTest extends AbstractHttpControllerTestCase
 
         $this->assertResponseStatusCode(200);
         $this->assertControllerName('rest.default.game');
-        $this->assertControllerClass('JsonRestfulController');
+        $this->assertControllerClass('RestfulController');
         $this->assertMatchedRouteName('rest.default');
 
         $this->assertEquals(
@@ -69,7 +69,7 @@ class JsonRestfulControllerGetTest extends AbstractHttpControllerTestCase
 
         $this->assertResponseStatusCode(200);
         $this->assertControllerName('rest.default.game');
-        $this->assertControllerClass('JsonRestfulController');
+        $this->assertControllerClass('RestfulController');
         $this->assertMatchedRouteName('rest.default');
         $this->assertTemplateName('zoop/rest/get');
         $this->assertEquals(
@@ -146,28 +146,6 @@ class JsonRestfulControllerGetTest extends AbstractHttpControllerTestCase
         $this->assertEquals('Document not found', $result['title']);
     }
 
-    public function testGetSerializerIgnoreFail()
-    {
-        $accept = new Accept;
-        $accept->addMediaType('application/json');
-
-        $this->getRequest()
-            ->setMethod('GET')
-            ->getHeaders()->addHeader($accept);
-
-        $this->dispatch('/rest/author/james/secret');
-
-        $this->assertResponseStatusCode(404);
-        $this->assertEquals(
-            'Content-Type: application/api-problem+json',
-            $this->getResponse()->getHeaders()->get('Content-Type')->toString()
-        );
-
-        $result = json_decode($this->getResponse()->getContent(), true);
-        $this->assertEquals('/exception/document-not-found', $result['describedBy']);
-        $this->assertEquals('Document not found', $result['title']);
-    }
-
     public function testGetPartial()
     {
         $accept = new Accept;
@@ -183,7 +161,7 @@ class JsonRestfulControllerGetTest extends AbstractHttpControllerTestCase
 
         $this->assertResponseStatusCode(200);
         $this->assertControllerName('rest.default.game');
-        $this->assertControllerClass('JsonRestfulController');
+        $this->assertControllerClass('RestfulController');
         $this->assertMatchedRouteName('rest.default');
 
         $this->assertFalse(isset($result['name']));
@@ -208,11 +186,12 @@ class JsonRestfulControllerGetTest extends AbstractHttpControllerTestCase
 
         $this->assertResponseStatusCode(200);
         $this->assertControllerName('rest.default.game');
-        $this->assertControllerClass('JsonRestfulController');
+        $this->assertControllerClass('RestfulController');
         $this->assertMatchedRouteName('rest.default');
 
         $this->assertEquals('gamewright', $result['name']);
     }
+
 
     public function testGetEmbeddedListItem()
     {
@@ -229,7 +208,7 @@ class JsonRestfulControllerGetTest extends AbstractHttpControllerTestCase
 
         $this->assertResponseStatusCode(200);
         $this->assertControllerName('rest.default.game');
-        $this->assertControllerClass('JsonRestfulController');
+        $this->assertControllerClass('RestfulController');
         $this->assertMatchedRouteName('rest.default');
 
         $this->assertEquals('die', $result['type']);
@@ -250,7 +229,7 @@ class JsonRestfulControllerGetTest extends AbstractHttpControllerTestCase
 
         $this->assertResponseStatusCode(200);
         $this->assertControllerName('rest.default.game');
-        $this->assertControllerClass('JsonRestfulController');
+        $this->assertControllerClass('RestfulController');
         $this->assertMatchedRouteName('rest.default');
         $this->assertEquals('james', $result['name']);
     }
@@ -270,7 +249,7 @@ class JsonRestfulControllerGetTest extends AbstractHttpControllerTestCase
 
         $this->assertResponseStatusCode(200);
         $this->assertControllerName('rest.default.game');
-        $this->assertControllerClass('JsonRestfulController');
+        $this->assertControllerClass('RestfulController');
         $this->assertMatchedRouteName('rest.default');
 
         $this->assertEquals('great-review', $result['title']);
@@ -291,7 +270,7 @@ class JsonRestfulControllerGetTest extends AbstractHttpControllerTestCase
 
         $this->assertResponseStatusCode(200);
         $this->assertControllerName('rest.default.game');
-        $this->assertControllerClass('JsonRestfulController');
+        $this->assertControllerClass('RestfulController');
         $this->assertMatchedRouteName('rest.default');
 
         $this->assertEquals('us', $result['name']);
@@ -311,7 +290,7 @@ class JsonRestfulControllerGetTest extends AbstractHttpControllerTestCase
         $result = json_decode($this->getResponse()->getContent(), true);
 
         $this->assertResponseStatusCode(200);
-        $this->assertControllerClass('JsonRestfulController');
+        $this->assertControllerClass('RestfulController');
         $this->assertMatchedRouteName('rest.default');
 
         $this->assertEquals('thomas', $result['name']);

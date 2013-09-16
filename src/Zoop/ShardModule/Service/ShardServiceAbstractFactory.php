@@ -21,6 +21,9 @@ class ShardServiceAbstractFactory implements AbstractFactoryInterface
 
     protected $manifestServiceManagers = [];
 
+    /**
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     public function canCreateServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
     {
         if ($factoryMapping = $this->getFactoryMapping($name)) {
@@ -40,6 +43,9 @@ class ShardServiceAbstractFactory implements AbstractFactoryInterface
         return false;
     }
 
+    /**
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     public function createServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
     {
         $factoryMapping = $this->getFactoryMapping($name);

@@ -19,6 +19,9 @@ class UserAbstractFactory implements AbstractFactoryInterface
 
     protected $activeCall = false;
 
+    /**
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     public function canCreateServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
     {
         //this if is to stop recursion. There can be only one user per manifest.
@@ -38,6 +41,9 @@ class UserAbstractFactory implements AbstractFactoryInterface
         $this->activeCall = false;
     }
 
+    /**
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     public function createServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
     {
         return $serviceLocator->get('Zend\Authentication\AuthenticationService')->getIdentity();

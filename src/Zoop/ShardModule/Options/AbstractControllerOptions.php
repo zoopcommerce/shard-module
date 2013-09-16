@@ -19,7 +19,7 @@ class AbstractControllerOptions extends AbstractOptions
 
     protected $serviceLocator;
 
-    protected $documentManager;
+    protected $objectManager;
 
     protected $manifestName;
 
@@ -45,22 +45,22 @@ class AbstractControllerOptions extends AbstractOptions
      *
      * @return \Doctrine\ODM\Mongo\DocumentManager
      */
-    public function getDocumentManager()
+    public function getObjectManager()
     {
-        if (! isset($this->documentManager)) {
-            $this->documentManager = $this->serviceLocator->get('objectmanager');
+        if (! isset($this->objectManager)) {
+            $this->objectManager = $this->serviceLocator->get('objectmanager');
         }
 
-        return $this->documentManager;
+        return $this->objectManager;
     }
 
     /**
      *
      * @param string | \Doctrine\ODM\Mongo\DocumentManager $documentManager
      */
-    public function setDocumentManager($documentManager)
+    public function setObjectManager($objectManager)
     {
-        $this->documentManager = $documentManager;
+        $this->objectManager = $objectManager;
     }
 
     /**
