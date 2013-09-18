@@ -57,13 +57,9 @@ class RouteListener implements ListenerAggregateInterface
 
     public static function resolveController(RouteMatch $routeMatch)
     {
-        if (($extension = $routeMatch->getParam('extension')) &&
-            ($manifestName = $routeMatch->getParam('manifestName'))
-        ) {
+        if (($endpoint = $routeMatch->getParam('endpoint'))) {
             if ($endpoint = $routeMatch->getParam('endpoint')) {
-                $routeMatch->setParam('controller', implode('.', [$extension, $manifestName, $endpoint]));
-            } else {
-                $routeMatch->setParam('controller', implode('.', [$extension, $manifestName]));
+                $routeMatch->setParam('controller', 'shard.rest.' . $endpoint);
             }
         }
     }

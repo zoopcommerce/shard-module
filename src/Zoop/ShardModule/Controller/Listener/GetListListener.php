@@ -5,11 +5,8 @@
  */
 namespace Zoop\ShardModule\Controller\Listener;
 
-use Doctrine\ODM\MongoDB\Proxy\Proxy;
 use Zend\EventManager\EventManagerInterface;
-use Zend\EventManager\ListenerAggregateInterface;
-use Zend\Http\Header\CacheControl;
-use Zend\Http\Header\LastModified;
+use Zend\Http\Header\ContentRange;
 use Zend\Mvc\MvcEvent;
 use Zoop\ShardModule\Exception;
 use Zoop\ShardModule\Controller\Event;
@@ -20,11 +17,9 @@ use Zoop\ShardModule\Controller\Event;
  * @version $Revision$
  * @author  Tim Roediger <superdweebie@gmail.com>
  */
-class GetListListener implements ListenerAggregateInterface
+class GetListListener extends AbstractListener
 {
     use SelectTrait;
-
-    protected $listeners = array();
 
     /**
      * Attach to an event manager
@@ -37,25 +32,10 @@ class GetListListener implements ListenerAggregateInterface
         $this->listeners[] = $events->attach(Event::GET_LIST, [$this, 'onGetList']);
     }
 
-    /**
-     * Detach all our listeners from the event manager
-     *
-     * @param  EventManagerInterface $events
-     * @return void
-     */
-    public function detach(EventManagerInterface $events)
-    {
-        foreach ($this->listeners as $index => $listener) {
-            if ($events->detach($listener)) {
-                unset($this->listeners[$index]);
-            }
-        }
-    }
-
     public function onGetList(MvcEvent $event)
     {
         $options = $event->getTarget()->getOptions();
-        $documentManager = $options->getObjectManager();
+        $documentManager = $options->getModelManager();
 
         if (! ($endpoint = $event->getParam('endpoint'))) {
             $endpoint = $options->getEndpoint();
@@ -63,21 +43,20 @@ class GetListListener implements ListenerAggregateInterface
 
         if ($document = $event->getParam('document')) {
             $metadata = $documentManager->getClassMetadata(get_class($document));
+        } else if ($list = $event->getParam('list')) {
+            $list = $list->getValues();
+            $metadata = $documentManager->getClassMetadata(get_class($list[0]));
         } else {
             $metadata = $documentManager->getClassMetadata($options->getDocumentClass());
         }
 
         unset($this->range);
 
-        if ($list = $event->getParam('list')) {
-            $list = $list->getValues();
-        }
-
-        $criteria = $this->getCriteria($metadata);
+        $criteria = $this->getCriteria($metadata, $event);
 
         //filter list on criteria
         if (count($criteria) > 0 && $list) {
-            $list = $this->applyCriteriaToList($list, $criteria);
+            $list = $this->applyCriteriaToList($list, $criteria, $metadata);
         }
 
         if ($list) {
@@ -96,37 +75,37 @@ class GetListListener implements ListenerAggregateInterface
             return [];
         }
 
-        $offset = $this->getOffset();
+        $offset = $this->getOffset($event);
         if ($offset > $total - 1) {
             throw new Exception\BadRangeException();
         }
-        $sort = $this->getSort();
+        $sort = $this->getSort($event);
 
         if ($list) {
             //apply any required sort to the result
             if (count($sort) > 0) {
-                $this->applySortToList($list, $sort);
+                $this->applySortToList($list, $sort, $metadata);
             }
-            $list = array_slice($list, $offset, $this->getLimit());
-            $event->setParam('list') = $list;
+            $list = array_slice($list, $offset, $this->getLimit($event));
+            $event->setParam('list', $list);
             $items = $event->getTarget()->trigger(Event::SERIALIZE_LIST, $event)->last();
         } else {
             $resultsQuery = $documentManager->createQueryBuilder()
                 ->find($metadata->name);
             $this->addCriteriaToQuery($resultsQuery, $criteria);
             $resultsQuery
-                ->limit($this->getLimit())
+                ->limit($this->getLimit($event))
                 ->skip($offset);
             $resultsCursor = $this->addSortToQuery($resultsQuery, $sort)
                 ->eagerCursor(true)
                 ->getQuery()
                 ->execute();
-            $event->setParam('list') = $resultsCursor;
+            $event->setParam('list', $resultsCursor);
             $items = $event->getTarget()->trigger(Event::SERIALIZE_LIST, $event)->last();
         }
 
         //apply any select
-        if ($select = $this->getSelect()) {
+        if ($select = $this->getSelect($event)) {
             $select = array_fill_keys($select, 0);
             foreach ($items as $key => $item) {
                 $items[$key] = array_intersect_key($item, $select);
@@ -139,26 +118,25 @@ class GetListListener implements ListenerAggregateInterface
         return $items;
     }
 
-    protected function getLimit()
+    protected function getLimit($event)
     {
-        list($lower, $upper) = $this->getRange();
-
+        list($lower, $upper) = $this->getRange($event);
         return $upper - $lower + 1;
     }
 
-    protected function getOffset()
+    protected function getOffset($event)
     {
-        return $this->getRange()[0];
+        return $this->getRange($event)[0];
     }
 
-    protected function getRange()
+    protected function getRange($event)
     {
         if (isset($this->range)) {
             return $this->range;
         }
 
-        $header = $this->controller->getRequest()->getHeader('Range');
-        $limit = $this->options->getLimit();
+        $header = $event->getTarget()->getRequest()->getHeader('Range');
+        $limit = $event->getTarget()->getOptions()->getLimit();
         if ($header) {
             list($lower, $upper) = array_map(
                 function ($item) {
@@ -180,11 +158,11 @@ class GetListListener implements ListenerAggregateInterface
         return $this->range;
     }
 
-    protected function getCriteria($metadata)
+    protected function getCriteria($metadata, $event)
     {
         $result = [];
-        $dotPlaceholder = $this->controller->getOptions()->getQueryDotPlaceholder();
-        foreach ($this->controller->getRequest()->getQuery() as $key => $value) {
+        $dotPlaceholder = $event->getTarget()->getOptions()->getQueryDotPlaceholder();
+        foreach ($event->getTarget()->getRequest()->getQuery() as $key => $value) {
             //ignore criteria that are null
             if (isset($value) && $value !== '') {
                 if (substr($value, 0, 1) == '[') {
@@ -219,10 +197,8 @@ class GetListListener implements ListenerAggregateInterface
         return $query;
     }
 
-    protected function applyCriteriaToList($list, $criteria)
+    protected function applyCriteriaToList($list, $criteria, $metadata)
     {
-        $metadata = $this->options->getDocumentManager()->getClassMetadata(get_class($list[0]));
-
         return array_filter(
             $list,
             function ($item) use ($criteria, $metadata) {
@@ -266,10 +242,8 @@ class GetListListener implements ListenerAggregateInterface
         );
     }
 
-    protected function applySortToList(&$list, $sort)
+    protected function applySortToList(&$list, $sort, $metadata)
     {
-        $metadata = $this->options->getDocumentManager()->getClassMetadata(get_class($list[0]));
-
         usort(
             $list,
             function ($a, $b) use ($sort, $metadata) {
@@ -294,9 +268,9 @@ class GetListListener implements ListenerAggregateInterface
         );
     }
 
-    protected function getSort()
+    protected function getSort($event)
     {
-        foreach ($this->controller->getRequest()->getQuery() as $key => $value) {
+        foreach ($event->getTarget()->getRequest()->getQuery() as $key => $value) {
             if (substr($key, 0, 4) == 'sort' && (! isset($value) || $value == '')) {
                 $sort = $key;
                 break;

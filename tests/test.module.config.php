@@ -2,13 +2,45 @@
 return [
     'zoop' => [
         'shard' => [
-            'controllers' => [
-                'rest' => [
-                    'default' => [
-                        'review' => [
-                            'limit' => 2
+            'rest' => [
+                'game' => [
+                    'class' => 'Zoop\ShardModule\Test\TestAsset\Document\Game',
+                    'property' => 'name',
+                    'manifest' => 'default',
+                    'cache_control' => [
+                        'no_cache' => true
+                    ],
+                    'rest' => [
+                        'components' => [
+                            'class' => 'Zoop\ShardModule\Test\TestAsset\Document\Component',
+                            'rest' => [
+                                'manufacturers' => [
+                                    'property' => 'name'
+                                ]
+                            ]
                         ]
                     ]
+                ],
+                'author'  => [
+                    'class' => 'Zoop\ShardModule\Test\TestAsset\Document\Author',
+                    'property' => 'name',
+                    'manifest' => 'default',
+                ],
+                'country' => [
+                    'class' => 'Zoop\ShardModule\Test\TestAsset\Document\Country',
+                    'property' => 'name',
+                    'manifest' => 'default',
+                ],
+                'review'  => [
+                    'class' => 'Zoop\ShardModule\Test\TestAsset\Document\Review',
+                    'property' => 'title',
+                    'limit' => 2,
+                    'manifest' => 'default',
+                ],
+                'user'    => [
+                    'class' => 'Zoop\ShardModule\Test\TestAsset\Document\User',
+                    'property' => 'username',
+                    'manifest' => 'default',
                 ]
             ],
 
@@ -20,55 +52,8 @@ return [
                         'extension.annotation' => true,
                         'extension.crypt' => true,
                         'extension.freeze' => true,
-                        'extension.generator' => [
-                            'resource_map' => [
-                                'Zoop/Document/Author.js' => [
-                                    'generator' => 'generator.dojo.model',
-                                    'class'     => 'Zoop\ShardModule\Test\TestAsset\Document\Author'
-                                ],
-                            ]
-                        ],
                         'extension.owner' => true,
                         'extension.reference' => true,
-                        'extension.rest' => [
-                            'endpoint_map' => [
-                                'game' => [
-                                    'class' => 'Zoop\ShardModule\Test\TestAsset\Document\Game',
-                                    'property' => 'name',
-                                    'cache_control' => [
-                                        'no_cache' => true
-                                    ],
-                                    'embedded_lists' => [
-                                        'components' => [
-                                            'property' => '$set',
-                                            'class' => 'Zoop\ShardModule\Test\TestAsset\Document\Component',
-                                            'embedded_lists' => [
-                                                'manufacturers' => [
-                                                    'property' => 'name',
-                                                    'class' => 'Zoop\ShardModule\Test\TestAsset\Document\Manufacturer',
-                                                ]
-                                            ]
-                                        ]
-                                    ]
-                                ],
-                                'author'  => [
-                                    'class' => 'Zoop\ShardModule\Test\TestAsset\Document\Author',
-                                    'property' => 'name'
-                                ],
-                                'country' => [
-                                    'class' => 'Zoop\ShardModule\Test\TestAsset\Document\Country',
-                                    'property' => 'name'
-                                ],
-                                'review'  => [
-                                    'class' => 'Zoop\ShardModule\Test\TestAsset\Document\Review',
-                                    'property' => 'title'
-                                ],
-                                'user'    => [
-                                    'class' => 'Zoop\ShardModule\Test\TestAsset\Document\User',
-                                    'property' => 'username'
-                                ]
-                            ]
-                        ],
                         'extension.serializer' => [
                             'maxNestingDepth' => 2
                         ],
@@ -78,7 +63,7 @@ return [
                         'extension.validator' => true,
                         'extension.zone' => true,
                     ],
-                    'documents' => [
+                    'models' => [
                         'Zoop\ShardModule\Test\TestAsset\Document' => __DIR__.'/Zoop/ShardModule/Test/TestAsset/Document'
                     ]
                 ]

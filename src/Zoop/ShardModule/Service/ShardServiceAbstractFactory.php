@@ -56,7 +56,6 @@ class ShardServiceAbstractFactory implements AbstractFactoryInterface
         }
         $instance = $manifestServiceManager->get($factoryMapping['serviceName']);
         if ($instance instanceof ManifestAwareInterface) {
-            $instance->setManifestName($factoryMapping['manifestName']);
             $instance->setManifest($manifestServiceManager->get('manifest'));
         }
 
@@ -86,6 +85,7 @@ class ShardServiceAbstractFactory implements AbstractFactoryInterface
                     $config[$manifestName]['service_manager_config']
                 );
                 $manifest = new Manifest($config[$manifestName]);
+                $manifest->setName($manifestName);
                 $manifest->setServiceManager($manifestServiceManager);
                 $manifestServiceManager->setService('manifest', $manifest);
                 $manifestServiceManager->addPeeringServiceManager($serviceLocator);

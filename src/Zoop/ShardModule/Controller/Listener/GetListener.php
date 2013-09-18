@@ -7,8 +7,6 @@ namespace Zoop\ShardModule\Controller\Listener;
 
 use Doctrine\ODM\MongoDB\Proxy\Proxy;
 use Zend\EventManager\EventManagerInterface;
-use Zend\EventManager\ListenerAggregateInterface;
-use Zend\Http\Header\CacheControl;
 use Zend\Http\Header\LastModified;
 use Zend\Mvc\MvcEvent;
 use Zoop\ShardModule\Exception;
@@ -20,11 +18,10 @@ use Zoop\ShardModule\Controller\Event;
  * @version $Revision$
  * @author  Tim Roediger <superdweebie@gmail.com>
  */
-class GetListener implements ListenerAggregateInterface
+class GetListener extends AbstractListener
 {
+    use LoadDocumentTrait;
     use SelectTrait;
-
-    protected $listeners = array();
 
     /**
      * Attach to an event manager
@@ -37,36 +34,12 @@ class GetListener implements ListenerAggregateInterface
         $this->listeners[] = $events->attach(Event::GET, [$this, 'onGet']);
     }
 
-    /**
-     * Detach all our listeners from the event manager
-     *
-     * @param  EventManagerInterface $events
-     * @return void
-     */
-    public function detach(EventManagerInterface $events)
-    {
-        foreach ($this->listeners as $index => $listener) {
-            if ($events->detach($listener)) {
-                unset($this->listeners[$index]);
-            }
-        }
-    }
-
     public function onGet(MvcEvent $event)
     {
         $deeperResource = $event->getParam('deeperResource');
         $options = $event->getTarget()->getOptions();
-        $documentManager = $options->getObjectManager();
-
-        if (! ($endpoint = $event->getParam('endpoint'))) {
-            $endpoint = $options->getEndpoint();
-        }
-
-        if ($document = $event->getParam('document')) {
-            $metadata = $documentManager->getClassMetadata(get_class($document));
-        } else {
-            $metadata = $documentManager->getClassMetadata($options->getDocumentClass());
-        }
+        $documentManager = $options->getModelManager();
+        $metadata = $documentManager->getClassMetadata($options->getClass());
 
         if (count($deeperResource) > 0) {
             //a deeper resource is requested
@@ -77,20 +50,20 @@ class GetListener implements ListenerAggregateInterface
             $mapping = $metadata->fieldMappings[$field];
 
             if (isset($mapping['type']) && $mapping['type'] == 'one') {
-                return $this->getSingleObject($field, $metadata, $documentManager, $endpoint, $event);
+                return $this->getSingleModel($field, $metadata, $documentManager, $event);
             } else if (isset($mapping['type']) && $mapping['type'] == 'many') {
-                return $this->getCollection($field, $metadata, $documentManager, $endpoint, $event);
+                return $this->getCollection($field, $metadata, $documentManager, $event);
             }
 
             throw new Exception\DocumentNotFoundException();
         }
 
-        if (! isset($document)) {
+        if (!($document = $event->getParam('document'))) {
             // document not set, so load it
             $document = $documentManager
                 ->createQueryBuilder()
                 ->find($metadata->name)
-                ->field($endpoint->getProperty())->equals($event->getParam('id'))
+                ->field($options->getProperty())->equals($event->getParam('id'))
                 ->getQuery()
                 ->getSingleResult();
 
@@ -106,21 +79,7 @@ class GetListener implements ListenerAggregateInterface
             $event->getResponse()->getHeaders()->addHeader($lastModified);
         }
 
-        $cacheControlOptions = $endpoint->getCacheControl();
-        $cacheControl = new CacheControl;
-        if ($cacheControlOptions->getPublic()) {
-            $cacheControl->addDirective('public', true);
-        }
-        if ($cacheControlOptions->getPrivate()) {
-            $cacheControl->addDirective('private', true);
-        }
-        if ($cacheControlOptions->getNoCache()) {
-            $cacheControl->addDirective('no-cache', true);
-        }
-        if ($cacheControlOptions->getMaxAge()) {
-            $cacheControl->addDirective('max-age', $cacheControlOptions->getMaxAge());
-        }
-        $event->getResponse()->getHeaders()->addHeader($cacheControl);
+        $event->getResponse()->getHeaders()->addHeader($options->getCacheControl());
 
         $result = $event->getTarget()->trigger(Event::SERIALIZE, $event)->last();
 
@@ -131,25 +90,36 @@ class GetListener implements ListenerAggregateInterface
         return $result;
     }
 
-    protected function getSingleObject($field, $metadata, $documentManager, $endpoint, $event)
+    protected function getSingleModel($field, $metadata, $documentManager, $event)
     {
-        $document = $this->loadDocument($event, $documentManager, $metadata, $endpoint, $field);
-
-        if (! $targetDocument = $metadata->getFieldValue($document, $field)) {
-            throw new Exception\DocumentNotFoundException;
-        }
+        $document = $this->loadDocument($event, $documentManager, $metadata, $field);
 
         $targetMetadata = $documentManager
             ->getClassMetadata($metadata->fieldMappings[$field]['targetDocument']);
 
         if (isset($metadata->fieldMappings[$field]['embedded'])) {
-            $event->setParam('document', $metadata->getFieldValue($document, $field));
-            return $this->onGet($event);
+            $options = $event->getTarget()->getOptions();
+            $controller = $options->getServiceLocator()->get('ControllerLoader')->get('shard.rest.' . $options->getEndpoint() . '.' . $field);
+
+            $subEvent = clone($event);
+            $subEvent->setParam('document', $metadata->getFieldValue($document, $field));
+            $subEvent->setParam('surpressResponse', true);
+            $subEvent->setTarget($controller);
+            $controller->setEvent($subEvent);
+            return $controller->onDispatch($subEvent);
         }
 
-        $targetEndpoint = $event->getTarget()->getOptions()
-            ->getEndpointMap()
-            ->getEndpointsFromMetadata($targetMetadata)[0];
+        foreach ($event->getTarget()->getOptions()->getServiceLocator()->get('config')['zoop']['shard']['rest'] as $endpoint => $config) {
+            if ($config['class'] == $targetMetadata->name) {
+                $targetEndpoint = $endpoint;
+                break;
+            }
+        }
+
+        if (! ($targetDocument = $metadata->getFieldValue($document, $field))) {
+            //associated document is null
+            throw new Exception\DocumentNotFoundException();
+        }
 
         if (is_string($targetDocument)) {
             $targetDocument = $documentManager->getRepository($targetMetadata->name)->find($targetDocument);
@@ -158,7 +128,7 @@ class GetListener implements ListenerAggregateInterface
             $targetDocument->__load();
         }
 
-        $id = $targetMetadata->reflFields[$targetEndpoint->getProperty()]->getValue($targetDocument);
+        $id = $targetMetadata->getFieldValue($targetDocument, $targetEndpoint->getProperty());
         $event->setParam('document', $targetDocument);
         $event->setParam('endpoint', $targetEndpoint);
 
@@ -168,7 +138,7 @@ class GetListener implements ListenerAggregateInterface
         );
     }
 
-    protected function getCollection($field, $metadata, $documentManager, $endpoint, $event)
+    protected function getCollection($field, $metadata, $documentManager, $event)
     {
         $targetMetadata = $documentManager
             ->getClassMetadata($metadata->fieldMappings[$field]['targetDocument']);
@@ -194,24 +164,31 @@ class GetListener implements ListenerAggregateInterface
             );
         }
 
-        $document = $this->loadDocument($event, $documentManager, $metadata, $endpoint, $field);
+        $document = $this->loadDocument($event, $documentManager, $metadata, $field);
 
         if (count($deeperResource) > 0) {
             $collection = $metadata->getFieldValue($document, $field);
 
             $targetEndpoint = $endpoint->getEmbeddedLists()[$field];
-            $targetEndpointProperty = $targetEndpoint->getProperty();
 
-            if ($targetEndpointProperty == '$set') {
-                if (isset($collection[$deeperResource[0]])) {
-                    $targetDocument = $collection[$deeperResource[0]];
+            foreach ($event->getTarget()->getOptions()->getServiceLocator()->get('config')['zoop']['shard']['rest'] as $endpoint => $config) {
+                if ($config['class'] == $targetMetadata->name) {
+                    $targetEndpoint = $endpoint;
+                    break;
                 }
-            } else {
+            }
+
+            if ($targetEndpointProperty = $targetEndpoint->getProperty()) {
                 foreach ($collection as $targetDocument) {
                     //this iteration is slow. Should be replaced when upgrade to new version of mongo happens
                     if ($targetDocument[$targetEndpointProperty] == $deeperResource[0]) {
                         break;
                     }
+                }
+            } else {
+                //if endpoint property is not set, then a strategy=set must be used
+                if (isset($collection[$deeperResource[0]])) {
+                    $targetDocument = $collection[$deeperResource[0]];
                 }
             }
 
@@ -229,24 +206,5 @@ class GetListener implements ListenerAggregateInterface
             $event->setParam('list', $metadata->getFieldValue($document, $field));
             return $event->getTarget()->getList($event);
         }
-    }
-
-    protected function loadDocument($event, $documentManager, $metadata, $endpoint, $field)
-    {
-        if (! ($document = $event->getParam('document'))) {
-            // document not set, so load it
-            $document = $documentManager
-                ->createQueryBuilder()
-                ->find($metadata->name)
-                ->field($endpoint->getProperty())->equals($event->getParam('id'))
-                ->select($field)
-                ->getQuery()
-                ->getSingleResult();
-
-            if (! $document) {
-                throw new Exception\DocumentNotFoundException();
-            }
-        }
-        return $document;
     }
 }

@@ -2,12 +2,10 @@
 return [
     'zoop' => [
         'shard' => [
-            //shard supports multiple manifest-objectManager pairs.
-            //each manifest should be configured with it's own objectManager.
             //a default manifest is pre-configured with the default documentManager
             'manifest' => [
                 'default' => [
-                    'object_manager' => 'doctrine.odm.documentmanager.default',
+                    'model_manager' => 'doctrine.odm.documentmanager.default',
                     'extension_configs' => [
 //                        'extension.accessControl' => true,
 //                        'extension.annotation' => true,
@@ -25,12 +23,8 @@ return [
 //                        'extension.zone' => true,
                     ],
                     'service_manager_config' => [
-                        'invokables' => [
-                            'eventmanager.delegator.factory' => 'Zoop\ShardModule\Delegator\EventManagerDelegatorFactory',
-                            'configuration.delegator.factory' => 'Zoop\ShardModule\Delegator\ConfigurationDelegatorFactory'
-                        ],
                         'factories' => [
-                            'objectmanager' => 'Zoop\ShardModule\Service\DefaultObjectManagerFactory'
+                            'modelmanager' => 'Zoop\ShardModule\Service\DefaultModelManagerFactory'
                         ],
                         'abstract_factories' => [
                             'Zoop\ShardModule\Service\UserAbstractFactory'
@@ -98,9 +92,9 @@ return [
 
     'router' => [
         'routes' => [
-            'rest.default' => [
+            'rest' => [
                 //this route will look to load a controller
-                //service called `rest.default.<endpoint>`
+                //service called `shard.rest.<endpoint>`
                 'type' => 'Zend\Mvc\Router\Http\Segment',
                 'options' => [
                     'route' => '/rest/:endpoint[/:id]',
@@ -108,10 +102,6 @@ return [
                         'endpoint' => '[a-zA-Z][a-zA-Z0-9_-]+',
                         'id'       => '[a-zA-Z][a-zA-Z0-9/_-]+',
                     ],
-                    'defaults' => [
-                        'extension'    => 'rest',
-                        'manifestName' => 'default',
-                    ]
                 ],
             ],
         ]
@@ -128,6 +118,7 @@ return [
         'invokables' => [
             'zoop.shardmodule.listener.serialize' => 'Zoop\ShardModule\Controller\Listener\SerializeListener',
             'zoop.shardmodule.listener.unserialize' => 'Zoop\ShardModule\Controller\Listener\UnserializeListener',
+            'zoop.shardmodule.listener.flush' => 'Zoop\ShardModule\Controller\Listener\FlushListener',
             'zoop.shardmodule.listener.prepareviewmodel' => 'Zoop\ShardModule\Controller\Listener\PrepareViewModelListener',
             'zoop.shardmodule.listener.create' => 'Zoop\ShardModule\Controller\Listener\CreateListener',
             'zoop.shardmodule.listener.delete' => 'Zoop\ShardModule\Controller\Listener\DeleteListener',
@@ -138,6 +129,7 @@ return [
             'zoop.shardmodule.listener.patchlist' => 'Zoop\ShardModule\Controller\Listener\PatchListListener',
             'zoop.shardmodule.listener.replacelist' => 'Zoop\ShardModule\Controller\Listener\ReplaceListListener',
             'zoop.shardmodule.listener.update' => 'Zoop\ShardModule\Controller\Listener\UpdateListener',
+            'doctrine.builder.odm.documentmanager'        => 'Zoop\ShardModule\Builder\ModelManagerBuilder',
         ],
         'factories' => [
             'doctrine.cache.juggernaut.filesystem' => 'Zoop\ShardModule\Service\JuggernautFileSystemCacheFactory',

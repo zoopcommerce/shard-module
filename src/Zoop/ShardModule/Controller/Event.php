@@ -18,6 +18,8 @@ class Event
     const SERIALIZE = 'serialize';
 
     const SERIALIZE_LIST = 'serializeList';
+    
+    const FLUSH = 'flush';
 
     const PREPARE_VIEW_MODEL = 'prepareViewModel';
 
@@ -28,7 +30,6 @@ class Event
     const CREATE = 'create';
 
     const DELETE = 'delete';
-
 
     const DELETE_LIST = 'deleteList';
 

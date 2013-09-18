@@ -19,9 +19,9 @@ class AbstractControllerOptions extends AbstractOptions
 
     protected $serviceLocator;
 
-    protected $objectManager;
+    protected $modelManager;
 
-    protected $manifestName;
+    protected $manifest;
 
     /**
      *
@@ -45,39 +45,42 @@ class AbstractControllerOptions extends AbstractOptions
      *
      * @return \Doctrine\ODM\Mongo\DocumentManager
      */
-    public function getObjectManager()
+    public function getModelManager()
     {
-        if (! isset($this->objectManager)) {
-            $this->objectManager = $this->serviceLocator->get('objectmanager');
+        if (! isset($this->modelManager)) {
+            $this->modelManager = $this->getManifest()->getServiceManager()->get('modelmanager');
         }
 
-        return $this->objectManager;
+        return $this->modelManager;
     }
 
     /**
      *
      * @param string | \Doctrine\ODM\Mongo\DocumentManager $documentManager
      */
-    public function setObjectManager($objectManager)
+    public function setModelManager($modelManager)
     {
-        $this->objectManager = $objectManager;
+        $this->modelManager = $modelManager;
     }
 
     /**
      *
      * @return string
      */
-    public function getManifestName()
+    public function getManifest()
     {
-        return $this->manifestName;
+        if (is_string($this->manifest)) {
+            $this->manifest = $this->serviceLocator->get('shard.' . $this->manifest . '.manifest');
+        }
+        return $this->manifest;
     }
 
     /**
      *
      * @param string $manifestName
      */
-    public function setManifestName($manifestName)
+    public function setManifest($manifest)
     {
-        $this->manifestName = (string) $manifestName;
+        $this->manifest = $manifest;
     }
 }

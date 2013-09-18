@@ -7,7 +7,6 @@ namespace Zoop\ShardModule\Controller\Listener;
 
 use Zend\Mvc\MvcEvent;
 use Zend\EventManager\EventManagerInterface;
-use Zend\EventManager\ListenerAggregateInterface;
 use Zend\View\Model\ModelInterface;
 use Zend\View\Model\JsonModel;
 use Zoop\ShardModule\Controller\Event;
@@ -18,11 +17,8 @@ use Zoop\ShardModule\Controller\Event;
  * @version $Revision$
  * @author  Tim Roediger <superdweebie@gmail.com>
  */
-class PrepareViewModelListener implements ListenerAggregateInterface
+class PrepareViewModelListener extends AbstractListener
 {
-
-    protected $listeners = array();
-
     /**
      * Attach to an event manager
      *
@@ -34,40 +30,27 @@ class PrepareViewModelListener implements ListenerAggregateInterface
         $this->listeners[] = $events->attach(Event::PREPARE_VIEW_MODEL, [$this, 'onPrepareViewModel']);
     }
 
-    /**
-     * Detach all our listeners from the event manager
-     *
-     * @param  EventManagerInterface $events
-     * @return void
-     */
-    public function detach(EventManagerInterface $events)
-    {
-        foreach ($this->listeners as $index => $listener) {
-            if ($events->detach($listener)) {
-                unset($this->listeners[$index]);
-            }
-        }
-    }
-
     public function onPrepareViewModel(MvcEvent $event)
     {
         $result = $event->getResult();
         $controller = $event->getTarget();
 
-        if (! ($result instanceof ModelInterface)) {
-            $result = $controller->acceptableViewModelSelector($controller->getOptions()->getAcceptCriteria())->setVariables($result);
-        }
-
-        if (count($result->getVariables()) == 0) {
-            $event->getResponse()->setStatusCode(204);
-            return $event->getResponse();
+        if ($result instanceof ModelInterface) {
+            $viewModel = $result;
+        } else {
+            $viewModel = $controller->acceptableViewModelSelector($controller->getOptions()->getAcceptCriteria());
+            if (isset($result)) {
+                $viewModel->setVariables($result);
+            }
         }
 
         //set the template
-        if (! ($template = $result->getTemplate())) {
-            $result->setTemplate($controller->getOptions()->getTemplates()[$event->getRouteMatch()->getParam('action')]);
+        if ($viewModel instanceof JsonModel && count($viewModel->getVariables()) == 0) {
+            return $event->getResponse();
+        } else if (!($template = $viewModel->getTemplate())) {
+            $viewModel->setTemplate($controller->getOptions()->getTemplates()[$event->getRouteMatch()->getParam('action')]);
         }
 
-        return $result;
+        return $viewModel;
     }
 }

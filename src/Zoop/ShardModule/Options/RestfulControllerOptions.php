@@ -6,9 +6,8 @@
 namespace Zoop\ShardModule\Options;
 
 use Doctrine\Common\EventSubscriber;
-use Zoop\Shard\Rest\EndpointMap;
+use Zend\Http\Header\CacheControl;
 use Zoop\ShardModule\Controller\Listener\DoctrineSubscriber;
-use Zoop\ShardModule\Controller\Listener\ZfLazyListener;
 
 /**
  *
@@ -28,19 +27,23 @@ class RestfulControllerOptions extends AbstractControllerOptions
         ],
     ];
 
-    protected $endpoint;
-
     protected $referenceMap = 'referenceMap';
 
-    protected $documentClass;
+    protected $endpoint;
+
+    protected $class;
+
+    protected $property;
+
+    protected $cacheControl;
+
+    protected $rest;
 
     protected $limit = '30';
 
     protected $exceptionSerializer = 'Zoop\MaggottModule\JsonExceptionStrategy';
 
     protected $surpressFlush;
-
-    protected $endpointMap;
 
     protected $templates = [
         'get'         => 'zoop/rest/get',
@@ -59,18 +62,19 @@ class RestfulControllerOptions extends AbstractControllerOptions
     protected $doctrineSubscriber;
 
     protected $listeners = [
-        'serialize'        => 'zoop.shardmodule.listener.serialize',
-        'serializeList'    => 'zoop.shardmodule.listener.serialize',
-        'unserialize'      => 'zoop.shardmodule.listener.unserialize',
-        'prepareViewModel' => 'zoop.shardmodule.listener.prepareviewmodel',
-        'create'           => 'zoop.shardmodule.listener.create',
-        'delete'           => 'zoop.shardmodule.listener.delete',
-        'deleteList'       => 'zoop.shardmodule.listener.deletelist',
-        'get'              => 'zoop.shardmodule.listener.get',
-        'getList'          => 'zoop.shardmodule.listener.getlist',
-        'patch'            => 'zoop.shardmodule.listener.patchlist',
-        'replaceList'      => 'zoop.shardmodule.listener.replacelist',
-        'update'           => 'zoop.shardmodule.listener.update',
+        'serialize'        => ['zoop.shardmodule.listener.serialize'],
+        'serializeList'    => ['zoop.shardmodule.listener.serialize'],
+        'unserialize'      => ['zoop.shardmodule.listener.unserialize'],
+        'flush'            => ['zoop.shardmodule.listener.flush'],
+        'prepareViewModel' => ['zoop.shardmodule.listener.prepareviewmodel'],
+        'create'           => ['zoop.shardmodule.listener.create'],
+        'delete'           => ['zoop.shardmodule.listener.delete'],
+        'deleteList'       => ['zoop.shardmodule.listener.deletelist'],
+        'get'              => ['zoop.shardmodule.listener.get'],
+        'getList'          => ['zoop.shardmodule.listener.getlist'],
+        'patch'            => ['zoop.shardmodule.listener.patchlist'],
+        'replaceList'      => ['zoop.shardmodule.listener.replacelist'],
+        'update'           => ['zoop.shardmodule.listener.update'],
     ];
 
     public function getAcceptCriteria()
@@ -81,16 +85,6 @@ class RestfulControllerOptions extends AbstractControllerOptions
     public function setAcceptCriteria(array $acceptCriteria)
     {
         $this->acceptCriteria = $acceptCriteria;
-    }
-
-    public function getEndpoint()
-    {
-        return $this->endpoint;
-    }
-
-    public function setEndpoint($endpoint)
-    {
-        $this->endpoint = $endpoint;
     }
 
     public function setReferenceMap($referenceMap)
@@ -105,6 +99,14 @@ class RestfulControllerOptions extends AbstractControllerOptions
         }
 
         return $this->referenceMap;
+    }
+
+    public function getEndpoint() {
+        return $this->endpoint;
+    }
+
+    public function setEndpoint($endpoint) {
+        $this->endpoint = $endpoint;
     }
 
     public function getDocumentClass()
@@ -151,14 +153,53 @@ class RestfulControllerOptions extends AbstractControllerOptions
         $this->surpressFlush = (boolean) $surpressFlush;
     }
 
-    public function getEndpointMap()
-    {
-        return $this->endpointMap;
+    public function getClass() {
+        return $this->class;
     }
 
-    public function setEndpointMap(EndpointMap $endpointMap)
-    {
-        $this->endpointMap = $endpointMap;
+    public function setClass($class) {
+        $this->class = $class;
+    }
+
+    public function getProperty() {
+        return $this->property;
+    }
+
+    public function setProperty($property) {
+        $this->property = $property;
+    }
+
+    public function getCacheControl() {
+        if (! $this->cacheControl instanceof CacheControl) {
+            $cacheControl = new CacheControl;
+            if (isset($this->cacheControl['public'])) {
+                $cacheControl->addDirective('public', true);
+            }
+            if (isset($this->cacheControl['private'])) {
+                $cacheControl->addDirective('private', true);
+            }
+            if (isset($this->cacheControl['no_cache'])) {
+                $cacheControl->addDirective('no-cache', true);
+            }
+            if (isset($this->cacheControl['max_age'])) {
+                $cacheControl->addDirective('max-age', $this->cacheControl['max_age']);
+            }
+            $this->cacheControl = $cacheControl;
+        }
+
+        return $this->cacheControl;
+    }
+
+    public function setCacheControl($cacheControl) {
+        $this->cacheControl = $cacheControl;
+    }
+
+    public function getRest() {
+        return $this->rest;
+    }
+
+    public function setRest($rest) {
+        $this->rest = $rest;
     }
 
     public function getTemplates() {
@@ -200,9 +241,11 @@ class RestfulControllerOptions extends AbstractControllerOptions
         $this->listeners = $listeners;
     }
 
-    public function getListener($event) {
-        if (isset($this->listeners[$event])) {
-            return $this->serviceLocator->get($this->listeners[$event]);
+    public function getListenersForEvent($event) {
+        $result = [];
+        foreach ($this->listeners[$event] as $listener) {
+            $result[] = $this->serviceLocator->get($listener);
         }
+        return $result;
     }
 }

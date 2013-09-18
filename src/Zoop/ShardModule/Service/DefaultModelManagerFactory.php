@@ -5,7 +5,7 @@ namespace Zoop\ShardModule\Service;
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
-class DefaultObjectManagerFactory implements FactoryInterface
+class DefaultModelManagerFactory implements FactoryInterface
 {
     /**
      * {@inheritDoc}
@@ -13,7 +13,7 @@ class DefaultObjectManagerFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $name = $serviceLocator->get('config')['zoop']['shard']['manifest']['default']['object_manager'];
+        $name = $serviceLocator->get('config')['zoop']['shard']['manifest']['default']['model_manager'];
         return $serviceLocator->get($name);
     }
 }

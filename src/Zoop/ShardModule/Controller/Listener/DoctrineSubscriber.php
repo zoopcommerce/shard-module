@@ -42,7 +42,7 @@ class DoctrineSubscriber implements EventSubscriber
             SoftDeleteEvents::SOFT_DELETED_UPDATE_DENIED,
             StateEvents::TRANSITION_DENIED,
             StateEvents::BAD_STATE,
-            ValidatorEvents::INVALID_OBJECT,
+            ValidatorEvents::INVALID_MODEL,
         ];
     }
 
@@ -51,9 +51,12 @@ class DoctrineSubscriber implements EventSubscriber
         return $this->flushExceptions;
     }
 
-    public function invalidObject(ValidatorEventArgs $eventArgs)
+    public function invalidModel(ValidatorEventArgs $eventArgs)
     {
-        $this->validationEvent($eventArgs);
+        $exception = new Exception\InvalidDocumentException;
+        $exception->setValidatorMessages($eventArgs->getResult()->getMessages());
+        $exception->setDocument($eventArgs->getDocument());
+        $this->flushExceptions[] = $exception;
     }
 
     public function createDenied(AccessControlEventArgs $eventArgs)
@@ -119,14 +122,6 @@ class DoctrineSubscriber implements EventSubscriber
     protected function badStateEvent(OnFlushEventArgs $eventArgs)
     {
         $exception = new Exception\InvalidArgumentException('Bad state');
-        $this->flushExceptions[] = $exception;
-    }
-
-    protected function validationEvent(ValidatorEventArgs $eventArgs)
-    {
-        $exception = new Exception\InvalidDocumentException;
-        $exception->setValidatorMessages($eventArgs->getResult()->getMessages());
-        $exception->setDocument($eventArgs->getDocument());
         $this->flushExceptions[] = $exception;
     }
 

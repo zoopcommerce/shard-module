@@ -25,9 +25,14 @@ class RestfulController extends AbstractRestfulController
     public function onDispatch(MvcEvent $event)
     {
         //attach listeners for shard/doctrine events
-        $this->options->getObjectManager()->getEventManager()->addEventSubscriber($this->options->getDoctrineSubscriber());
+        $this->options->getModelManager()->getEventManager()->addEventSubscriber($this->options->getDoctrineSubscriber());
 
-        $event->setResult(parent::onDispatch($event));
+        $result = parent::onDispatch($event);
+        $event->setResult($result);
+
+        if ($this->getEvent()->getParam('surpressResponse')) {
+            return $result;
+        }
 
         $result = $this->trigger(Event::PREPARE_VIEW_MODEL, $event)->last();
         $event->setResult($result);
@@ -56,7 +61,9 @@ class RestfulController extends AbstractRestfulController
     {
         //first lazy load the listener
         $eventManager = $this->getEventManager();
-        $eventManager->attach($this->options->getListener($name));
+        foreach ($this->options->getListenersForEvent($name) as $listener) {
+            $eventManager->attach($listener);
+        }
 
         //then trigger the event
         return $eventManager->trigger($name, $event);
@@ -65,7 +72,14 @@ class RestfulController extends AbstractRestfulController
     public function getList()
     {
         //trigger event
-        return $this->trigger(Event::GET_LIST, $$this->getEvent())->last();
+        $list = $this->trigger(Event::GET_LIST, $this->getEvent())->last();
+
+        if (count($list) == 0) {
+            $this->getResponse()->setStatusCode(204);
+            return;
+        }
+
+        return $list;
     }
 
     public function get($id)
@@ -109,7 +123,7 @@ class RestfulController extends AbstractRestfulController
 
         $this->trigger(Event::FLUSH, $event);
 
-        $createdMetadata = $this->options->getObjectManager()->getClassMetadata(get_class($createdDocument));
+        $createdMetadata = $this->options->getModelManager()->getClassMetadata(get_class($createdDocument));
 
         $this->response->setStatusCode(201);
         $this->response->getHeaders()->addHeader(
@@ -123,8 +137,6 @@ class RestfulController extends AbstractRestfulController
                 )
             )
         );
-
-        return [];
     }
 
     public function update($id, $data)
@@ -273,31 +285,31 @@ class RestfulController extends AbstractRestfulController
         return false;
     }
 
-    protected function flush()
-    {
-        $this->options->getDocumentManager()->flush();
-        $flushExceptions = $this->doctrineSubscriber->getFlushExceptions();
-        if (count($flushExceptions) == 1) {
-            throw $flushExceptions[0];
-        } elseif (count($flushExceptions) > 1) {
-            $flushException = new Exception\FlushException;
-            $exceptionSerializer = $this->options->getExceptionSerializer();
-            $identicalStatusCodes = true;
-            $exceptions = [];
-            foreach ($flushExceptions as $exception) {
-                $exception = $exceptionSerializer->serializeException($exception);
-                if (! isset($statusCode) && isset($exception['statusCode'])) {
-                    $statusCode = $exception['statusCode'];
-                } elseif (isset($exception['statusCode']) && $statusCode != $exception['statusCode']) {
-                    $identicalStatusCodes = false;
-                }
-                $exceptions[] = $exception;
-            }
-            if (isset($statusCode) && $identicalStatusCodes) {
-                $flushException->setStatusCode($statusCode);
-            }
-            $flushException->setInnerExceptions($exceptions);
-            throw $flushException;
-        }
-    }
+//    protected function flush()
+//    {
+//        $this->options->getDocumentManager()->flush();
+//        $flushExceptions = $this->doctrineSubscriber->getFlushExceptions();
+//        if (count($flushExceptions) == 1) {
+//            throw $flushExceptions[0];
+//        } elseif (count($flushExceptions) > 1) {
+//            $flushException = new Exception\FlushException;
+//            $exceptionSerializer = $this->options->getExceptionSerializer();
+//            $identicalStatusCodes = true;
+//            $exceptions = [];
+//            foreach ($flushExceptions as $exception) {
+//                $exception = $exceptionSerializer->serializeException($exception);
+//                if (! isset($statusCode) && isset($exception['statusCode'])) {
+//                    $statusCode = $exception['statusCode'];
+//                } elseif (isset($exception['statusCode']) && $statusCode != $exception['statusCode']) {
+//                    $identicalStatusCodes = false;
+//                }
+//                $exceptions[] = $exception;
+//            }
+//            if (isset($statusCode) && $identicalStatusCodes) {
+//                $flushException->setStatusCode($statusCode);
+//            }
+//            $flushException->setInnerExceptions($exceptions);
+//            throw $flushException;
+//        }
+//    }
 }

@@ -10,20 +10,7 @@ use Zoop\Shard\Manifest;
 
 trait ManifestAwareTrait
 {
-
-    protected $manifestName;
-
     protected $manifest;
-
-    public function setManifestName($manifestName)
-    {
-        $this->manifestName = $manifestName;
-    }
-
-    public function getManifestName()
-    {
-        return $this->manifestName;
-    }
 
     public function setManifest(Manifest $manifest)
     {

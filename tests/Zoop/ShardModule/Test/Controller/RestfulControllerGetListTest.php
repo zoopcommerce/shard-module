@@ -382,7 +382,7 @@ class RestfulControllerGetListTest extends AbstractHttpControllerTestCase
 
         $this->assertResponseStatusCode(204);
         $this->assertControllerName('rest.default.author');
-        $this->assertControllerClass('JsonRestfulController');
+        $this->assertControllerClass('RestfulController');
         $this->assertMatchedRouteName('rest.default');
 
         $this->assertFalse(isset($result));
