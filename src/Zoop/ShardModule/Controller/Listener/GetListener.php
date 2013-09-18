@@ -99,14 +99,10 @@ class GetListener extends AbstractListener
 
         if (isset($metadata->fieldMappings[$field]['embedded'])) {
             $options = $event->getTarget()->getOptions();
-            $controller = $options->getServiceLocator()->get('ControllerLoader')->get('shard.rest.' . $options->getEndpoint() . '.' . $field);
-
-            $subEvent = clone($event);
-            $subEvent->setParam('document', $metadata->getFieldValue($document, $field));
-            $subEvent->setParam('surpressResponse', true);
-            $subEvent->setTarget($controller);
-            $controller->setEvent($subEvent);
-            return $controller->onDispatch($subEvent);
+            $event->setParam('document', $metadata->getFieldValue($document, $field));
+            return $event->getTarget()->forward()->dispatch(
+                'shard.rest.' . $options->getEndpoint() . '.' . $field
+            );
         }
 
         foreach ($event->getTarget()->getOptions()->getServiceLocator()->get('config')['zoop']['shard']['rest'] as $endpoint => $config) {
@@ -133,7 +129,7 @@ class GetListener extends AbstractListener
         $event->setParam('endpoint', $targetEndpoint);
 
         return $event->getTarget()->forward()->dispatch(
-            'rest.' . $event->getTarget()->getOptions()->getManifestName() . '.' . $targetEndpoint->getName(),
+            'shard.rest.' . $targetEndpoint->getName(),
             ['id' => $id]
         );
     }

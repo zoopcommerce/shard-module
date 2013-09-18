@@ -170,7 +170,7 @@ class RestfulControllerGetTest extends AbstractHttpControllerTestCase
         $this->assertFalse(isset($result['components']));
         $this->assertFalse(isset($result['author']));
     }
-
+*/
     public function testGetEmbedded()
     {
         $accept = new Accept;
@@ -192,7 +192,7 @@ class RestfulControllerGetTest extends AbstractHttpControllerTestCase
         $this->assertEquals('gamewright', $result['name']);
     }
 
-*/
+/*
     public function testGetEmbeddedListItem()
     {
         $accept = new Accept;
