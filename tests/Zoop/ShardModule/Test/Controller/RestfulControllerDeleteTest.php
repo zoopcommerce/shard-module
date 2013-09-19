@@ -6,7 +6,7 @@ use Zoop\ShardModule\Test\TestAsset\TestData;
 use Zend\Test\PHPUnit\Controller\AbstractHttpControllerTestCase;
 use Zend\Http\Header\Accept;
 
-class JsonRestfulControllerDeleteTest extends AbstractHttpControllerTestCase
+class RestfulControllerDeleteTest extends AbstractHttpControllerTestCase
 {
     protected static $staticDcumentManager;
 
@@ -50,9 +50,9 @@ class JsonRestfulControllerDeleteTest extends AbstractHttpControllerTestCase
         $this->assertFalse(isset($result));
 
         $this->assertResponseStatusCode(204);
-        $this->assertControllerName('rest.default.author');
-        $this->assertControllerClass('JsonRestfulController');
-        $this->assertMatchedRouteName('rest.default');
+        $this->assertControllerName('shard.rest.author');
+        $this->assertControllerClass('RestfulController');
+        $this->assertMatchedRouteName('rest');
 
         $author = $this->documentManager
             ->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Author')->find('harry');
@@ -74,9 +74,9 @@ class JsonRestfulControllerDeleteTest extends AbstractHttpControllerTestCase
         $this->assertFalse(isset($result));
 
         $this->assertResponseStatusCode(204);
-        $this->assertControllerName('rest.default.author');
-        $this->assertControllerClass('JsonRestfulController');
-        $this->assertMatchedRouteName('rest.default');
+        $this->assertControllerName('shard.rest.author');
+        $this->assertControllerClass('RestfulController');
+        $this->assertMatchedRouteName('rest');
 
         $author = $this->documentManager
             ->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Author')->find('billy');
@@ -115,9 +115,9 @@ class JsonRestfulControllerDeleteTest extends AbstractHttpControllerTestCase
         $this->assertFalse(isset($result));
 
         $this->assertResponseStatusCode(204);
-        $this->assertControllerName('rest.default.game');
-        $this->assertControllerClass('JsonRestfulController');
-        $this->assertMatchedRouteName('rest.default');
+        $this->assertControllerName('shard.rest.game');
+        $this->assertControllerClass('RestfulController');
+        $this->assertMatchedRouteName('rest');
 
         $game = $this->documentManager
             ->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Game')->find('feed-the-kitty');
@@ -140,9 +140,9 @@ class JsonRestfulControllerDeleteTest extends AbstractHttpControllerTestCase
         $this->assertFalse(isset($result));
 
         $this->assertResponseStatusCode(204);
-        $this->assertControllerName('rest.default.game');
-        $this->assertControllerClass('JsonRestfulController');
-        $this->assertMatchedRouteName('rest.default');
+        $this->assertControllerName('shard.rest.game');
+        $this->assertControllerClass('RestfulController');
+        $this->assertMatchedRouteName('rest');
 
         $game = $this->documentManager
             ->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Game')->find('feed-the-kitty');
@@ -165,9 +165,9 @@ class JsonRestfulControllerDeleteTest extends AbstractHttpControllerTestCase
         $this->assertFalse(isset($result));
 
         $this->assertResponseStatusCode(204);
-        $this->assertControllerName('rest.default.game');
-        $this->assertControllerClass('JsonRestfulController');
-        $this->assertMatchedRouteName('rest.default');
+        $this->assertControllerName('shard.rest.game');
+        $this->assertControllerClass('RestfulController');
+        $this->assertMatchedRouteName('rest');
 
         $this->documentManager->clear();
         $game = $this->documentManager
@@ -191,9 +191,9 @@ class JsonRestfulControllerDeleteTest extends AbstractHttpControllerTestCase
         $this->assertFalse(isset($result));
 
         $this->assertResponseStatusCode(204);
-        $this->assertControllerName('rest.default.game');
-        $this->assertControllerClass('JsonRestfulController');
-        $this->assertMatchedRouteName('rest.default');
+        $this->assertControllerName('shard.rest.game');
+        $this->assertControllerClass('RestfulController');
+        $this->assertMatchedRouteName('rest');
 
         $this->documentManager->clear();
         $game = $this->documentManager
@@ -217,9 +217,9 @@ class JsonRestfulControllerDeleteTest extends AbstractHttpControllerTestCase
         $this->assertFalse(isset($result));
 
         $this->assertResponseStatusCode(204);
-        $this->assertControllerName('rest.default.game');
-        $this->assertControllerClass('JsonRestfulController');
-        $this->assertMatchedRouteName('rest.default');
+        $this->assertControllerName('shard.rest.game');
+        $this->assertControllerClass('RestfulController');
+        $this->assertMatchedRouteName('rest');
 
         $game = $this->documentManager
             ->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Game')->find('feed-the-kitty');
@@ -242,9 +242,9 @@ class JsonRestfulControllerDeleteTest extends AbstractHttpControllerTestCase
         $this->assertFalse(isset($result));
 
         $this->assertResponseStatusCode(204);
-        $this->assertControllerName('rest.default.game');
-        $this->assertControllerClass('JsonRestfulController');
-        $this->assertMatchedRouteName('rest.default');
+        $this->assertControllerName('shard.rest.game');
+        $this->assertControllerClass('RestfulController');
+        $this->assertMatchedRouteName('rest');
 
         $game = $this->documentManager
             ->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Game')->find('feed-the-kitty');
@@ -267,9 +267,9 @@ class JsonRestfulControllerDeleteTest extends AbstractHttpControllerTestCase
         $this->assertFalse(isset($result));
 
         $this->assertResponseStatusCode(204);
-        $this->assertControllerName('rest.default.game');
-        $this->assertControllerClass('JsonRestfulController');
-        $this->assertMatchedRouteName('rest.default');
+        $this->assertControllerName('shard.rest.game');
+        $this->assertControllerClass('RestfulController');
+        $this->assertMatchedRouteName('rest');
 
         $game = $this->documentManager
             ->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Game')->find('feed-the-kitty');
@@ -297,9 +297,9 @@ class JsonRestfulControllerDeleteTest extends AbstractHttpControllerTestCase
         $this->assertFalse(isset($result));
 
         $this->assertResponseStatusCode(204);
-        $this->assertControllerName('rest.default.game');
-        $this->assertControllerClass('JsonRestfulController');
-        $this->assertMatchedRouteName('rest.default');
+        $this->assertControllerName('shard.rest.game');
+        $this->assertControllerClass('RestfulController');
+        $this->assertMatchedRouteName('rest');
 
         $game = $this->documentManager
             ->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Game')->find('feed-the-kitty');
@@ -323,9 +323,9 @@ class JsonRestfulControllerDeleteTest extends AbstractHttpControllerTestCase
         $this->assertFalse(isset($result));
 
         $this->assertResponseStatusCode(204);
-        $this->assertControllerName('rest.default.game');
-        $this->assertControllerClass('JsonRestfulController');
-        $this->assertMatchedRouteName('rest.default');
+        $this->assertControllerName('shard.rest.game');
+        $this->assertControllerClass('RestfulController');
+        $this->assertMatchedRouteName('rest');
 
         $game = $this->documentManager
             ->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Game')->find('feed-the-kitty');
@@ -348,9 +348,9 @@ class JsonRestfulControllerDeleteTest extends AbstractHttpControllerTestCase
         $this->assertFalse(isset($result));
 
         $this->assertResponseStatusCode(204);
-        $this->assertControllerName('rest.default.author');
-        $this->assertControllerClass('JsonRestfulController');
-        $this->assertMatchedRouteName('rest.default');
+        $this->assertControllerName('shard.rest.author');
+        $this->assertControllerClass('RestfulController');
+        $this->assertMatchedRouteName('rest');
 
         $cursor = $this->documentManager
             ->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Author')->findAll();

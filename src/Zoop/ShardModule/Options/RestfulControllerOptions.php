@@ -62,29 +62,53 @@ class RestfulControllerOptions extends AbstractControllerOptions
     protected $doctrineSubscriber;
 
     protected $listeners = [
-        'create'           => [
+        'create' => [
             'zoop.shardmodule.listener.unserialize',
             'zoop.shardmodule.listener.create',
             'zoop.shardmodule.listener.flush',
             'zoop.shardmodule.listener.prepareviewmodel'
         ],
-        'delete'           => ['zoop.shardmodule.listener.delete'],
-        'deleteList'       => ['zoop.shardmodule.listener.deletelist'],
-        'get'              => [
+        'delete' => [
+            'zoop.shardmodule.listener.delete',
+            'zoop.shardmodule.listener.flush',
+            'zoop.shardmodule.listener.prepareviewmodel'
+         ],
+        'deleteList' => [
+            'zoop.shardmodule.listener.deletelist',
+            'zoop.shardmodule.listener.flush',
+            'zoop.shardmodule.listener.prepareviewmodel'
+        ],
+        'get' => [
             'zoop.shardmodule.listener.get',
             'zoop.shardmodule.listener.serialize',
             'zoop.shardmodule.listener.prepareviewmodel'
         ],
-        'getList'          => [
+        'getList' => [
             'zoop.shardmodule.listener.getlist',
             'zoop.shardmodule.listener.serialize',
             'zoop.shardmodule.listener.prepareviewmodel'
         ],
-        'patch'            => ['zoop.shardmodule.listener.patchlist'],
-        'replaceList'      => ['zoop.shardmodule.listener.replacelist'],
-        'update'           => [
+        'patch' => [
+            'zoop.shardmodule.listener.unserialize',
+            'zoop.shardmodule.listener.patch',
+            'zoop.shardmodule.listener.flush',
+            'zoop.shardmodule.listener.prepareviewmodel'
+        ],
+        'patchList' => [
+            'zoop.shardmodule.listener.unserialize',
+            'zoop.shardmodule.listener.patchlist',
+            'zoop.shardmodule.listener.flush',
+            'zoop.shardmodule.listener.prepareviewmodel'
+        ],
+        'update' => [
             'zoop.shardmodule.listener.unserialize',
             'zoop.shardmodule.listener.update',
+            'zoop.shardmodule.listener.flush',
+            'zoop.shardmodule.listener.prepareviewmodel'
+        ],
+        'replaceList'      => [
+            'zoop.shardmodule.listener.unserialize',
+            'zoop.shardmodule.listener.replacelist',
             'zoop.shardmodule.listener.flush',
             'zoop.shardmodule.listener.prepareviewmodel'
         ],

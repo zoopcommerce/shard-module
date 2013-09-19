@@ -71,7 +71,6 @@ class UpdateListener
             $result = $event->getTarget()->forward()->dispatch(
                 'shard.rest.' . $event->getTarget()->getOptions()->getEndpoint() . '.' . $field
             );
-            $metadata->setFieldValue($document, $result->getModel(), $field);
             return $result;
         }
 

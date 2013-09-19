@@ -107,7 +107,6 @@ class RestfulController extends AbstractRestfulController
             $event->setParam('deeperResource', $parts);
         }
 
-        $data[$this->getOptions()->getProperty()] = $id;
         $event->setParam('data', $data);
 
         //trigger event
@@ -183,70 +182,23 @@ class RestfulController extends AbstractRestfulController
 
     public function delete($id)
     {
-        $documentManager = $this->options->getDocumentManager();
+        $event = $this->getEvent();
 
-        $parts = explode('/', $id);
-        $document = $parts[0];
-        array_shift($parts);
-        $deeperResource = $parts;
+        if ($event->getParam('id', null) == null) {
+            $parts = explode('/', $id);
+            $id = $parts[0];
+            array_shift($parts);
+            $event->setParam('id', $id);
+            $event->setParam('deeperResource', $parts);
+        }
 
-        $assistant = $this->options->getDeleteAssistant();
-        $assistant->setController($this);
-        $assistant->doDelete($document, $deeperResource);
-
-        $this->flush();
-
-        $this->response->setStatusCode(204);
-
-        return $this->response;
+        //trigger event
+        return $this->trigger(Event::DELETE, $this->getEvent())->last();
     }
 
     public function deleteList()
     {
-        $assistant = $this->options->getDeleteListAssistant();
-        $assistant->setController($this);
-        $assistant->doDeleteList();
-
-        $this->response->setStatusCode(204);
-
-        return $this->response;
+        //trigger event
+        return $this->trigger(Event::DELETE_LIST, $this->getEvent())->last();
     }
-
-    protected function getIdentifier($routeMatch, $request)
-    {
-        $id = $routeMatch->getParam('id', false);
-        if ($id) {
-            return $id;
-        }
-
-        return false;
-    }
-
-//    protected function flush()
-//    {
-//        $this->options->getDocumentManager()->flush();
-//        $flushExceptions = $this->doctrineSubscriber->getFlushExceptions();
-//        if (count($flushExceptions) == 1) {
-//            throw $flushExceptions[0];
-//        } elseif (count($flushExceptions) > 1) {
-//            $flushException = new Exception\FlushException;
-//            $exceptionSerializer = $this->options->getExceptionSerializer();
-//            $identicalStatusCodes = true;
-//            $exceptions = [];
-//            foreach ($flushExceptions as $exception) {
-//                $exception = $exceptionSerializer->serializeException($exception);
-//                if (! isset($statusCode) && isset($exception['statusCode'])) {
-//                    $statusCode = $exception['statusCode'];
-//                } elseif (isset($exception['statusCode']) && $statusCode != $exception['statusCode']) {
-//                    $identicalStatusCodes = false;
-//                }
-//                $exceptions[] = $exception;
-//            }
-//            if (isset($statusCode) && $identicalStatusCodes) {
-//                $flushException->setStatusCode($statusCode);
-//            }
-//            $flushException->setInnerExceptions($exceptions);
-//            throw $flushException;
-//        }
-//    }
 }

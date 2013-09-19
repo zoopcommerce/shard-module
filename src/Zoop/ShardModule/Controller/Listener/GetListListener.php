@@ -5,11 +5,9 @@
  */
 namespace Zoop\ShardModule\Controller\Listener;
 
-use Zend\EventManager\EventManagerInterface;
 use Zend\Http\Header\ContentRange;
 use Zend\Mvc\MvcEvent;
 use Zoop\ShardModule\Exception;
-use Zoop\ShardModule\Controller\Event;
 use Zoop\ShardModule\Controller\Result;
 
 /**
