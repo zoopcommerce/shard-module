@@ -5,10 +5,8 @@
  */
 namespace Zoop\ShardModule\Controller\Listener;
 
-use Zend\EventManager\EventManagerInterface;
 use Zend\Mvc\MvcEvent;
 use Zoop\ShardModule\Exception;
-use Zoop\ShardModule\Controller\Event;
 
 /**
  *
@@ -16,21 +14,19 @@ use Zoop\ShardModule\Controller\Event;
  * @version $Revision$
  * @author  Tim Roediger <superdweebie@gmail.com>
  */
-class FlushListener extends AbstractListener
+class FlushListener
 {
-    /**
-     * Attach to an event manager
-     *
-     * @param  EventManagerInterface $events
-     * @return void
-     */
-    public function attach(EventManagerInterface $events)
-    {
-        $this->listeners[] = $events->attach(Event::FLUSH, [$this, 'onFlush']);
+
+    public function __call($name, $args) {
+        return $this->flush($args[0]);
     }
 
-    public function onFlush(MvcEvent $event)
+    public function flush(MvcEvent $event)
     {
+        if ($event->getTarget()->forward()->getNumNestedForwards() > 0) {
+            return $event->getResult();
+        }
+        
         $options = $event->getTarget()->getOptions();
 
         $options->getModelManager()->flush();

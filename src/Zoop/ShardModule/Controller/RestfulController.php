@@ -5,12 +5,11 @@
  */
 namespace Zoop\ShardModule\Controller;
 
-use Zoop\ShardModule\Exception;
-use Zoop\ShardModule\Options\RestfulControllerOptions;
 use Zend\Http\Header\Location;
 use Zend\Mvc\Controller\AbstractRestfulController;
 use Zend\Mvc\MvcEvent;
-use Zend\View\Model\JsonModel;
+use Zoop\ShardModule\Exception;
+use Zoop\ShardModule\Options\RestfulControllerOptions;
 
 /**
  *
@@ -21,23 +20,6 @@ use Zend\View\Model\JsonModel;
 class RestfulController extends AbstractRestfulController
 {
     protected $options;
-
-    public function onDispatch(MvcEvent $event)
-    {
-        //attach listeners for shard/doctrine events
-        $this->options->getModelManager()->getEventManager()->addEventSubscriber($this->options->getDoctrineSubscriber());
-
-        $result = parent::onDispatch($event);
-        $event->setResult($result);
-
-        if ($this->getEvent()->getParam('surpressResponse')) {
-            return $result;
-        }
-
-        $result = $this->trigger(Event::PREPARE_VIEW_MODEL, $event)->last();
-        $event->setResult($result);
-        return $result;
-    }
 
     public function getOptions()
     {
@@ -55,14 +37,18 @@ class RestfulController extends AbstractRestfulController
             $options = new RestfulControllerOptions;
         }
         $this->setOptions($options);
+
+        //attach listeners for shard/doctrine events
+        $this->options->getModelManager()->getEventManager()->addEventSubscriber($this->options->getDoctrineSubscriber());
     }
 
     public function trigger($name, $event)
     {
-        //first lazy load the listener
+        //first lazy load the listeners for the event
+        //this means that instances of all listeners for all events don't have to be created every request
         $eventManager = $this->getEventManager();
         foreach ($this->options->getListenersForEvent($name) as $listener) {
-            $eventManager->attach($listener);
+            $eventManager->attach($name, [$listener, $name]);
         }
 
         //then trigger the event
@@ -72,14 +58,7 @@ class RestfulController extends AbstractRestfulController
     public function getList()
     {
         //trigger event
-        $list = $this->trigger(Event::GET_LIST, $this->getEvent())->last();
-
-        if (count($list) == 0) {
-            $this->getResponse()->setStatusCode(204);
-            return;
-        }
-
-        return $list;
+        return $this->trigger(Event::GET_LIST, $this->getEvent())->last();
     }
 
     public function get($id)
@@ -97,7 +76,7 @@ class RestfulController extends AbstractRestfulController
         }
 
         //trigger event
-        return $this->trigger(Event::GET, $event)->last();
+        return $this->trigger(Event::GET, $this->getEvent())->last();
     }
 
     public function create($data)
@@ -115,28 +94,12 @@ class RestfulController extends AbstractRestfulController
         $event->setParam('data', $data);
 
         //trigger event
-        $createdDocument = $this->trigger(Event::CREATE, $event)->last();
+        return $this->trigger(Event::CREATE, $event)->last();
 
-        if ($this->getEvent()->getParam('surpressResponse')) {
-            return $createdDocument;
-        }
+//        $this->trigger(Event::FLUSH, $event);
 
-        $this->trigger(Event::FLUSH, $event);
-
-        $createdMetadata = $this->options->getModelManager()->getClassMetadata(get_class($createdDocument));
-
-        $this->response->setStatusCode(201);
-        $this->response->getHeaders()->addHeader(
-            Location::fromString(
-                'Location: ' .
-                $this->request->getUri()->getPath() .
-                '/' .
-                $createdMetadata->getFieldValue(
-                    $createdDocument,
-                    $this->options->getEndpointMap()->getEndpointsFromMetadata($createdMetadata)[0]->getProperty()
-                )
-            )
-        );
+//        $this->response->setStatusCode(201);
+//        $this->response->getHeaders()->addHeader($event->getParam('locationHeader'));
     }
 
     public function update($id, $data)

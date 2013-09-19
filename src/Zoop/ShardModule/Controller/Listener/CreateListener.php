@@ -6,13 +6,9 @@
 namespace Zoop\ShardModule\Controller\Listener;
 
 use Doctrine\ODM\MongoDB\Proxy\Proxy;
-use Zend\EventManager\EventManagerInterface;
-use Zend\Http\Header\CacheControl;
-use Zend\Http\Header\LastModified;
+use Zend\Http\Header\Location;
 use Zend\Mvc\MvcEvent;
 use Zoop\ShardModule\Exception;
-use Zoop\ShardModule\Controller\Event;
-use Zoop\Shard\Serializer\Unserializer;
 
 /**
  *
@@ -20,35 +16,21 @@ use Zoop\Shard\Serializer\Unserializer;
  * @version $Revision$
  * @author  Tim Roediger <superdweebie@gmail.com>
  */
-class CreateListener extends AbstractListener
+class CreateListener
 {
     use LoadDocumentTrait;
+    use RestControllerMapTrait;
 
-    /**
-     * Attach to an event manager
-     *
-     * @param  EventManagerInterface $events
-     * @return void
-     */
-    public function attach(EventManagerInterface $events)
-    {
-        $this->listeners[] = $events->attach(Event::CREATE, [$this, 'onCreate']);
-    }
-
-    public function onCreate(MvcEvent $event)
+    public function create(MvcEvent $event)
     {
         $deeperResource = $event->getParam('deeperResource');
         $options = $event->getTarget()->getOptions();
         $documentManager = $options->getModelManager();
-
-        if (! ($endpoint = $event->getParam('endpoint'))) {
-            $endpoint = $options->getEndpoint();
-        }
+        $metadata = $documentManager->getClassMetadata($options->getClass());
 
         if (count($deeperResource) == 0) {
-            $event->setParam('document', null);
-            $event->setParam('mode', Unserializer::UNSERIALIZE_PATCH);
-            $createdDocument = $event->getTarget()->trigger(Event::UNSERIALIZE, $event)->last();
+            $result = $event->getResult();
+            $createdDocument = $result->getModel();
 
             if ($documentManager->contains($createdDocument)) {
                 $exception = new Exception\DocumentAlreadyExistsException;
@@ -59,13 +41,17 @@ class CreateListener extends AbstractListener
                 $documentManager->persist($createdDocument);
             }
 
-            return $createdDocument;
-        }
+            $result->setStatusCode(201);
+            $result->addHeader(
+                Location::fromString(
+                    'Location: ' .
+                    $event->getRequest()->getUri()->getPath() .
+                    '/' .
+                    $metadata->getFieldValue($createdDocument, $options->getProperty())
+                )
+            );
 
-        if ($document = $event->getParam('document')) {
-            $metadata = $documentManager->getClassMetadata(get_class($document));
-        } else {
-            $metadata = $documentManager->getClassMetadata($options->getDocumentClass());
+            return $result;
         }
 
         //a deeper resource is requested
@@ -76,24 +62,26 @@ class CreateListener extends AbstractListener
         $mapping = $metadata->fieldMappings[$field];
 
         if (isset($mapping['type']) && $mapping['type'] == 'one') {
-            return $this->createSingleModel($field, $metadata, $documentManager, $endpoint, $event);
+            return $this->createSingleModel($field, $metadata, $documentManager, $event);
         } else if (isset($mapping['type']) && $mapping['type'] == 'many') {
-            return $this->createCollection($field, $metadata, $documentManager, $endpoint, $event);
+            return $this->createCollection($field, $metadata, $documentManager, $event);
         }
 
         throw new Exception\DocumentNotFoundException();
     }
 
-    protected function createSingleModel($field, $metadata, $documentManager, $endpoint, $event)
+    protected function createSingleModel($field, $metadata, $documentManager, $event)
     {
-        $document = $this->loadDocument($event, $documentManager, $metadata, $endpoint, $field);
+        $document = $this->loadDocument($event, $documentManager, $metadata, $field);
 
         $targetMetadata = $documentManager
             ->getClassMetadata($metadata->fieldMappings[$field]['targetDocument']);
 
         if (isset($metadata->fieldMappings[$field]['embedded'])) {
             $event->setParam('document', $metadata->getFieldValue($document, $field));
-            return $this->onCreate($event);
+            return $event->getTarget()->forward()->dispatch(
+                'shard.rest.' . $event->getTarget()->getOptions()->getEndpoint() . '.' . $field
+            );
         }
 
         $targetEndpoint = $event->getTarget()->getOptions()
@@ -111,18 +99,16 @@ class CreateListener extends AbstractListener
 
         $id = $targetMetadata->reflFields[$targetEndpoint->getProperty()]->getValue($targetDocument);
         $event->setParam('document', $targetDocument);
-        $event->setParam('endpoint', $targetEndpoint);
-        $event->setParam('surpressResponse', true);
 
         return $event->getTarget()->forward()->dispatch(
-            'rest.' . $event->getTarget()->getOptions()->getManifestName() . '.' . $targetEndpoint->getName(),
+            'shard.rest.' . $targetEndpoint->getName(),
             ['id' => $id]
         );
     }
 
-    protected function createCollection($field, $metadata, $documentManager, $endpoint, $event)
+    protected function createCollection($field, $metadata, $documentManager, $event)
     {
-        $document = $this->loadDocument($event, $documentManager, $metadata, $endpoint, $field);
+        $document = $this->loadDocument($event, $documentManager, $metadata, $field);
 
         $targetMetadata = $documentManager
             ->getClassMetadata($metadata->fieldMappings[$field]['targetDocument']);
@@ -132,27 +118,21 @@ class CreateListener extends AbstractListener
         if (isset($metadata->fieldMappings[$field]['reference'])) {
             $event->getRequest()->getQuery()->set($metadata->fieldMappings[$field]['mappedBy'], $event->getParam('id'));
 
-            $targetEndpoint = $event->getTarget()->getOptions()
-                ->getEndpointMap()
-                ->getEndpointsFromMetadata($targetMetadata)[0];
+            $targetOptions = $this->getRestControllerMap($event)->getOptionsFromClass($targetMetadata->name);
 
             $id = array_shift($deeperResource);
             $event->setParam('id', $id);
             $event->setParam('deeperResource', $deeperResource);
-            $event->setParam('endpoint', $targetEndpoint);
             $event->setParam('document', null);
-            $event->setParam('surpressResponse', true);
 
             try {
                 $createdDocument = $event->getTarget()->forward()->dispatch(
-                    'rest.' . $event->getTarget()->getOptions()->getManifestName() . '.' . $targetEndpoint->getName(),
+                    'rest.' . $event->getTarget()->getOptions()->getManifestName() . '.' . $targetOptions->getEndpoint(),
                     ['id' => $id]
                 );
             } catch (Exception\DocumentAlreadyExistsException $exception) {
                 $createdDocument = $exception->getDocument();
             }
-
-            $event->setParam('surpressResponse', false);
 
             $collection = $metadata->getFieldValue($document, $field);
             if ($collection->contains($createdDocument)) {
@@ -166,10 +146,10 @@ class CreateListener extends AbstractListener
             }
         } else {
             //embedded
-            $targetEndpoint = $endpoint->getEmbeddedLists()[$field];
             $collection = $metadata->reflFields[$field]->getValue($document);
+            $endpoint = $event->getTarget()->getOptions()->getEndpoint();
 
-            if (!($targetEndpointProperty = $targetEndpoint->getProperty())) {
+            if (!($targetEndpointProperty = $this->getRestControllerMap($event)->getOptionsFromEndpoint($endpoint . '.' . $field)->getProperty())) {
                 $set = array_shift($deeperResource);
             }
 
@@ -189,13 +169,16 @@ class CreateListener extends AbstractListener
                     throw new Exception\DocumentNotFoundException();
                 }
 
-                $event->setParam('endpoint', $targetEndpoint);
                 $event->setParam('deeperResource', $deeperResource);
                 $event->setParam('document', $targetDocument);
-                return $this->onCreate($event);
+                return $event->getTarget()->forward()->dispatch(
+                    'shard.rest.' . $event->getTarget()->getOptions()->getEndpoint() . '.' . $field
+                );
             } else {
-                $event->setParam('endpoint', $targetEndpoint);
-                $createdDocument = $this->onCreate($event);
+                $result = $event->getTarget()->forward()->dispatch(
+                    'shard.rest.' . $event->getTarget()->getOptions()->getEndpoint() . '.' . $field
+                );
+                $createdDocument = $result->getModel();
 
                 if (isset($set)) {
                     $collection[$set] = $createdDocument;
@@ -207,8 +190,7 @@ class CreateListener extends AbstractListener
                     }
                     $collection[] = $createdDocument;
                 }
-
-                return $createdDocument;
+                return $result;
             }
         }
 

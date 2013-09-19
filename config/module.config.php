@@ -129,6 +129,7 @@ return [
             'zoop.shardmodule.listener.patchlist' => 'Zoop\ShardModule\Controller\Listener\PatchListListener',
             'zoop.shardmodule.listener.replacelist' => 'Zoop\ShardModule\Controller\Listener\ReplaceListListener',
             'zoop.shardmodule.listener.update' => 'Zoop\ShardModule\Controller\Listener\UpdateListener',
+            'zoop.shardmodule.restcontrollermap' => 'Zoop\ShardModule\RestControllerMap',
             'doctrine.builder.odm.documentmanager'        => 'Zoop\ShardModule\Builder\ModelManagerBuilder',
         ],
         'factories' => [
@@ -146,5 +147,11 @@ return [
         'strategies' => array(
             'ViewJsonStrategy',
         ),
-    )
+    ),
+
+    'controller_plugins' => [
+        'factories' => [
+            'forward' => 'Zoop\ShardModule\Service\ForwardFactory'
+        ]
+    ],
 ];

@@ -10,6 +10,7 @@ use Zend\Http\Header\ContentRange;
 use Zend\Mvc\MvcEvent;
 use Zoop\ShardModule\Exception;
 use Zoop\ShardModule\Controller\Event;
+use Zoop\ShardModule\Controller\Result;
 
 /**
  *
@@ -17,37 +18,17 @@ use Zoop\ShardModule\Controller\Event;
  * @version $Revision$
  * @author  Tim Roediger <superdweebie@gmail.com>
  */
-class GetListListener extends AbstractListener
+class GetListListener
 {
     use SelectTrait;
 
-    /**
-     * Attach to an event manager
-     *
-     * @param  EventManagerInterface $events
-     * @return void
-     */
-    public function attach(EventManagerInterface $events)
-    {
-        $this->listeners[] = $events->attach(Event::GET_LIST, [$this, 'onGetList']);
-    }
-
-    public function onGetList(MvcEvent $event)
+    public function getList(MvcEvent $event)
     {
         $options = $event->getTarget()->getOptions();
         $documentManager = $options->getModelManager();
-
-        if (! ($endpoint = $event->getParam('endpoint'))) {
-            $endpoint = $options->getEndpoint();
-        }
-
-        if ($document = $event->getParam('document')) {
-            $metadata = $documentManager->getClassMetadata(get_class($document));
-        } else if ($list = $event->getParam('list')) {
+        $metadata = $documentManager->getClassMetadata($options->getClass());
+        if ($list = $event->getParam('list')) {
             $list = $list->getValues();
-            $metadata = $documentManager->getClassMetadata(get_class($list[0]));
-        } else {
-            $metadata = $documentManager->getClassMetadata($options->getDocumentClass());
         }
 
         unset($this->range);
@@ -72,7 +53,10 @@ class GetListListener extends AbstractListener
         }
 
         if ($total == 0) {
-            return [];
+            $result = new Result([]);
+            $result->setStatusCode(204);
+            $event->setResult($result);
+            return $result;
         }
 
         $offset = $this->getOffset($event);
@@ -87,8 +71,8 @@ class GetListListener extends AbstractListener
                 $this->applySortToList($list, $sort, $metadata);
             }
             $list = array_slice($list, $offset, $this->getLimit($event));
-            $event->setParam('list', $list);
-            $items = $event->getTarget()->trigger(Event::SERIALIZE_LIST, $event)->last();
+//            $event->setParam('list', $list);
+//            $items = $event->getTarget()->trigger(Event::SERIALIZE_LIST, $event)->last();
         } else {
             $resultsQuery = $documentManager->createQueryBuilder()
                 ->find($metadata->name);
@@ -96,26 +80,19 @@ class GetListListener extends AbstractListener
             $resultsQuery
                 ->limit($this->getLimit($event))
                 ->skip($offset);
-            $resultsCursor = $this->addSortToQuery($resultsQuery, $sort)
+            $list = $this->addSortToQuery($resultsQuery, $sort)
                 ->eagerCursor(true)
                 ->getQuery()
                 ->execute();
-            $event->setParam('list', $resultsCursor);
-            $items = $event->getTarget()->trigger(Event::SERIALIZE_LIST, $event)->last();
         }
 
-        //apply any select
-        if ($select = $this->getSelect($event)) {
-            $select = array_fill_keys($select, 0);
-            foreach ($items as $key => $item) {
-                $items[$key] = array_intersect_key($item, $select);
-            }
-        }
+        $max = $offset + count($list) - 1;
 
-        $max = $offset + count($items) - 1;
-        $event->getResponse()->getHeaders()->addHeader(ContentRange::fromString("Content-Range: $offset-$max/$total"));
+        $result = new Result($list);
+        $result->addHeader(ContentRange::fromString("Content-Range: $offset-$max/$total"));
 
-        return $items;
+        $event->setResult($result);
+        return $result;
     }
 
     protected function getLimit($event)

@@ -6,11 +6,10 @@
 namespace Zoop\ShardModule\Controller\Listener;
 
 use Doctrine\ODM\MongoDB\Proxy\Proxy;
-use Zend\EventManager\EventManagerInterface;
 use Zend\Http\Header\LastModified;
 use Zend\Mvc\MvcEvent;
 use Zoop\ShardModule\Exception;
-use Zoop\ShardModule\Controller\Event;
+use Zoop\ShardModule\Controller\Result;
 
 /**
  *
@@ -18,23 +17,12 @@ use Zoop\ShardModule\Controller\Event;
  * @version $Revision$
  * @author  Tim Roediger <superdweebie@gmail.com>
  */
-class GetListener extends AbstractListener
+class GetListener
 {
     use LoadDocumentTrait;
-    use SelectTrait;
+    use RestControllerMapTrait;
 
-    /**
-     * Attach to an event manager
-     *
-     * @param  EventManagerInterface $events
-     * @return void
-     */
-    public function attach(EventManagerInterface $events)
-    {
-        $this->listeners[] = $events->attach(Event::GET, [$this, 'onGet']);
-    }
-
-    public function onGet(MvcEvent $event)
+    public function get(MvcEvent $event)
     {
         $deeperResource = $event->getParam('deeperResource');
         $options = $event->getTarget()->getOptions();
@@ -70,23 +58,18 @@ class GetListener extends AbstractListener
             if (! $document) {
                 throw new Exception\DocumentNotFoundException();
             }
-            $event->setParam('document', $document);
         }
+
+        $result = new Result($document);
 
         if (isset($metadata->stamp['updatedOn'])) {
             $lastModified = new LastModified;
             $lastModified->setDate($metadata->getFieldValue($document, $metadata->stamp['updatedOn']));
-            $event->getResponse()->getHeaders()->addHeader($lastModified);
+            $result->addHeader($lastModified);
         }
+        $result->addHeader($options->getCacheControl());
 
-        $event->getResponse()->getHeaders()->addHeader($options->getCacheControl());
-
-        $result = $event->getTarget()->trigger(Event::SERIALIZE, $event)->last();
-
-        if ($select = $this->getSelect($event)) {
-            $result = array_intersect_key($result, array_fill_keys($select, 0));
-        }
-
+        $event->setResult($result);
         return $result;
     }
 
@@ -105,12 +88,7 @@ class GetListener extends AbstractListener
             );
         }
 
-        foreach ($event->getTarget()->getOptions()->getServiceLocator()->get('config')['zoop']['shard']['rest'] as $endpoint => $config) {
-            if ($config['class'] == $targetMetadata->name) {
-                $targetEndpoint = $endpoint;
-                break;
-            }
-        }
+        $targetOptions = $this->getRestControllerMap($event)->getOptionsFromClass($targetMetadata->name);
 
         if (! ($targetDocument = $metadata->getFieldValue($document, $field))) {
             //associated document is null
@@ -124,12 +102,11 @@ class GetListener extends AbstractListener
             $targetDocument->__load();
         }
 
-        $id = $targetMetadata->getFieldValue($targetDocument, $targetEndpoint->getProperty());
+        $id = $targetMetadata->getFieldValue($targetDocument, $targetOptions->getProperty());
         $event->setParam('document', $targetDocument);
-        $event->setParam('endpoint', $targetEndpoint);
 
         return $event->getTarget()->forward()->dispatch(
-            'shard.rest.' . $targetEndpoint->getName(),
+            'shard.rest.' . $targetOptions->getEndpoint(),
             ['id' => $id]
         );
     }
@@ -144,37 +121,26 @@ class GetListener extends AbstractListener
         if (isset($metadata->fieldMappings[$field]['reference'])) {
             $event->getRequest()->getQuery()->set($metadata->fieldMappings[$field]['mappedBy'], $event->getParam('id'));
 
-            $targetEndpoint = $event->getTarget()->getOptions()
-                ->getEndpointMap()
-                ->getEndpointsFromMetadata($targetMetadata)[0];
+            $targetOptions = $this->getRestControllerMap($event)->getOptionsFromClass($targetMetadata->name);
 
             $id = array_shift($deeperResource);
             $event->setParam('id', $id);
             $event->setParam('deeperResource', $deeperResource);
-            $event->setParam('endpoint', $targetEndpoint);
             $event->setParam('document', null);
 
             return $event->getTarget()->forward()->dispatch(
-                'rest.' . $event->getTarget()->getOptions()->getManifestName() . '.' . $targetEndpoint->getName(),
+                'shard.rest.' . $targetOptions->getEndpoint(),
                 ['id' => $id]
             );
         }
 
         $document = $this->loadDocument($event, $documentManager, $metadata, $field);
+        $endpoint = $event->getTarget()->getOptions()->getEndpoint();
 
         if (count($deeperResource) > 0) {
             $collection = $metadata->getFieldValue($document, $field);
 
-            $targetEndpoint = $endpoint->getEmbeddedLists()[$field];
-
-            foreach ($event->getTarget()->getOptions()->getServiceLocator()->get('config')['zoop']['shard']['rest'] as $endpoint => $config) {
-                if ($config['class'] == $targetMetadata->name) {
-                    $targetEndpoint = $endpoint;
-                    break;
-                }
-            }
-
-            if ($targetEndpointProperty = $targetEndpoint->getProperty()) {
+            if ($targetEndpointProperty = $this->getRestControllerMap($event)->getOptionsFromEndpoint($endpoint . '.' . $field)->getProperty()) {
                 foreach ($collection as $targetDocument) {
                     //this iteration is slow. Should be replaced when upgrade to new version of mongo happens
                     if ($targetDocument[$targetEndpointProperty] == $deeperResource[0]) {
@@ -194,13 +160,17 @@ class GetListener extends AbstractListener
             }
 
             array_shift($deeperResource);
-            $event->setParam('endpoint', $targetEndpoint);
             $event->setParam('deeperResource', $deeperResource);
             $event->setParam('document', $targetDocument);
-            return $this->onGet($event);
+            return $event->getTarget()->forward()->dispatch(
+                'shard.rest.' . $endpoint . '.' . $field
+            );
         } else {
             $event->setParam('list', $metadata->getFieldValue($document, $field));
-            return $event->getTarget()->getList($event);
+            return $event->getTarget()->forward()->dispatch(
+                'shard.rest.' . $endpoint . '.' . $field,
+                ['id' => null]
+            );
         }
     }
 }

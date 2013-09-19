@@ -62,16 +62,24 @@ class RestfulControllerOptions extends AbstractControllerOptions
     protected $doctrineSubscriber;
 
     protected $listeners = [
-        'serialize'        => ['zoop.shardmodule.listener.serialize'],
-        'serializeList'    => ['zoop.shardmodule.listener.serialize'],
-        'unserialize'      => ['zoop.shardmodule.listener.unserialize'],
-        'flush'            => ['zoop.shardmodule.listener.flush'],
-        'prepareViewModel' => ['zoop.shardmodule.listener.prepareviewmodel'],
-        'create'           => ['zoop.shardmodule.listener.create'],
+        'create'           => [
+            'zoop.shardmodule.listener.unserialize',
+            'zoop.shardmodule.listener.create',
+            'zoop.shardmodule.listener.flush',
+            'zoop.shardmodule.listener.prepareviewmodel'
+        ],
         'delete'           => ['zoop.shardmodule.listener.delete'],
         'deleteList'       => ['zoop.shardmodule.listener.deletelist'],
-        'get'              => ['zoop.shardmodule.listener.get'],
-        'getList'          => ['zoop.shardmodule.listener.getlist'],
+        'get'              => [
+            'zoop.shardmodule.listener.get',
+            'zoop.shardmodule.listener.serialize',
+            'zoop.shardmodule.listener.prepareviewmodel'
+        ],
+        'getList'          => [
+            'zoop.shardmodule.listener.getlist',
+            'zoop.shardmodule.listener.serialize',
+            'zoop.shardmodule.listener.prepareviewmodel'
+        ],
         'patch'            => ['zoop.shardmodule.listener.patchlist'],
         'replaceList'      => ['zoop.shardmodule.listener.replacelist'],
         'update'           => ['zoop.shardmodule.listener.update'],
@@ -107,16 +115,6 @@ class RestfulControllerOptions extends AbstractControllerOptions
 
     public function setEndpoint($endpoint) {
         $this->endpoint = $endpoint;
-    }
-
-    public function getDocumentClass()
-    {
-        return $this->documentClass;
-    }
-
-    public function setDocumentClass($documentClass)
-    {
-        $this->documentClass = (string) $documentClass;
     }
 
     public function getLimit()

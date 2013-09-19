@@ -33,7 +33,7 @@ class RestfulControllerGetTest extends AbstractHttpControllerTestCase
             static::$dbDataCreated = true;
         }
     }
-/*
+
     public function testGet()
     {
         $accept = new Accept;
@@ -170,7 +170,7 @@ class RestfulControllerGetTest extends AbstractHttpControllerTestCase
         $this->assertFalse(isset($result['components']));
         $this->assertFalse(isset($result['author']));
     }
-*/
+
     public function testGetEmbedded()
     {
         $accept = new Accept;
@@ -192,7 +192,6 @@ class RestfulControllerGetTest extends AbstractHttpControllerTestCase
         $this->assertEquals('gamewright', $result['name']);
     }
 
-/*
     public function testGetEmbeddedListItem()
     {
         $accept = new Accept;
@@ -213,7 +212,7 @@ class RestfulControllerGetTest extends AbstractHttpControllerTestCase
 
         $this->assertEquals('die', $result['type']);
     }
-/*
+
     public function testGetReference()
     {
         $accept = new Accept;
@@ -228,9 +227,9 @@ class RestfulControllerGetTest extends AbstractHttpControllerTestCase
         $result = json_decode($this->getResponse()->getContent(), true);
 
         $this->assertResponseStatusCode(200);
-        $this->assertControllerName('rest.default.game');
+        $this->assertControllerName('shard.rest.game');
         $this->assertControllerClass('RestfulController');
-        $this->assertMatchedRouteName('rest.default');
+        $this->assertMatchedRouteName('rest');
         $this->assertEquals('james', $result['name']);
     }
 
@@ -248,9 +247,9 @@ class RestfulControllerGetTest extends AbstractHttpControllerTestCase
         $result = json_decode($this->getResponse()->getContent(), true);
 
         $this->assertResponseStatusCode(200);
-        $this->assertControllerName('rest.default.game');
+        $this->assertControllerName('shard.rest.game');
         $this->assertControllerClass('RestfulController');
-        $this->assertMatchedRouteName('rest.default');
+        $this->assertMatchedRouteName('rest');
 
         $this->assertEquals('great-review', $result['title']);
     }
@@ -269,9 +268,9 @@ class RestfulControllerGetTest extends AbstractHttpControllerTestCase
         $result = json_decode($this->getResponse()->getContent(), true);
 
         $this->assertResponseStatusCode(200);
-        $this->assertControllerName('rest.default.game');
+        $this->assertControllerName('shard.rest.game');
         $this->assertControllerClass('RestfulController');
-        $this->assertMatchedRouteName('rest.default');
+        $this->assertMatchedRouteName('rest');
 
         $this->assertEquals('us', $result['name']);
     }
@@ -291,10 +290,8 @@ class RestfulControllerGetTest extends AbstractHttpControllerTestCase
 
         $this->assertResponseStatusCode(200);
         $this->assertControllerClass('RestfulController');
-        $this->assertMatchedRouteName('rest.default');
+        $this->assertMatchedRouteName('rest');
 
         $this->assertEquals('thomas', $result['name']);
     }
- *
- */
 }

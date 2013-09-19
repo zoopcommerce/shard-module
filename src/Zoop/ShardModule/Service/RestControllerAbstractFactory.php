@@ -6,7 +6,6 @@
 namespace Zoop\ShardModule\Service;
 
 use Zoop\ShardModule\Controller\RestfulController;
-use Zoop\ShardModule\Options\RestfulControllerOptions;
 use Zend\ServiceManager\AbstractFactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
@@ -18,7 +17,14 @@ use Zend\ServiceManager\ServiceLocatorInterface;
  */
 class RestControllerAbstractFactory implements AbstractFactoryInterface
 {
-    protected $endpointMap;
+    protected $restControllerMap;
+
+    protected function getRestControllerMap($serviceLocator){
+        if (!isset($this->restControllerMap)) {
+            $this->restControllerMap = $serviceLocator->get('zoop.shardmodule.restcontrollermap');
+        }
+        return $this->restControllerMap;
+    }
 
     public function canCreateServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
     {
@@ -27,10 +33,7 @@ class RestControllerAbstractFactory implements AbstractFactoryInterface
 
     public function createServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
     {
-        $options = $this->getOptions($name, $serviceLocator->getServiceLocator());
-        $options['service_locator'] = $serviceLocator->getServiceLocator();
-
-        return new RestfulController(new RestfulControllerOptions($options));
+        return new RestfulController($this->getOptions($name, $serviceLocator->getServiceLocator()));
     }
 
     protected function getOptions($name, $serviceLocator)
@@ -38,22 +41,7 @@ class RestControllerAbstractFactory implements AbstractFactoryInterface
         $pieces = explode('.', $name);
         if (array_shift($pieces) == 'shard' && array_shift($pieces) == 'rest') {
             $endpoint = implode('.', $pieces);
-            if (!($options = $serviceLocator->get('config')['zoop']['shard']['rest'][array_shift($pieces)])){
-                return false;
-            }
-            foreach ($pieces as $piece) {
-                $metadata = $serviceLocator->get('shard.' . $options['manifest'] . '.manifest')->getServiceManager()->get('modelmanager')->getClassMetadata($options['class']);
-                if ($metadata->fieldMappings[$piece]['targetDocument']) {
-                    $options['class'] = $metadata->fieldMappings[$piece]['targetDocument'];
-                }
-                if (isset($options['rest'][$piece])) {
-                    $options = array_merge($options, $options['rest'][$piece]);
-                } else {
-                    unset($options['rest']);
-                }
-            }
-            $options['endpoint'] = $endpoint;
-            return $options;
+            return $this->getRestControllerMap($serviceLocator)->getOptionsFromEndpoint($endpoint);
         }
 
         return false;

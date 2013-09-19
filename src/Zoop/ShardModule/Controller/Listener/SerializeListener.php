@@ -6,8 +6,7 @@
 namespace Zoop\ShardModule\Controller\Listener;
 
 use Zend\Mvc\MvcEvent;
-use Zend\EventManager\EventManagerInterface;
-use Zoop\ShardModule\Controller\Event;
+use Zoop\ShardModule\Controller\Result;
 
 /**
  *
@@ -15,34 +14,52 @@ use Zoop\ShardModule\Controller\Event;
  * @version $Revision$
  * @author  Tim Roediger <superdweebie@gmail.com>
  */
-class SerializeListener extends AbstractListener
+class SerializeListener
 {
-    /**
-     * Attach to an event manager
-     *
-     * @param  EventManagerInterface $events
-     * @return void
-     */
-    public function attach(EventManagerInterface $events)
-    {
-        $this->listeners[] = $events->attach(Event::SERIALIZE, [$this, 'onSerialize']);
-        $this->listeners[] = $events->attach(Event::SERIALIZE_LIST, [$this, 'onSerializeList']);
+    use SelectTrait;
+
+    public function __call($name, $args) {
+        return $this->serialize($args[0]);
     }
 
-    public function onSerialize(MvcEvent $event)
+    public function serialize(MvcEvent $event)
     {
-        return $event->getTarget()->getOptions()->getManifest()->getServiceManager()->get('serializer')->toArray($event->getParam('document'));
+        $result = $event->getResult();
+        if (!($result instanceof Result) || $result->getSerializedModel() || !($model = $result->getModel())) {
+            return $result;
+        }
+
+        $serializer = $event->getTarget()->getOptions()->getManifest()->getServiceManager()->get('serializer');
+
+        $serializedModel = $serializer->toArray($model);
+        if ($select = $this->getSelect($event)) {
+            $serializedModel = array_intersect_key($serializedModel, array_fill_keys($select, 0));
+        }
+        $result->setSerializedModel($serializedModel);
+
+        return $result;
     }
 
-    public function onSerializeList(MvcEvent $event)
+    public function getList(MvcEvent $event)
     {
+        $result = $event->getResult();
+        if (!($result instanceof Result) || !($model = $result->getModel())) {
+            return;
+        }
+
         $serializer = $event->getTarget()->getOptions()->getManifest()->getServiceManager()->get('serializer');
 
         $items = [];
-        foreach ($event->getParam('list') as $item) {
+        foreach ($model as $item) {
             $items[] = $serializer->toArray($item);
         }
-
-        return $items;
+        if ($select = $this->getSelect($event)) {
+            foreach ($items as $key => $item) {
+                $items[$key] = array_intersect_key($item, array_fill_keys($select, 0));
+            }
+        }
+        
+        $result->setSerializedModel($items);
+        return $result;
     }
 }

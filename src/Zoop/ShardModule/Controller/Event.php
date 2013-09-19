@@ -15,13 +15,7 @@ class Event
 {
     const UNSERIALIZE = 'unserialize';
 
-    const SERIALIZE = 'serialize';
-
     const SERIALIZE_LIST = 'serializeList';
-    
-    const FLUSH = 'flush';
-
-    const PREPARE_VIEW_MODEL = 'prepareViewModel';
 
     const GET = 'get';
 
