@@ -36,7 +36,7 @@ class RestfulControllerUpdateTest extends AbstractHttpControllerTestCase
             static::$dbDataCreated = true;
         }
     }
-
+/*
     public function testCreateViaUpdate()
     {
         $accept = new Accept;
@@ -88,7 +88,7 @@ class RestfulControllerUpdateTest extends AbstractHttpControllerTestCase
         $components = $game->getComponents();
         $this->assertCount(3, $components);
     }
-/*
+
     public function testUpdateEmbedded404()
     {
         $accept = new Accept;
@@ -110,7 +110,7 @@ class RestfulControllerUpdateTest extends AbstractHttpControllerTestCase
         $this->assertEquals('/exception/document-not-found', $result['describedBy']);
         $this->assertEquals('Document not found', $result['title']);
     }
-
+*/
     public function testUpdateEmbeddedOne()
     {
         $accept = new Accept;
@@ -138,7 +138,7 @@ class RestfulControllerUpdateTest extends AbstractHttpControllerTestCase
         $this->assertEquals('germany', $publisher->getCountry()->getName());
         $this->assertNull($publisher->getCity());
     }
-
+/*
     public function testUpdateEmbeddedListItem()
     {
         $accept = new Accept;

@@ -6,7 +6,6 @@
 namespace Zoop\ShardModule\Controller\Listener;
 
 use Doctrine\ODM\MongoDB\Proxy\Proxy;
-use Zend\Http\Header\Location;
 use Zend\Mvc\MvcEvent;
 use Zoop\ShardModule\Exception;
 
@@ -46,6 +45,9 @@ class UpdateListener
         array_shift($deeperResource);
 
         $event->setParam('deeperResource', $deeperResource);
+        if (! isset($metadata->fieldMappings[$field])) {
+            throw new Exception\DocumentNotFoundException();
+        }
         $mapping = $metadata->fieldMappings[$field];
 
         if (isset($mapping['type']) && $mapping['type'] == 'one') {
@@ -66,9 +68,11 @@ class UpdateListener
 
         if (isset($metadata->fieldMappings[$field]['embedded'])) {
             $event->setParam('document', $metadata->getFieldValue($document, $field));
-            return $event->getTarget()->forward()->dispatch(
+            $result = $event->getTarget()->forward()->dispatch(
                 'shard.rest.' . $event->getTarget()->getOptions()->getEndpoint() . '.' . $field
             );
+            $metadata->setFieldValue($document, $result->getModel(), $field);
+            return $result;
         }
 
         $targetOptions = $this->getRestControllerMap($event)->getOptionsFromClass($targetMetadata->name);

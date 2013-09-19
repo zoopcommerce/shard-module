@@ -30,8 +30,8 @@ class UnserializeListener
 
     public function unserialize(MvcEvent $event, $document, $mode)
     {
-        if ($result = $event->getResult()) {
-            return $result;
+        if (count($event->getParam('deeperResource')) > 0 || $result = $event->getResult()) {
+            return $event->getResult();
         }
 
         $result = new Result(
