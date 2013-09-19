@@ -56,5 +56,7 @@ class FlushListener
             $flushException->setInnerExceptions($exceptions);
             throw $flushException;
         }
+        
+        return $event->getResult();
     }
 }

@@ -16,12 +16,12 @@ use Zoop\ShardModule\Exception;
  * @version $Revision$
  * @author  Tim Roediger <superdweebie@gmail.com>
  */
-class CreateListener
+class UpdateListener
 {
     use LoadDocumentTrait;
     use RestControllerMapTrait;
 
-    public function create(MvcEvent $event)
+    public function update(MvcEvent $event)
     {
         $deeperResource = $event->getParam('deeperResource');
         $options = $event->getTarget()->getOptions();
@@ -30,34 +30,13 @@ class CreateListener
 
         if (count($deeperResource) == 0) {
             $result = $event->getResult();
-            $createdDocument = $result->getModel();
+            $updatedDocument = $result->getModel();
 
-            if ($documentManager->contains($createdDocument)) {
-                $exception = new Exception\DocumentAlreadyExistsException;
-                $exception->setDocument($createdDocument);
-                $exception->setLocation(
-                     Location::fromString(
-                        'Location: ' .
-                        $event->getRequest()->getUri()->getPath() .
-                        '/' .
-                        $metadata->getFieldValue($createdDocument, $options->getProperty())
-                    )
-                );
-                throw $exception;
-            }
-            if (! $documentManager->getClassMetadata(get_class($createdDocument))->isEmbeddedDocument) {
-                $documentManager->persist($createdDocument);
+            if (!$documentManager->contains($updatedDocument) && !$metadata->isEmbeddedDocument) {
+                return $event->getTarget()->create([]);
             }
 
-            $result->setStatusCode(201);
-            $result->addHeader(
-                Location::fromString(
-                    'Location: ' .
-                    $event->getRequest()->getUri()->getPath() .
-                    '/' .
-                    $metadata->getFieldValue($createdDocument, $options->getProperty())
-                )
-            );
+            $result->setStatusCode(204);
 
             return $result;
         }
@@ -70,15 +49,15 @@ class CreateListener
         $mapping = $metadata->fieldMappings[$field];
 
         if (isset($mapping['type']) && $mapping['type'] == 'one') {
-            return $this->createSingleModel($field, $metadata, $documentManager, $event);
+            return $this->updateSingleModel($field, $metadata, $documentManager, $event);
         } else if (isset($mapping['type']) && $mapping['type'] == 'many') {
-            return $this->createCollection($field, $metadata, $documentManager, $event);
+            return $this->updateCollection($field, $metadata, $documentManager, $event);
         }
 
         throw new Exception\DocumentNotFoundException();
     }
 
-    protected function createSingleModel($field, $metadata, $documentManager, $event)
+    protected function updateSingleModel($field, $metadata, $documentManager, $event)
     {
         $document = $this->loadDocument($event, $documentManager, $metadata, $field);
 
@@ -112,7 +91,7 @@ class CreateListener
         );
     }
 
-    protected function createCollection($field, $metadata, $documentManager, $event)
+    protected function updateCollection($field, $metadata, $documentManager, $event)
     {
         $document = $this->loadDocument($event, $documentManager, $metadata, $field);
 

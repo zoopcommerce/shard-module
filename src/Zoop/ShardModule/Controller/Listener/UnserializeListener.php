@@ -20,16 +20,26 @@ class UnserializeListener
 
     public function create(MvcEvent $event)
     {
-        if (count($event->getParam('deeperResource')) > 0) {
-            return;
+        return $this->unserialize($event, null, Unserializer::UNSERIALIZE_PATCH);
+    }
+
+    public function update(MvcEvent $event)
+    {
+        return $this->unserialize($event, $event->getParam('document'), Unserializer::UNSERIALIZE_UPDATE);
+    }
+
+    public function unserialize(MvcEvent $event, $document, $mode)
+    {
+        if ($result = $event->getResult()) {
+            return $result;
         }
 
         $result = new Result(
             $event->getTarget()->getOptions()->getManifest()->getServiceManager()->get('unserializer')->fromArray(
                 $event->getParam('data'),
                 $event->getTarget()->getOptions()->getClass(),
-                null,
-                Unserializer::UNSERIALIZE_PATCH
+                $document,
+                $mode
             )
         );
         $event->setResult($result);

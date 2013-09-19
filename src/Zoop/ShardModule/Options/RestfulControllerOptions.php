@@ -82,7 +82,12 @@ class RestfulControllerOptions extends AbstractControllerOptions
         ],
         'patch'            => ['zoop.shardmodule.listener.patchlist'],
         'replaceList'      => ['zoop.shardmodule.listener.replacelist'],
-        'update'           => ['zoop.shardmodule.listener.update'],
+        'update'           => [
+            'zoop.shardmodule.listener.unserialize',
+            'zoop.shardmodule.listener.update',
+            'zoop.shardmodule.listener.flush',
+            'zoop.shardmodule.listener.prepareviewmodel'
+        ],
     ];
 
     public function getAcceptCriteria()

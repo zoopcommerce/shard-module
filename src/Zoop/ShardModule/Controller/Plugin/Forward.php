@@ -52,7 +52,7 @@ class Forward extends ZendForward
         }
 
         if ($this->numNestedForwards > $this->maxNestedForwards) {
-            throw new Exception\DomainException("Circular forwarding detected: greater than $this->maxNestedForwards nested forwards");
+            throw new Exception\DomainException("Deeply nested forwarding detected: greater than $this->maxNestedForwards nested forwards");
         }
         $this->numNestedForwards++;
 
@@ -60,8 +60,14 @@ class Forward extends ZendForward
         $sharedEvents = $event->getApplication()->getEventManager()->getSharedManager();
         $listeners = $this->detachProblemListeners($sharedEvents);
 
-        $return = $controller->dispatch($event->getRequest(), $event->getResponse());
-
+        try {
+            $return = $controller->dispatch($event->getRequest(), $event->getResponse());
+        } catch (\Exception $exception) {
+            $this->reattachProblemListeners($sharedEvents, $listeners);
+            $this->numNestedForwards--;
+            throw $exception;
+        }
+        
         // If we detached any listeners, reattach them now:
         $this->reattachProblemListeners($sharedEvents, $listeners);
 

@@ -68,9 +68,7 @@ class RestfulController extends AbstractRestfulController
         if ($event->getParam('id', null) == null) {
             $parts = explode('/', $id);
             $id = $parts[0];
-
             array_shift($parts);
-
             $event->setParam('id', $id);
             $event->setParam('deeperResource', $parts);
         }
@@ -95,49 +93,25 @@ class RestfulController extends AbstractRestfulController
 
         //trigger event
         return $this->trigger(Event::CREATE, $event)->last();
-
-//        $this->trigger(Event::FLUSH, $event);
-
-//        $this->response->setStatusCode(201);
-//        $this->response->getHeaders()->addHeader($event->getParam('locationHeader'));
     }
 
     public function update($id, $data)
     {
-        $documentManager = $this->options->getDocumentManager();
+        $event = $this->getEvent();
 
-        $parts = explode('/', $id);
-        $document = $parts[0];
-        array_shift($parts);
-        $deeperResource = $parts;
-
-        $assistant = $this->options->getUpdateAssistant();
-        $assistant->setController($this);
-        $updatedDocument = $assistant->doUpdate($data, $document, $deeperResource);
-
-        if ($this->getEvent()->getRouteMatch()->getParam('surpressResponse')) {
-            return $updatedDocument;
+        if ($event->getParam('id', null) == null) {
+            $parts = explode('/', $id);
+            $id = $parts[0];
+            array_shift($parts);
+            $event->setParam('id', $id);
+            $event->setParam('deeperResource', $parts);
         }
 
-        $this->flush();
+        $data[$this->getOptions()->getProperty()] = $id;
+        $event->setParam('data', $data);
 
-        $updatedMetadata = $documentManager->getClassMetadata(get_class($updatedDocument));
-        $newEndpoint = $updatedMetadata
-            ->reflFields[$this->options->getEndpoint()->getProperty()]->getValue($updatedDocument);
-
-        if ($newEndpoint != $id) {
-            $parts = explode('/', $this->request->getUri()->getPath());
-            array_pop($parts);
-            $location = implode('/', $parts) . '/' . $newEndpoint;
-            $this->response->getHeaders()->addHeader(
-                Location::fromString('Location: ' . $location)
-            );
-        }
-
-        $this->response->setStatusCode(204);
-        $this->response->setContent(null);
-
-        return $this->response;
+        //trigger event
+        return $this->trigger(Event::UPDATE, $event)->last();
     }
 
     public function patch($id, $data)
