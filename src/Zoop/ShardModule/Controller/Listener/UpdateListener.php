@@ -89,10 +89,11 @@ class UpdateListener extends AbstractActionListener
             }
         } else if (isset($metadata->fieldMappings[$field]['reference'])) {
             $event->getRequest()->getQuery()->set($metadata->fieldMappings[$field]['mappedBy'], $event->getParam('id'));
-
             $targetOptions = $this->getRestControllerMap($event)->getOptionsFromClass($targetMetadata->name);
 
-            $id = array_shift($deeperResource);
+            if (!($id = array_shift($deeperResource))) {
+                $id = false;
+            }
             $event->setParam('id', $id);
             $event->setParam('deeperResource', $deeperResource);
             $event->setParam('document', null);
@@ -104,13 +105,17 @@ class UpdateListener extends AbstractActionListener
 
             $updatedDocument = $result->getModel();
 
-            $collection[] = $updatedDocument;
+            if ($id) {
+                $collection[$id] = $updatedDocument;
 
-            if (isset($metadata->fieldMappings[$field]['mappedBy'])) {
-                if ($updatedDocument instanceof Proxy) {
-                    $updatedDocument->__load();
+                if (isset($metadata->fieldMappings[$field]['mappedBy'])) {
+                    if ($updatedDocument instanceof Proxy) {
+                        $updatedDocument->__load();
+                    }
+                    $targetMetadata->setFieldValue($updatedDocument, $metadata->fieldMappings[$field]['mappedBy'], $document);
                 }
-                $targetMetadata->setFieldValue($updatedDocument, $metadata->fieldMappings[$field]['mappedBy'], $document);
+            } else {
+                $metadata->setFieldValue($document, $field, $updatedDocument);
             }
 
             return $result;

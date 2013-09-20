@@ -27,8 +27,6 @@ class RestfulControllerOptions extends AbstractControllerOptions
         ],
     ];
 
-    protected $referenceMap = 'referenceMap';
-
     protected $endpoint;
 
     protected $class;
@@ -102,6 +100,7 @@ class RestfulControllerOptions extends AbstractControllerOptions
         ],
         'update' => [
             'zoop.shardmodule.listener.unserialize',
+            'zoop.shardmodule.listener.idchange',
             'zoop.shardmodule.listener.update',
             'zoop.shardmodule.listener.flush',
             'zoop.shardmodule.listener.prepareviewmodel'
@@ -122,20 +121,6 @@ class RestfulControllerOptions extends AbstractControllerOptions
     public function setAcceptCriteria(array $acceptCriteria)
     {
         $this->acceptCriteria = $acceptCriteria;
-    }
-
-    public function setReferenceMap($referenceMap)
-    {
-        $this->referenceMap = $referenceMap;
-    }
-
-    public function getReferenceMap()
-    {
-        if (is_string($this->referenceMap)) {
-            $this->referenceMap = $this->serviceLocator->get($this->referenceMap);
-        }
-
-        return $this->referenceMap;
     }
 
     public function getEndpoint() {

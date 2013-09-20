@@ -27,8 +27,9 @@ class ReplaceListListener
         $newList = $result->getModel();
         foreach ($newList as $key => $item) {
             if (!$documentManager->contains($item)) {
-                $result->setModel($item);
-                $event->getTarget()->create($event);
+                if (! $documentManager->getClassMetadata(get_class($item))->isEmbeddedDocument) {
+                    $documentManager->persist($item);
+                }
             }
             if (isset($list)) {
                 $list[$key] = $item;

@@ -118,6 +118,7 @@ return [
         'invokables' => [
             'zoop.shardmodule.listener.serialize' => 'Zoop\ShardModule\Controller\Listener\SerializeListener',
             'zoop.shardmodule.listener.unserialize' => 'Zoop\ShardModule\Controller\Listener\UnserializeListener',
+            'zoop.shardmodule.listener.idchange' => 'Zoop\ShardModule\Controller\Listener\IdChangeListener',
             'zoop.shardmodule.listener.flush' => 'Zoop\ShardModule\Controller\Listener\FlushListener',
             'zoop.shardmodule.listener.prepareviewmodel' => 'Zoop\ShardModule\Controller\Listener\PrepareViewModelListener',
             'zoop.shardmodule.listener.create' => 'Zoop\ShardModule\Controller\Listener\CreateListener',
