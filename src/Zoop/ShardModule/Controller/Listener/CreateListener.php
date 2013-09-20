@@ -16,139 +16,104 @@ use Zoop\ShardModule\Exception;
  * @version $Revision$
  * @author  Tim Roediger <superdweebie@gmail.com>
  */
-class CreateListener
+class CreateListener extends AbstractActionListener
 {
-    use LoadDocumentTrait;
-    use RestControllerMapTrait;
-
     public function create(MvcEvent $event)
     {
-        $deeperResource = $event->getParam('deeperResource');
-        $options = $event->getTarget()->getOptions();
-        $documentManager = $options->getModelManager();
-        $metadata = $documentManager->getClassMetadata($options->getClass());
-
-        if (count($deeperResource) == 0) {
-            $result = $event->getResult();
-            $createdDocument = $result->getModel();
-
-            if ($documentManager->contains($createdDocument)) {
-                $exception = new Exception\DocumentAlreadyExistsException;
-                $exception->setDocument($createdDocument);
-                $exception->setLocation(
-                     Location::fromString(
-                        'Location: ' .
-                        $event->getRequest()->getUri()->getPath() .
-                        '/' .
-                        $metadata->getFieldValue($createdDocument, $options->getProperty())
-                    )
-                );
-                throw $exception;
-            }
-            if (! $documentManager->getClassMetadata(get_class($createdDocument))->isEmbeddedDocument) {
-                $documentManager->persist($createdDocument);
-            }
-
-            $result->setStatusCode(201);
-            $result->addHeader(
-                Location::fromString(
-                    'Location: ' .
-                    $event->getRequest()->getUri()->getPath() .
-                    '/' .
-                    $metadata->getFieldValue($createdDocument, $options->getProperty())
-                )
-            );
-
-            return $result;
-        }
-
-        //a deeper resource is requested
-        $field = $deeperResource[0];
-        array_shift($deeperResource);
-
-        $event->setParam('deeperResource', $deeperResource);
-        $mapping = $metadata->fieldMappings[$field];
-
-        if (isset($mapping['type']) && $mapping['type'] == 'one') {
-            return $this->createSingleModel($field, $metadata, $documentManager, $event);
-        } else if (isset($mapping['type']) && $mapping['type'] == 'many') {
-            return $this->createCollection($field, $metadata, $documentManager, $event);
-        }
-
-        throw new Exception\DocumentNotFoundException();
+        return $this->route($event);
     }
 
-    protected function createSingleModel($field, $metadata, $documentManager, $event)
+    protected function doAction(MvcEvent $event, $metadata, $documentManager)
     {
-        $document = $this->loadDocument($event, $documentManager, $metadata, $field);
+        $result = $event->getResult();
+        $createdDocument = $result->getModel();
+
+        if ($event->getTarget()->forward()->getNumNestedForwards() == 0 && $documentManager->contains($createdDocument)) {
+            $exception = new Exception\DocumentAlreadyExistsException;
+            $exception->setDocument($createdDocument);
+            throw $exception;
+        }
+        if (! $documentManager->getClassMetadata(get_class($createdDocument))->isEmbeddedDocument) {
+            $documentManager->persist($createdDocument);
+        }
+
+        $result->setStatusCode(201);
+        $result->addHeader($this->getLocationHeader($event, $metadata, $createdDocument));
+
+        return $result;
+    }
+
+    protected function handleAssociatedCollection(MvcEvent $event, $metadata, $documentManager, $field)
+    {
+        $document = $this->loadDocument($event, $metadata, $documentManager, $field);
 
         $targetMetadata = $documentManager
             ->getClassMetadata($metadata->fieldMappings[$field]['targetDocument']);
+
+        $deeperResource = $event->getParam('deeperResource');
+        $restControllerMap = $this->getRestControllerMap($event);
+        $collection = $metadata->getFieldValue($document, $field);
 
         if (isset($metadata->fieldMappings[$field]['embedded'])) {
-            $event->setParam('document', $metadata->getFieldValue($document, $field));
-            return $event->getTarget()->forward()->dispatch(
-                'shard.rest.' . $event->getTarget()->getOptions()->getEndpoint() . '.' . $field
-            );
-        }
+            $targetOptions = $restControllerMap->getOptionsFromEndpoint($event->getTarget()->getOptions()->getEndpoint() . '.' . $field);
 
-        $targetOptions = $this->getRestControllerMap($event)->getOptionsFromClass($targetMetadata->name);
+            if (count($deeperResource) > 0) {
+                if (!($targetDocument = $this->selectItemFromCollection(
+                    $collection,
+                    array_shift($deeperResource),
+                    $targetOptions->getProperty()))
+                ) {
+                    //embedded document not found in collection
+                    throw new Exception\DocumentNotFoundException();
+                }
 
-        $targetDocument = $metadata->getFieldValue($document, $field);
+                $event->setParam('deeperResource', $deeperResource);
+                $event->setParam('document', $targetDocument);
+                return $event->getTarget()->forward()->dispatch(
+                    'shard.rest.' . $targetOptions->getEndpoint()
+                );
+            } else {
+                $result = $event->getTarget()->forward()->dispatch(
+                    'shard.rest.' . $targetOptions->getEndpoint()
+                );
+                $createdDocument = $result->getModel();
 
-        if (is_string($targetDocument)) {
-            $targetDocument = $documentManager->getRepository($targetMetadata->name)->find($targetDocument);
-        }
-        if ($targetDocument instanceof Proxy) {
-            $targetDocument->__load();
-        }
+                if ($targetProperty = $targetOptions->getProperty()) {
+                    foreach ($collection as $targetDocument) {
+                        if ($targetMetadata->getFieldValue($targetDocument, $targetProperty) == $targetMetadata->getFieldValue($createdDocument, $targetProperty)) {
+                            throw new Exception\DocumentAlreadyExistsException();
+                        }
+                    }
+                }
 
-        $id = $targetMetadata->reflFields[$targetOptions->getProperty()]->getValue($targetDocument);
-        $event->setParam('document', $targetDocument);
-
-        return $event->getTarget()->forward()->dispatch(
-            'shard.rest.' . $targetOptions->getEndpoint(),
-            ['id' => $id]
-        );
-    }
-
-    protected function createCollection($field, $metadata, $documentManager, $event)
-    {
-        $document = $this->loadDocument($event, $documentManager, $metadata, $field);
-
-        $targetMetadata = $documentManager
-            ->getClassMetadata($metadata->fieldMappings[$field]['targetDocument']);
-
-        $deeperResource = $event->getParam('deeperResource');
-
-        if (isset($metadata->fieldMappings[$field]['reference'])) {
-            $event->getRequest()->getQuery()->set($metadata->fieldMappings[$field]['mappedBy'], $event->getParam('id'));
-
-            $targetOptions = $this->getRestControllerMap($event)->getOptionsFromClass($targetMetadata->name);
+                $collection[] = $createdDocument;
+                return $result;
+            }
+        } else if (isset($metadata->fieldMappings[$field]['reference'])) {
+            $targetOptions = $restControllerMap->getOptionsFromClass($targetMetadata->name);
 
             $id = array_shift($deeperResource);
             $event->setParam('id', $id);
             $event->setParam('deeperResource', $deeperResource);
             $event->setParam('document', null);
 
-            try {
-                $result = $event->getTarget()->forward()->dispatch(
-                    'shard.rest.' . $targetOptions->getEndpoint(),
-                    ['id' => $id]
-                );
-            } catch (Exception\DocumentAlreadyExistsException $exception) {
-                $result = $event->getResult();
-                $result->setModel($exception->getDocument());
-                $result->setStatusCode(201);
-                $result->addHeader($exception->getLocation());
-            }
+            $result = $event->getTarget()->forward()->dispatch(
+                'shard.rest.' . $targetOptions->getEndpoint(),
+                ['id' => $id]
+            );
 
             $createdDocument = $result->getModel();
 
-            $collection = $metadata->getFieldValue($document, $field);
-            if ($collection->contains($createdDocument)) {
-                throw new Exception\DocumentAlreadyExistsException();
+            if ($targetProperty = $targetOptions->getProperty()) {
+                foreach ($collection as $targetDocument) {
+                    if ($targetMetadata->getFieldValue($targetDocument, $targetProperty) == $targetMetadata->getFieldValue($createdDocument, $targetProperty)) {
+                        throw new Exception\DocumentAlreadyExistsException();
+                    }
+                }
             }
+
+            $collection[] = $createdDocument;
+
             if (isset($metadata->fieldMappings[$field]['mappedBy'])) {
                 if ($createdDocument instanceof Proxy) {
                     $createdDocument->__load();
@@ -157,55 +122,18 @@ class CreateListener
             }
 
             return $result;
+        }
+    }
 
-        } else {
-            //embedded
-            $collection = $metadata->reflFields[$field]->getValue($document);
-            $endpoint = $event->getTarget()->getOptions()->getEndpoint();
+    protected function getLocationHeader($event, $metadata, $createdDocument){
 
-            if (!($targetEndpointProperty = $this->getRestControllerMap($event)->getOptionsFromEndpoint($endpoint . '.' . $field)->getProperty())) {
-                $set = array_shift($deeperResource);
-            }
-
-            if (count($deeperResource) > 0) {
-                if (isset($set) && isset($collection[$set])) {
-                    $targetDocument = $collection[$set];
-                } else if (!isset($set)) {
-                    foreach ($collection as $targetDocument) {
-                        if ($targetMetadata->getFieldValue($targetDocument, $targetEndpointProperty) == $deeperResource[0]) {
-                            break;
-                        }
-                    }
-                }
-
-                if (!isset($targetDocument)) {
-                    //embedded document not found in collection
-                    throw new Exception\DocumentNotFoundException();
-                }
-
-                $event->setParam('deeperResource', $deeperResource);
-                $event->setParam('document', $targetDocument);
-                return $event->getTarget()->forward()->dispatch(
-                    'shard.rest.' . $event->getTarget()->getOptions()->getEndpoint() . '.' . $field
-                );
-            } else {
-                $result = $event->getTarget()->forward()->dispatch(
-                    'shard.rest.' . $event->getTarget()->getOptions()->getEndpoint() . '.' . $field
-                );
-                $createdDocument = $result->getModel();
-
-                if (isset($set)) {
-                    $collection[$set] = $createdDocument;
-                } else {
-                    foreach ($collection as $targetDocument) {
-                        if ($targetMetadata->getFieldValue($targetDocument, $targetEndpointProperty) == $targetMetadata->getFieldValue($createdDocument, $targetEndpointProperty)) {
-                            throw new Exception\DocumentAlreadyExistsException();
-                        }
-                    }
-                    $collection[] = $createdDocument;
-                }
-                return $result;
-            }
+        if ($property = $event->getTarget()->getOptions()->getProperty()) {
+            return Location::fromString(
+                'Location: ' .
+                $event->getRequest()->getUri()->getPath() .
+                '/' .
+                $metadata->getFieldValue($createdDocument, $property)
+            );
         }
     }
 }

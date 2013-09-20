@@ -69,8 +69,6 @@ class GetListListener
                 $this->applySortToList($list, $sort, $metadata);
             }
             $list = array_slice($list, $offset, $this->getLimit($event));
-//            $event->setParam('list', $list);
-//            $items = $event->getTarget()->trigger(Event::SERIALIZE_LIST, $event)->last();
         } else {
             $resultsQuery = $documentManager->createQueryBuilder()
                 ->find($metadata->name);

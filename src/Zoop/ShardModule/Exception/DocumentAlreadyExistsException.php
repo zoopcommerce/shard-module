@@ -17,8 +17,6 @@ class DocumentAlreadyExistsException extends \Exception implements ExceptionInte
 {
     protected $document;
 
-    protected $location;
-
     public function getDocument()
     {
         return $this->document;
@@ -27,13 +25,5 @@ class DocumentAlreadyExistsException extends \Exception implements ExceptionInte
     public function setDocument($document)
     {
         $this->document = $document;
-    }
-
-    public function getLocation() {
-        return $this->location;
-    }
-
-    public function setLocation($location) {
-        $this->location = $location;
     }
 }

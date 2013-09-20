@@ -113,6 +113,15 @@ class RestfulController extends AbstractRestfulController
         return $this->trigger(Event::UPDATE, $event)->last();
     }
 
+    public function replaceList($data)
+    {
+        $event = $this->getEvent();
+        $event->setParam('data', $data);
+
+        //trigger event
+        return $this->trigger(Event::REPLACE_LIST, $event)->last();
+    }
+
     public function patch($id, $data)
     {
         $documentManager = $this->options->getDocumentManager();
@@ -153,22 +162,6 @@ class RestfulController extends AbstractRestfulController
         $assistant = $this->options->getPatchListAssistant();
         $assistant->setController($this);
         $collection = $assistant->doPatchList($data);
-
-        if ($this->getEvent()->getRouteMatch()->getParam('surpressResponse')) {
-            return $collection;
-        }
-
-        $this->flush();
-        $this->response->setStatusCode(204);
-
-        return $this->response;
-    }
-
-    public function replaceList($data)
-    {
-        $assistant = $this->options->getReplaceListAssistant();
-        $assistant->setController($this);
-        $collection = $assistant->doReplaceList($data);
 
         if ($this->getEvent()->getRouteMatch()->getParam('surpressResponse')) {
             return $collection;

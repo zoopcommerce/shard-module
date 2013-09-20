@@ -110,7 +110,7 @@ class RestfulControllerUpdateTest extends AbstractHttpControllerTestCase
         $this->assertEquals('/exception/document-not-found', $result['describedBy']);
         $this->assertEquals('Document not found', $result['title']);
     }
-*/
+
     public function testUpdateEmbeddedOne()
     {
         $accept = new Accept;
@@ -138,7 +138,7 @@ class RestfulControllerUpdateTest extends AbstractHttpControllerTestCase
         $this->assertEquals('germany', $publisher->getCountry()->getName());
         $this->assertNull($publisher->getCity());
     }
-/*
+
     public function testUpdateEmbeddedListItem()
     {
         $accept = new Accept;
@@ -294,7 +294,7 @@ class RestfulControllerUpdateTest extends AbstractHttpControllerTestCase
         $response = $this->getResponse();
         $result = json_decode($response->getContent(), true);
 
-        $this->assertResponseStatusCode(204);
+        $this->assertResponseStatusCode(201);
         $this->assertFalse(isset($result));
 
         $this->documentManager->clear();
@@ -339,7 +339,7 @@ class RestfulControllerUpdateTest extends AbstractHttpControllerTestCase
         $this->assertEquals('james', $review->getAuthor()->getName());
 
     }
-
+*/
     public function testUpdateReferencedListItemWithNew()
     {
         $accept = new Accept;
@@ -355,7 +355,7 @@ class RestfulControllerUpdateTest extends AbstractHttpControllerTestCase
         $response = $this->getResponse();
         $result = json_decode($response->getContent(), true);
 
-        $this->assertResponseStatusCode(204);
+        $this->assertResponseStatusCode(201);
         $this->assertFalse(isset($result));
 
         $game = $this->documentManager
@@ -366,7 +366,7 @@ class RestfulControllerUpdateTest extends AbstractHttpControllerTestCase
         $this->assertEquals('another-review', $review->getTitle());
 
     }
-
+/*
     public function testUpdateExistingDocument()
     {
         $accept = new Accept;
@@ -394,7 +394,7 @@ class RestfulControllerUpdateTest extends AbstractHttpControllerTestCase
         $this->assertEquals(null, $game->getPublisher());
         $this->assertCount(0, $game->getReviews());
     }
-
+/*
     public function testUpdateExistingDocumentId()
     {
         $accept = new Accept;
@@ -502,6 +502,6 @@ class RestfulControllerUpdateTest extends AbstractHttpControllerTestCase
         $game = $repository->find('feed-the-kitty');
         $this->assertFalse(isset($game));
     }
- * 
+ *
  */
 }

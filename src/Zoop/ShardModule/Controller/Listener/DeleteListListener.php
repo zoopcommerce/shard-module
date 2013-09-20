@@ -26,7 +26,6 @@ class DeleteListListener
             }
         } else {
             $options = $event->getTarget()->getOptions();
-
             $options->getModelManager()
                 ->createQueryBuilder($options->getClass())
                 ->remove()
@@ -34,9 +33,12 @@ class DeleteListListener
                 ->execute();
         }
 
-        $result = new Result([]);
-        $result->setStatusCode(204);
-        $event->setResult($result);
+        if (!($result = $event->getResult())) {
+            $result = new Result([]);
+            $result->setStatusCode(204);
+            $event->setResult($result);
+        }
+
         return $result;
     }
 }

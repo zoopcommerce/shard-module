@@ -6,7 +6,6 @@
 namespace Zoop\ShardModule\Controller\Listener;
 
 use Doctrine\ODM\MongoDB\Proxy\Proxy;
-use Zend\Http\Header\LastModified;
 use Zend\Mvc\MvcEvent;
 use Zoop\ShardModule\Exception;
 use Zoop\ShardModule\Controller\Result;
@@ -17,34 +16,16 @@ use Zoop\ShardModule\Controller\Result;
  * @version $Revision$
  * @author  Tim Roediger <superdweebie@gmail.com>
  */
-class DeleteListener
+class DeleteListener extends AbstractActionListener
 {
-    use LoadDocumentTrait;
-    use RestControllerMapTrait;
-
     public function delete(MvcEvent $event)
     {
-        $deeperResource = $event->getParam('deeperResource');
+        return $this->route($event);
+    }
+
+    protected function doAction(MvcEvent $event, $metadata, $documentManager)
+    {
         $options = $event->getTarget()->getOptions();
-        $documentManager = $options->getModelManager();
-        $metadata = $documentManager->getClassMetadata($options->getClass());
-
-        if (count($deeperResource) > 0) {
-            //a deeper resource is requested
-            $field = $deeperResource[0];
-            array_shift($deeperResource);
-
-            $event->setParam('deeperResource', $deeperResource);
-            $mapping = $metadata->fieldMappings[$field];
-
-            if (isset($mapping['type']) && $mapping['type'] == 'one') {
-                return $this->deleteSingleModel($field, $metadata, $documentManager, $event);
-            } else if (isset($mapping['type']) && $mapping['type'] == 'many') {
-                return $this->deleteCollection($field, $metadata, $documentManager, $event);
-            }
-
-            throw new Exception\DocumentNotFoundException();
-        }
 
         if ($document = $event->getParam('document')) {
             // document already loaded, so just remove it
@@ -66,9 +47,9 @@ class DeleteListener
         return $result;
     }
 
-    protected function deleteSingleModel($field, $metadata, $documentManager, $event)
+    protected function handleAssociatedSingle(MvcEvent $event, $metadata, $documentManager, $field)
     {
-        $document = $this->loadDocument($event, $documentManager, $metadata, $field);
+        $document = $this->loadDocument($event, $metadata, $documentManager, $field);
 
         $targetMetadata = $documentManager
             ->getClassMetadata($metadata->fieldMappings[$field]['targetDocument']);
@@ -127,7 +108,7 @@ class DeleteListener
         );
     }
 
-    protected function deleteCollection($field, $metadata, $documentManager, $event)
+    protected function handleAssociatedCollection(MvcEvent $event, $metadata, $documentManager, $field)
     {
         $targetMetadata = $documentManager
             ->getClassMetadata($metadata->fieldMappings[$field]['targetDocument']);
@@ -150,7 +131,7 @@ class DeleteListener
                     ['id' => $id]
                 );
             }
-            $document = $this->loadDocument($event, $documentManager, $metadata, $field);
+            $document = $this->loadDocument($event, $metadata, $documentManager, $field);
             $collection = $metadata->getFieldValue($document, $field);
             foreach ($collection as $key => $item) {
                 $collection->remove($key);
@@ -162,7 +143,7 @@ class DeleteListener
             return $result;
         }
 
-        $document = $this->loadDocument($event, $documentManager, $metadata, $field);
+        $document = $this->loadDocument($event, $metadata, $documentManager, $field);
         $endpoint = $event->getTarget()->getOptions()->getEndpoint();
 
         if (count($deeperResource) > 0) {
