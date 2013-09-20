@@ -124,53 +124,29 @@ class RestfulController extends AbstractRestfulController
 
     public function patch($id, $data)
     {
-        $documentManager = $this->options->getDocumentManager();
+        $event = $this->getEvent();
 
-        $parts = explode('/', $id);
-        $document = $parts[0];
-        array_shift($parts);
-        $deeperResource = $parts;
-
-        $assistant = $this->options->getPatchAssistant();
-        $assistant->setController($this);
-        $patchedDocument = $assistant->doPatch($data, $document, $deeperResource);
-
-        if ($this->getEvent()->getRouteMatch()->getParam('surpressResponse')) {
-            return $patchedDocument;
+        if ($event->getParam('id', null) == null) {
+            $parts = explode('/', $id);
+            $id = $parts[0];
+            array_shift($parts);
+            $event->setParam('id', $id);
+            $event->setParam('deeperResource', $parts);
         }
 
-        $this->flush();
+        $event->setParam('data', $data);
 
-        $patchedMetadata = $documentManager->getClassMetadata(get_class($patchedDocument));
-        $newId = $patchedMetadata->reflFields[$patchedMetadata->identifier]->getValue($patchedDocument);
-        if ($newId != $id) {
-            $parts = explode('/', $this->request->getUri()->getPath());
-            array_pop($parts);
-            $location = implode('/', $parts) . '/' . $newId;
-            $this->response->getHeaders()->addHeader(
-                Location::fromString('Location: ' . $location)
-            );
-        }
-
-        $this->response->setStatusCode(204);
-
-        return $this->response;
+        //trigger event
+        return $this->trigger(Event::PATCH, $event)->last();
     }
 
     public function patchList($data)
     {
-        $assistant = $this->options->getPatchListAssistant();
-        $assistant->setController($this);
-        $collection = $assistant->doPatchList($data);
+        $event = $this->getEvent();
+        $event->setParam('data', $data);
 
-        if ($this->getEvent()->getRouteMatch()->getParam('surpressResponse')) {
-            return $collection;
-        }
-
-        $this->flush();
-        $this->response->setStatusCode(204);
-
-        return $this->response;
+        //trigger event
+        return $this->trigger(Event::PATCH_LIST, $event)->last();
     }
 
     public function delete($id)

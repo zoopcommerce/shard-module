@@ -88,6 +88,7 @@ class RestfulControllerOptions extends AbstractControllerOptions
         ],
         'patch' => [
             'zoop.shardmodule.listener.unserialize',
+            'zoop.shardmodule.listener.idchange',
             'zoop.shardmodule.listener.patch',
             'zoop.shardmodule.listener.flush',
             'zoop.shardmodule.listener.prepareviewmodel'

@@ -7,7 +7,6 @@ namespace Zoop\ShardModule\Controller\Listener;
 
 use Doctrine\ODM\MongoDB\Proxy\Proxy;
 use Zend\Mvc\MvcEvent;
-use Zoop\ShardModule\Exception;
 
 /**
  *
@@ -28,7 +27,7 @@ class UpdateListener extends AbstractActionListener
         $updatedDocument = $result->getModel();
 
         if (!$documentManager->contains($updatedDocument) && !$metadata->isEmbeddedDocument) {
-            return $event->getTarget()->create([]);
+            $documentManager->persist($updatedDocument);
         }
 
         $result->setStatusCode(204);
@@ -81,7 +80,6 @@ class UpdateListener extends AbstractActionListener
             } else {
                 $event->setParam('deeperResource', $deeperResource);
                 $event->setParam('list', $collection);
-                $event->setParam('list', $collection);
                 return $event->getTarget()->forward()->dispatch(
                     'shard.rest.' . $targetOptions->getEndpoint(),
                     ['id' => false]
@@ -96,6 +94,7 @@ class UpdateListener extends AbstractActionListener
             }
             $event->setParam('id', $id);
             $event->setParam('deeperResource', $deeperResource);
+            $event->setParam('list', $collection);
             $event->setParam('document', null);
 
             $result = $event->getTarget()->forward()->dispatch(
@@ -113,6 +112,10 @@ class UpdateListener extends AbstractActionListener
                         $updatedDocument->__load();
                     }
                     $targetMetadata->setFieldValue($updatedDocument, $metadata->fieldMappings[$field]['mappedBy'], $document);
+                }
+            } else if (is_array($updatedDocument)) {
+                foreach ($updatedDocument as $item) {
+                    $targetMetadata->setFieldValue($item, $metadata->fieldMappings[$field]['mappedBy'], $document);
                 }
             } else {
                 $metadata->setFieldValue($document, $field, $updatedDocument);

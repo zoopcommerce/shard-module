@@ -18,6 +18,16 @@ class IdChangeListener
 {
     public function update(MvcEvent $event)
     {
+        return $this->idChange($event);
+    }
+
+    public function patch(MvcEvent $event)
+    {
+        return $this->idChange($event);
+    }
+
+    public function idChange(MvcEvent $event)
+    {
         if (count($event->getParam('deeperResource')) > 0) {
             return $event->getResult();
         }

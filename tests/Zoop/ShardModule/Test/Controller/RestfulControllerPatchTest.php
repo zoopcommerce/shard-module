@@ -7,7 +7,7 @@ use Zend\Test\PHPUnit\Controller\AbstractHttpControllerTestCase;
 use Zend\Http\Header\Accept;
 use Zend\Http\Header\ContentType;
 
-class JsonRestfulControllerPatchTest extends AbstractHttpControllerTestCase
+class RestfulControllerPatchTest extends AbstractHttpControllerTestCase
 {
     protected static $staticDcumentManager;
 
@@ -428,6 +428,8 @@ class JsonRestfulControllerPatchTest extends AbstractHttpControllerTestCase
         $this->assertResponseStatusCode(204);
         $this->assertFalse(isset($result));
 
+        $this->documentManager->clear();
+        
         $game = $this->documentManager
             ->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Game')->find('feed-the-kitty');
         $this->assertTrue(2 < count($game->getReviews()));

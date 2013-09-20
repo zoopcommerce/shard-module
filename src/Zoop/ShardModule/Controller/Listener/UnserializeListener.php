@@ -42,6 +42,53 @@ class UnserializeListener
 
     public function update(MvcEvent $event)
     {
+        return $this->unserializeSingle($event,  Unserializer::UNSERIALIZE_UPDATE);
+    }
+
+    public function patch(MvcEvent $event)
+    {
+        return $this->unserializeSingle($event,  Unserializer::UNSERIALIZE_PATCH);
+    }
+
+    public function replaceList(MvcEvent $event)
+    {
+        return $this->unserializeList($event,  Unserializer::UNSERIALIZE_UPDATE);
+    }
+
+    public function patchList(MvcEvent $event)
+    {
+        return $this->unserializeList($event,  Unserializer::UNSERIALIZE_PATCH);
+    }
+    
+    public function unserializeList(MvcEvent $event, $mode)
+    {
+        if (count($event->getParam('deeperResource')) > 0 || $result = $event->getResult()) {
+            return $event->getResult();
+        }
+
+        $list = [];
+        $unserializer = $event->getTarget()
+            ->getOptions()
+            ->getManifest()
+            ->getServiceManager()
+            ->get('unserializer');
+
+        foreach ($event->getParam('data') as $item) {
+             $list[] = $unserializer->fromArray(
+                 $item,
+                 $event->getTarget()->getOptions()->getClass(),
+                 null,
+                 $mode
+             );
+        }
+
+        $result = new Result($list);
+        $event->setResult($result);
+        return $result;
+    }
+
+    public function unserializeSingle(MvcEvent $event, $mode)
+    {
         if (count($event->getParam('deeperResource')) > 0 || $result = $event->getResult()) {
             return $event->getResult();
         }
@@ -64,36 +111,9 @@ class UnserializeListener
                     $data,
                     $event->getTarget()->getOptions()->getClass(),
                     $event->getParam('document'),
-                    Unserializer::UNSERIALIZE_UPDATE
+                    $mode
                 )
         );
-        $event->setResult($result);
-        return $result;
-    }
-
-    public function replaceList(MvcEvent $event)
-    {
-        if (count($event->getParam('deeperResource')) > 0 || $result = $event->getResult()) {
-            return $event->getResult();
-        }
-
-        $list = [];
-        $unserializer = $event->getTarget()
-            ->getOptions()
-            ->getManifest()
-            ->getServiceManager()
-            ->get('unserializer');
-
-        foreach ($event->getParam('data') as $item) {
-             $list[] = $unserializer->fromArray(
-                 $item,
-                 $event->getTarget()->getOptions()->getClass(),
-                 null,
-                 Unserializer::UNSERIALIZE_UPDATE
-             );
-        }
-
-        $result = new Result($list);
         $event->setResult($result);
         return $result;
     }
