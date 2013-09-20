@@ -6,6 +6,7 @@
 namespace Zoop\ShardModule\Controller\Listener;
 
 use Zend\Mvc\MvcEvent;
+use Zend\Http\Header\Location;
 
 /**
  *
@@ -25,10 +26,16 @@ class IdChangeListener
         $documentManager = $options->getModelManager();
         $metadata = $documentManager->getClassMetadata($options->getClass());
         $document = $event->getResult()->getModel();
+        $data = $event->getParam('data');
 
-        $identifier = $metadata->getIdentifierValues($document);
-        $documentId = array_values($identifier)[0];
-        $dataId = $event->getParam('data')[array_keys($identifier)[0]];
+        $identifier = $metadata->identifier;
+
+        if (!isset($identifier) || !isset($data[$identifier])) {
+            return $event->getResult();
+        }
+
+        $documentId = $metadata->getFieldValue($document, $identifier);
+        $dataId = $data[$identifier];
 
         if ($dataId == $documentId) {
             return $event->getResult();
@@ -92,8 +99,24 @@ class IdChangeListener
             $documentManager->persist($newDocument);
         }
 
-        $event->getResult()->setModel($newDocument);
+        $result = $event->getResult();
+        $result->setModel($newDocument);
+        $result->addHeader($this->getLocationHeader($event, $metadata, $newDocument));
 
-        return $event->getResult();
+        return $result;
+    }
+
+    protected function getLocationHeader($event, $metadata, $document){
+
+        if ($property = $event->getTarget()->getOptions()->getProperty()) {
+            $pieces = explode('/', $event->getRequest()->getUri()->getPath());
+            array_pop($pieces);
+            return Location::fromString(
+                'Location: ' .
+                implode('/', $pieces) .
+                '/' .
+                $metadata->getFieldValue($document, $property)
+            );
+        }
     }
 }

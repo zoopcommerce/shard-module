@@ -36,7 +36,7 @@ class RestfulControllerUpdateTest extends AbstractHttpControllerTestCase
             static::$dbDataCreated = true;
         }
     }
-/*
+
     public function testCreateViaUpdate()
     {
         $accept = new Accept;
@@ -294,7 +294,7 @@ class RestfulControllerUpdateTest extends AbstractHttpControllerTestCase
         $response = $this->getResponse();
         $result = json_decode($response->getContent(), true);
 
-        $this->assertResponseStatusCode(201);
+        $this->assertResponseStatusCode(204);
         $this->assertFalse(isset($result));
 
         $this->documentManager->clear();
@@ -394,7 +394,7 @@ class RestfulControllerUpdateTest extends AbstractHttpControllerTestCase
         $this->assertEquals(null, $game->getPublisher());
         $this->assertCount(0, $game->getReviews());
     }
-*/
+
     public function testUpdateExistingDocumentId()
     {
         $accept = new Accept;
@@ -435,7 +435,7 @@ class RestfulControllerUpdateTest extends AbstractHttpControllerTestCase
 
         $this->assertEquals('thomas-dean', $review->getAuthor()->getName());
     }
-/*
+
     public function testReplaceReferencedList()
     {
         $accept = new Accept;
@@ -502,5 +502,4 @@ class RestfulControllerUpdateTest extends AbstractHttpControllerTestCase
         $game = $repository->find('feed-the-kitty');
         $this->assertFalse(isset($game));
     }
-*/
 }

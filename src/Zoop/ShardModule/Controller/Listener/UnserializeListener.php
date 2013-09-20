@@ -51,11 +51,7 @@ class UnserializeListener
         $options = $event->getTarget()->getOptions();
 
         if ($property = $options->getProperty()) {
-//            if (isset($data[$property])) {
-//                $event->setParam('document', null);
-//            } else {
-                $data[$property] = $id;
-//            }
+            $data[$property] = $id;
         }
 
         $result = new Result(
