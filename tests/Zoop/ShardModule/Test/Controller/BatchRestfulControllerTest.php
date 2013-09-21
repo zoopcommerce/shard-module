@@ -7,7 +7,7 @@ use Zend\Test\PHPUnit\Controller\AbstractHttpControllerTestCase;
 use Zend\Http\Header\Accept;
 use Zend\Http\Header\ContentType;
 
-class BatchJsonRestfulControllerTest extends AbstractHttpControllerTestCase
+class BatchRestfulControllerTest extends AbstractHttpControllerTestCase
 {
     protected static $staticDcumentManager;
 

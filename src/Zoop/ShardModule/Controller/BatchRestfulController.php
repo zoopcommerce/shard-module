@@ -7,7 +7,7 @@
 namespace Zoop\ShardModule\Controller;
 
 use Zoop\ShardModule\Exception;
-use Zoop\ShardModule\Options\BatchJsonRestfulControllerOptions;
+use Zoop\ShardModule\Options\BatchRestfulControllerOptions;
 use Zoop\ShardModule\RouteListener;
 use Zend\Http\Header\GenericHeader;
 use Zend\Http\Request;
@@ -29,15 +29,15 @@ class BatchRestfulController extends AbstractRestfulController
         return $this->options;
     }
 
-    public function setOptions(BatchJsonRestfulControllerOptions $options)
+    public function setOptions(BatchRestfulControllerOptions $options)
     {
         $this->options = $options;
     }
 
-    public function __construct(BatchJsonRestfulControllerOptions $options = null)
+    public function __construct(BatchRestfulControllerOptions $options = null)
     {
         if (!isset($options)) {
-            $options = new BatchJsonRestfulControllerOptions;
+            $options = new BatchRestfulControllerOptions;
         }
         $this->setOptions($options);
     }
@@ -81,7 +81,7 @@ class BatchRestfulController extends AbstractRestfulController
             RouteListener::resolveController($match);
             $contentModel = null;
 
-            if (!isset($match) || ($match->getMatchedRouteName() != 'rest.' . $this->options->getManifestName())) {
+            if (!isset($match) || ($match->getMatchedRouteName() != 'rest')) {
                 $contentModel = $this->createExceptionContentModel(
                     new Exception\RuntimeException(
                         sprintf(

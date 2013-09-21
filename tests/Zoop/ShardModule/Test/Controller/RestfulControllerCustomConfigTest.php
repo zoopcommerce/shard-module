@@ -6,7 +6,7 @@ use Zoop\ShardModule\Test\TestAsset\TestData;
 use Zend\Test\PHPUnit\Controller\AbstractHttpControllerTestCase;
 use Zend\Http\Header\Accept;
 
-class JsonRestfulControllerCustomConfigTest extends AbstractHttpControllerTestCase
+class RestfulControllerCustomConfigTest extends AbstractHttpControllerTestCase
 {
     protected static $staticDcumentManager;
 
@@ -49,9 +49,9 @@ class JsonRestfulControllerCustomConfigTest extends AbstractHttpControllerTestCa
         $result = json_decode($this->getResponse()->getContent(), true);
 
         $this->assertResponseStatusCode(200);
-        $this->assertControllerName('rest.default.review');
-        $this->assertControllerClass('JsonRestfulController');
-        $this->assertMatchedRouteName('rest.default');
+        $this->assertControllerName('shard.rest.review');
+        $this->assertControllerClass('RestfulController');
+        $this->assertMatchedRouteName('rest');
 
         $this->assertCount(2, $result);
         $this->assertEquals(

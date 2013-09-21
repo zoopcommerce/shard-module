@@ -45,7 +45,16 @@ class RestControllerMap implements ServiceLocatorAwareInterface
     {
         if (!isset($this->optionsMap[$endpoint])) {
             $pieces = explode('.', $endpoint);
-            $options = $this->getConfig()[array_shift($pieces)];
+            $config = $this->getConfig();
+            $root = array_shift($pieces);
+
+            if (isset($config[$root])) {
+                $options = $config[$root];
+            } else {
+                $this->optionsMap[$endpoint] = null;
+                return null;
+            }
+
             if (isset($options)){
                 foreach ($pieces as $piece) {
                     $metadata = $this->getModelManager($options['manifest'])->getClassMetadata($options['class']);
