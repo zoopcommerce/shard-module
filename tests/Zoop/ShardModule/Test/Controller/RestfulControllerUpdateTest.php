@@ -52,7 +52,7 @@ class RestfulControllerUpdateTest extends AbstractHttpControllerTestCase
         $response = $this->getResponse();
         $result = json_decode($response->getContent(), true);
 
-        $this->assertResponseStatusCode(201);
+        $this->assertResponseStatusCode(204);
         $this->assertFalse(isset($result));
 
         $game = $this->documentManager->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Game')->find('uno');
@@ -355,7 +355,7 @@ class RestfulControllerUpdateTest extends AbstractHttpControllerTestCase
         $response = $this->getResponse();
         $result = json_decode($response->getContent(), true);
 
-        $this->assertResponseStatusCode(201);
+        $this->assertResponseStatusCode(204);
         $this->assertFalse(isset($result));
 
         $game = $this->documentManager

@@ -77,13 +77,16 @@ abstract class AbstractActionListener
         $restControllerMap = $this->getRestControllerMap($event);
         if (isset($metadata->fieldMappings[$field]['embedded'])) {
             $targetOptions = $restControllerMap->getOptionsFromEndpoint($event->getTarget()->getOptions()->getEndpoint() . '.' . $field);
-            $id = null;
+            $targetDocument = $metadata->getFieldValue($document, $field);
+            $routeMatchArgs = [];
         } else if ($metadata->fieldMappings[$field]['reference']) {
             $targetOptions = $restControllerMap->getOptionsFromClass($targetMetadata->name);
             if (is_string($targetDocument)) {
                 $targetDocument = $documentManager->getRepository($targetMetadata->name)->find($targetDocument);
             }
             $id = $targetMetadata->getFieldValue($targetDocument, $targetOptions->getProperty());
+            $event->setParam('id', $id);
+            $routeMatchArgs = ['id' => $id];
         }
 
         if ($targetDocument instanceof Proxy) {
@@ -91,11 +94,10 @@ abstract class AbstractActionListener
         }
 
         $event->setParam('document', $targetDocument);
-        $event->setParam('id', $id);
 
         return $event->getTarget()->forward()->dispatch(
             'shard.rest.' . $targetOptions->getEndpoint(),
-            ['id' => $id]
+            $routeMatchArgs
         );
     }
 
