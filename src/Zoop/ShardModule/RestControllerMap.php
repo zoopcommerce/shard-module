@@ -70,7 +70,14 @@ class RestControllerMap implements ServiceLocatorAwareInterface
                 }
                 $options['endpoint'] = $endpoint;
                 $options['service_locator'] = $this->serviceLocator;
-                $options = new RestfulControllerOptions($options);
+
+                if (isset($options['options_class'])) {
+                    $optionsClass = $options['options_class'];
+                    unset($options['options_class']);
+                    $options = new $optionsClass($options);
+                } else {
+                    $options = new RestfulControllerOptions($options);
+                }
             } else {
                 $options = false;
             }
