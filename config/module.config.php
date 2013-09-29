@@ -7,7 +7,8 @@ return [
                 'default' => [
                     'model_manager' => 'doctrine.odm.documentmanager.default',
                     'extension_configs' => [
-//                        'extension.accessControl' => true,
+                        'extension.odmcore'       => true,
+//                        'extension.accesscontrol' => true,
 //                        'extension.annotation' => true,
 //                        'extension.crypt' => true,
 //                        'extension.freeze' => true,
