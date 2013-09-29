@@ -53,7 +53,6 @@ return [
                         'extension.crypt' => true,
                         'extension.freeze' => true,
                         'extension.owner' => true,
-                        'extension.reference' => true,
                         'extension.serializer' => [
                             'maxNestingDepth' => 2
                         ],

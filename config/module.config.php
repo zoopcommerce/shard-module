@@ -14,7 +14,6 @@ return [
 //                        'extension.freeze' => true,
 //                        'extension.generator' => true,
 //                        'extension.owner' => true,
-//                        'extension.reference' => true,
 //                        'extension.serializer' => true,
 //                        'extension.softdelete' => true,
 //                        'extension.stamp' => true,
@@ -133,6 +132,7 @@ return [
             'zoop.shardmodule.listener.replacelist'      => 'Zoop\ShardModule\Controller\Listener\ReplaceListListener',
             'zoop.shardmodule.listener.update'           => 'Zoop\ShardModule\Controller\Listener\UpdateListener',
             'zoop.shardmodule.restcontrollermap'         => 'Zoop\ShardModule\RestControllerMap',
+            'zoop.shardmodule.referencemap'              => 'Zoop\ShardModule\ReferenceMap',
             'doctrine.builder.odm.documentmanager'       => 'Zoop\ShardModule\Builder\ModelManagerBuilder',
         ],
         'factories' => [

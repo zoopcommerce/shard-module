@@ -64,10 +64,7 @@ class IdChangeListener
         $metadata->reflFields[$metadata->identifier]->setValue($newDocument, $dataId);
 
         //update all the references (could be lots)
-        $referenceMap = $options
-            ->getManifest()
-            ->getServiceManager()
-            ->get('referenceMap')->getMap();
+        $referenceMap = $options->getServiceLocator()->get('zoop.shardmodule.referencemap')->getMap($options->getManifest()->getName());
 
         if (isset($referenceMap[$metadata->name])) {
             $identityMap = $documentManager->getUnitOfWork()->getIdentityMap();
