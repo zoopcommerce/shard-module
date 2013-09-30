@@ -5,9 +5,7 @@
  */
 namespace Zoop\ShardModule\Controller;
 
-use Zend\Http\Header\Location;
 use Zend\Mvc\Controller\AbstractRestfulController;
-use Zend\Mvc\MvcEvent;
 use Zoop\ShardModule\Exception;
 use Zoop\ShardModule\Options\RestfulControllerOptions;
 
@@ -47,7 +45,14 @@ class RestfulController extends AbstractRestfulController
         //first lazy load the listeners for the event
         //this means that instances of all listeners for all events don't have to be created every request
         $eventManager = $this->getEventManager();
-        foreach ($this->options->getListenersForEvent($name) as $listener) {
+        $listeners = $this->options->getListenersForEvent($name);
+
+        if (count($listeners) == 0) {
+            //If there are no listeners, then the method can't do anything - so throw an exception
+            throw new Exception\MethodNotAllowedException;
+        }
+
+        foreach ($listeners as $listener) {
             $eventManager->attach($name, [$listener, $name]);
         }
 

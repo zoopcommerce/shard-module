@@ -6,7 +6,6 @@
 namespace Zoop\ShardModule\Options;
 
 use Zend\ServiceManager\ServiceLocatorInterface;
-use Zend\Stdlib\AbstractOptions;
 
 /**
  *
@@ -14,48 +13,26 @@ use Zend\Stdlib\AbstractOptions;
  * @version $Revision$
  * @author  Tim Roediger <superdweebie@gmail.com>
  */
-class BatchRestfulControllerOptions extends AbstractOptions
+class BatchRestfulControllerOptions extends RestfulControllerOptions
 {
-    protected $serviceLocator;
-
-    protected $acceptCriteria = [
-        'Zend\View\Model\JsonModel' => [
-            'application/json',
+    protected $listeners = [
+        'create' => [
+            'zoop.shardmodule.listener.unserialize',
+            'zoop.shardmodule.listener.create',
+            'zoop.shardmodule.listener.flush',
+            'zoop.shardmodule.listener.prepareviewmodel'
         ],
-        'Zend\View\Model\ViewModel' => [
-            '*/*',
-        ],
+        'delete'      => [],
+        'deleteList'  => [],
+        'get'         => [],
+        'getList'     => [],
+        'patch'       => [],
+        'patchList'   => [],
+        'update'      => [],
+        'replaceList' => [],
     ];
 
     protected $exceptionViewModelPreparer = 'Zoop\MaggottModule\JsonExceptionStrategy';
-
-    /**
-     *
-     * @return ServiceLocatorInterface
-     */
-    public function getServiceLocator()
-    {
-        return $this->serviceLocator;
-    }
-
-    /**
-     *
-     * @param \Zend\ServiceManager\ServiceLocatorInterface $serviceLocator
-     */
-    public function setServiceLocator(ServiceLocatorInterface $serviceLocator)
-    {
-        $this->serviceLocator = $serviceLocator;
-    }
-
-    public function getAcceptCriteria()
-    {
-        return $this->acceptCriteria;
-    }
-
-    public function setAcceptCriteria(array $acceptCriteria)
-    {
-        $this->acceptCriteria = $acceptCriteria;
-    }
 
     public function getExceptionViewModelPreparer()
     {

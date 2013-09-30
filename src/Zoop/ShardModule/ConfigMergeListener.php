@@ -71,25 +71,16 @@ class ConfigMergeListener implements ListenerAggregateInterface
                 $config['zoop']['shard']['manifest'][$name] = $manifestConfig;
 
 
-                $documentManagerConfig = $config;
-                foreach (explode('.', $modelManager) as $key) {
-                    $documentManagerConfig = $documentManagerConfig[$key];
-                }
+                $dmConfig = &$this->getSubConfig($config, $modelManager);;
 
                 //inject filter config
-                $configurationConfig = &$config;
-                foreach (explode('.', $documentManagerConfig['configuration']) as $key) {
-                    $configurationConfig = &$configurationConfig[$key];
-                }
+                $configurationConfig = &$this->getSubConfig($config, $dmConfig['configuration']);
                 foreach ($manifest->getServiceManager()->get('extension.odmcore')->getFilters() as $filterName => $filterClass) {
                     $configurationConfig['filters'][$filterName] = $filterClass;
                 }
 
                 //inject models
-                $driverConfig = &$config;
-                foreach (explode('.', $configurationConfig['driver']) as $key) {
-                    $driverConfig = &$driverConfig[$key];
-                }
+                $driverConfig = &$this->getSubConfig($config, $configurationConfig['driver']);
                 $count = 0;
                 foreach ($manifest->getModels() as $namespace => $path) {
                     $driverConfig['drivers'][$namespace] = 'doctrine.driver.shard' . $name . $count;
@@ -101,10 +92,7 @@ class ConfigMergeListener implements ListenerAggregateInterface
                 }
 
                 //inject subscribers
-                $eventManagerConfig = &$config;
-                foreach (explode('.', $documentManagerConfig['eventmanager']) as $key) {
-                    $eventManagerConfig = &$eventManagerConfig[$key];
-                }
+                $eventManagerConfig = &$this->getSubConfig($config, $dmConfig['eventmanager']);
                 foreach ($manifest->getSubscribers() as $subscriber) {
                     $eventManagerConfig['subscribers'][] = 'shard.' . $name . '.' . $subscriber;
                 }
@@ -120,5 +108,14 @@ class ConfigMergeListener implements ListenerAggregateInterface
         }
 
         $event->getConfigListener()->setMergedConfig($config);
+    }
+
+    protected function &getSubConfig(&$config, $name)
+    {
+        $subConfig = &$config;
+        foreach (explode('.', $name) as $key) {
+            $subConfig = &$subConfig[$key];
+        }
+        return $subConfig;
     }
 }

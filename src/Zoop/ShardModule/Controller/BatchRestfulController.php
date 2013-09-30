@@ -6,35 +6,21 @@
 
 namespace Zoop\ShardModule\Controller;
 
-use Zoop\ShardModule\Exception;
 use Zoop\ShardModule\Options\BatchRestfulControllerOptions;
+use Zoop\ShardModule\Options\RestfulControllerOptions;
 use Zoop\ShardModule\RouteListener;
 use Zend\Http\Header\GenericHeader;
 use Zend\Http\Request;
 use Zend\Http\Response;
-use Zend\Mvc\Controller\AbstractRestfulController;
 use Zend\Mvc\Application;
 use Zend\Mvc\MvcEvent;
 use Zend\Stdlib\Parameters;
 use Zend\View\Model\JsonModel;
 use Zend\View\Model\ModelInterface;
 
-class BatchRestfulController extends AbstractRestfulController
+class BatchRestfulController extends RestfulController
 {
-
-    protected $options;
-
-    public function getOptions()
-    {
-        return $this->options;
-    }
-
-    public function setOptions(BatchRestfulControllerOptions $options)
-    {
-        $this->options = $options;
-    }
-
-    public function __construct(BatchRestfulControllerOptions $options = null)
+    public function __construct(RestfulControllerOptions $options = null)
     {
         if (!isset($options)) {
             $options = new BatchRestfulControllerOptions;
@@ -144,63 +130,5 @@ class BatchRestfulController extends AbstractRestfulController
         $this->model = $this->acceptableViewModelSelector($this->options->getAcceptCriteria());
 
         return parent::onDispatch($e);
-    }
-
-    public function getList()
-    {
-        throw new Exception\MethodNotAllowedException;
-    }
-
-    /**
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     */
-    public function get($id)
-    {
-        throw new Exception\MethodNotAllowedException;
-    }
-
-    /**
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     */
-    public function delete($id)
-    {
-        throw new Exception\MethodNotAllowedException;
-    }
-
-    public function deleteList()
-    {
-        throw new Exception\MethodNotAllowedException;
-    }
-
-    /**
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     */
-    public function update($id, $data)
-    {
-        throw new Exception\MethodNotAllowedException;
-    }
-
-    /**
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     */
-    public function replaceList($data)
-    {
-        throw new Exception\MethodNotAllowedException;
-    }
-
-    /**
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     */
-    public function patch($id, $data)
-    {
-        throw new Exception\MethodNotAllowedException;
-    }
-
-    /**
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     */
-    public function patchList($data)
-    {
-        throw new Exception\MethodNotAllowedException;
     }
 }
