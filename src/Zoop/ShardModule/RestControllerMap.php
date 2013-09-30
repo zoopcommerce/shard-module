@@ -44,52 +44,53 @@ class RestControllerMap implements ServiceLocatorAwareInterface
     public function getOptionsFromEndpoint($endpoint)
     {
         if (!isset($this->optionsMap[$endpoint])) {
-            $pieces = explode('.', $endpoint);
-            $config = $this->getConfig();
-            $root = array_shift($pieces);
 
-            if (isset($config[$root])) {
-                $options = $config[$root];
+            $options = $this->getConfig();
+            $options['endpoint'] = $endpoint;
+            $options['service_locator'] = $this->serviceLocator;
+
+            if ($endpoint == '') {
+                unset($options['rest']);
             } else {
-                $this->optionsMap[$endpoint] = null;
-                return null;
-            }
+                $pieces = explode('.', $endpoint);
+                $root = array_shift($pieces);
 
-            if (isset($options)){
-                foreach ($pieces as $piece) {
-                    $metadata = $this->getModelManager($options['manifest'])->getClassMetadata($options['class']);
-                    if ($metadata->fieldMappings[$piece]['targetDocument']) {
-                        $options['class'] = $metadata->fieldMappings[$piece]['targetDocument'];
-                    }
-                    unset($options['property']);
-                    if (isset($options['rest'][$piece])) {
-                        $options = array_merge($options, $options['rest'][$piece]);
-                    } else {
-                        unset($options['rest']);
-                    }
-                }
-                $options['endpoint'] = $endpoint;
-                $options['service_locator'] = $this->serviceLocator;
-
-                if (isset($options['options_class'])) {
-                    $optionsClass = $options['options_class'];
-                    unset($options['options_class']);
-                    $options = new $optionsClass($options);
+                if (!isset($options['rest'][$root])) {
+                    $options = null;
                 } else {
-                    $options = new RestfulControllerOptions($options);
+                    $options = array_merge($options, $options['rest'][$root]);
+
+                    foreach ($pieces as $piece) {
+                        $metadata = $this->getModelManager($options['manifest'])->getClassMetadata($options['class']);
+                        if ($metadata->fieldMappings[$piece]['targetDocument']) {
+                            $options['class'] = $metadata->fieldMappings[$piece]['targetDocument'];
+                        }
+                        unset($options['property']);
+                        if (isset($options['rest'][$piece])) {
+                            $options = array_merge($options, $options['rest'][$piece]);
+                        } else {
+                            unset($options['rest']);
+                        }
+                    }
                 }
-            } else {
-                $options = false;
             }
 
-            $this->optionsMap[$endpoint] = $options;
+            if (isset($options)) {
+                $optionsClass = $options['options_class'];
+                unset($options['options_class']);
+                $optionsObject = new $optionsClass($options);
+            } else {
+                $optionsObject = null;
+            }
+
+            $this->optionsMap[$endpoint] = $optionsObject;
         }
         return $this->optionsMap[$endpoint];
     }
 
     public function getOptionsFromClass($class)
     {
-        foreach ($this->getConfig() as $endpoint => $options) {
+        foreach ($this->getConfig()['rest'] as $endpoint => $options) {
             if ($options['class'] == $class) {
                 return $this->getOptionsFromEndpoint($endpoint);
             }

@@ -61,6 +61,31 @@ class RestfulControllerGetListTest extends AbstractHttpControllerTestCase
         );
     }
 
+    public function testRootGetList()
+    {
+        $accept = new Accept;
+        $accept->addMediaType('application/json');
+
+        $this->getRequest()
+            ->setMethod('GET')
+            ->getHeaders()->addHeader($accept);
+
+        $this->dispatch('/rest');
+
+        $result = json_decode($this->getResponse()->getContent(), true);
+
+        $this->assertResponseStatusCode(200);
+        $this->assertControllerName('shard.rest');
+        $this->assertControllerClass('RestfulController');
+        $this->assertMatchedRouteName('rest');
+
+        $this->assertCount(4, $result);
+        $this->assertEquals(
+            'Content-Range: 0-3/4',
+            $this->getResponse()->getHeaders()->get('Content-Range')->toString()
+        );
+    }
+
     public function testGetListOfPartials()
     {
         $accept = new Accept;

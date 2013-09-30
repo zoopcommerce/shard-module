@@ -3,44 +3,40 @@ return [
     'zoop' => [
         'shard' => [
             'rest' => [
-                'game' => [
-                    'class' => 'Zoop\ShardModule\Test\TestAsset\Document\Game',
-                    'property' => 'name',
-                    'manifest' => 'default',
-                    'cache_control' => [
-                        'no_cache' => true
-                    ],
-                    'rest' => [
-                        'components' => [
-                            'class' => 'Zoop\ShardModule\Test\TestAsset\Document\Component',
-                            'rest' => [
-                                'manufacturers' => [
-                                    'property' => 'name'
+                'manifest' => 'default',
+                'cache_control' => [
+                    'no_cache' => true
+                ],
+                'property' => 'name',
+                'class' => 'Zoop\ShardModule\Test\TestAsset\Document\Author',
+                'options_class' => 'Zoop\ShardModule\Options\RestfulControllerOptions',
+                'rest' => [
+                    'game' => [
+                        'class' => 'Zoop\ShardModule\Test\TestAsset\Document\Game',
+                        'rest' => [
+                            'components' => [
+                                'class' => 'Zoop\ShardModule\Test\TestAsset\Document\Component',
+                                'rest' => [
+                                    'manufacturers' => []
                                 ]
                             ]
                         ]
+                    ],
+                    'author'  => [
+                        'class' => 'Zoop\ShardModule\Test\TestAsset\Document\Author',
+                    ],
+                    'country' => [
+                        'class' => 'Zoop\ShardModule\Test\TestAsset\Document\Country',
+                    ],
+                    'review'  => [
+                        'class' => 'Zoop\ShardModule\Test\TestAsset\Document\Review',
+                        'property' => 'title',
+                        'limit' => 2,
+                    ],
+                    'user'    => [
+                        'class' => 'Zoop\ShardModule\Test\TestAsset\Document\User',
+                        'property' => 'username',
                     ]
-                ],
-                'author'  => [
-                    'class' => 'Zoop\ShardModule\Test\TestAsset\Document\Author',
-                    'property' => 'name',
-                    'manifest' => 'default',
-                ],
-                'country' => [
-                    'class' => 'Zoop\ShardModule\Test\TestAsset\Document\Country',
-                    'property' => 'name',
-                    'manifest' => 'default',
-                ],
-                'review'  => [
-                    'class' => 'Zoop\ShardModule\Test\TestAsset\Document\Review',
-                    'property' => 'title',
-                    'limit' => 2,
-                    'manifest' => 'default',
-                ],
-                'user'    => [
-                    'class' => 'Zoop\ShardModule\Test\TestAsset\Document\User',
-                    'property' => 'username',
-                    'manifest' => 'default',
                 ]
             ],
 

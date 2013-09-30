@@ -31,6 +31,29 @@ return [
                     ]
                 ]
             ],
+            'rest' => [
+                'manifest' => 'default',
+                'property' => 'id',
+                'options_class' => 'Zoop\ShardModule\Options\RestfulControllerOptions',
+                'rest' => [
+                    'batch' => [
+                        'listeners' => [
+                            'create' => [
+                                'zoop.shardmodule.listener.batch',
+                                'zoop.shardmodule.listener.prepareviewmodel'
+                            ],
+                            'delete'      => [],
+                            'deleteList'  => [],
+                            'get'         => [],
+                            'getList'     => [],
+                            'patch'       => [],
+                            'patchList'   => [],
+                            'update'      => [],
+                            'replaceList' => [],
+                        ],
+                    ]
+                ]
+            ]
         ],
         'maggott' => [
             'exception_map' => [
@@ -96,7 +119,7 @@ return [
                 //service called `shard.rest.<endpoint>`
                 'type' => 'Zend\Mvc\Router\Http\Segment',
                 'options' => [
-                    'route' => '/rest/:endpoint[/:id]',
+                    'route' => '/rest[/:endpoint][/:id]',
                     'constraints' => [
                         'endpoint' => '[a-zA-Z][a-zA-Z0-9_-]+',
                         'id'       => '[a-zA-Z][a-zA-Z0-9/_-]+',
@@ -107,9 +130,6 @@ return [
     ],
 
     'controllers' => [
-        'factories' => [
-            'shard.rest.batch' => 'Zoop\ShardModule\Service\BatchRestControllerFactory',
-        ],
         'abstract_factories' => [
             'Zoop\ShardModule\Service\RestControllerAbstractFactory'
         ]
@@ -136,6 +156,7 @@ return [
             'doctrine.builder.odm.documentmanager'       => 'Zoop\ShardModule\Builder\ModelManagerBuilder',
         ],
         'factories' => [
+            'zoop.shardmodule.listener.batch'      => 'Zoop\ShardModule\Service\BatchListenerFactory',
             'doctrine.cache.juggernaut.filesystem' => 'Zoop\ShardModule\Service\JuggernautFileSystemCacheFactory',
         ],
         'abstract_factories' => [
