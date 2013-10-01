@@ -58,67 +58,10 @@ class DoctrineSubscriber implements EventSubscriber
         $this->flushExceptions[] = $exception;
     }
 
-    public function createDenied(AccessControlEventArgs $eventArgs)
-    {
-        $this->accessControlEvent($eventArgs);
-    }
-
-    public function updateDenied(AccessControlEventArgs $eventArgs)
-    {
-        $this->accessControlEvent($eventArgs);
-    }
-
-    public function deleteDenied(AccessControlEventArgs $eventArgs)
-    {
-        $this->accessControlEvent($eventArgs);
-    }
-
-    public function updateRolesDenied(AccessControlEventArgs $eventArgs)
-    {
-        $this->accessControlEvent($eventArgs);
-    }
-
-    public function freezeDenied(AccessControlEventArgs $eventArgs)
-    {
-        $this->accessControlEvent($eventArgs);
-    }
-
-    public function thawDenied(AccessControlEventArgs $eventArgs)
-    {
-        $this->accessControlEvent($eventArgs);
-    }
-
-    public function frozenUpdateDenied(AccessControlEventArgs $eventArgs)
-    {
-        $this->accessControlEvent($eventArgs);
-    }
-
-    public function frozenDeleteDenied(AccessControlEventArgs $eventArgs)
-    {
-        $this->accessControlEvent($eventArgs);
-    }
-
-    public function softDeletedUpdateDenied(AccessControlEventArgs $eventArgs)
-    {
-        $this->accessControlEvent($eventArgs);
-    }
-
-    public function softDeleteDenied(AccessControlEventArgs $eventArgs)
-    {
-        $this->accessControlEvent($eventArgs);
-    }
-
-    public function restoreDenied(AccessControlEventArgs $eventArgs)
-    {
-        $this->accessControlEvent($eventArgs);
-    }
-
-    public function transitionDenied(AccessControlEventArgs $eventArgs)
-    {
-        $this->accessControlEvent($eventArgs);
-    }
-
-    protected function badStateEvent(OnFlushEventArgs $eventArgs)
+    /**
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
+    public function badStateEvent(OnFlushEventArgs $eventArgs)
     {
         $exception = new Exception\InvalidArgumentException('Bad state');
         $this->flushExceptions[] = $exception;
@@ -131,5 +74,15 @@ class DoctrineSubscriber implements EventSubscriber
         $exception->setDocument($eventArgs->getDocument());
         $exception->setDocumentClass(get_class($eventArgs->getDocument()));
         $this->flushExceptions[] = $exception;
+    }
+
+    /**
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
+    public function __call($name, $args)
+    {
+        if ($args[0] instanceof AccessControlEventArgs) {
+            $this->accessControlEvent($args[0]);
+        }
     }
 }

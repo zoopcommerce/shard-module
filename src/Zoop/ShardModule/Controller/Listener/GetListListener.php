@@ -31,7 +31,7 @@ class GetListListener
 
         unset($this->range);
 
-        $criteria = $this->getCriteria($metadata, $event);
+        $criteria = $this->getCriteria($event);
 
         //filter list on criteria
         if (count($criteria) > 0 && $list) {
@@ -131,7 +131,7 @@ class GetListListener
         return $this->range;
     }
 
-    protected function getCriteria($metadata, $event)
+    protected function getCriteria($event)
     {
         $result = [];
         $dotPlaceholder = $event->getTarget()->getOptions()->getQueryDotPlaceholder();
@@ -198,34 +198,13 @@ class GetListListener
                     foreach ($pieces as $piece) {
                         $fieldValue = $fieldValue[$piece];
                     }
-                    switch (true) {
-                        case is_array($fieldValue && is_array($criteriaValue)):
-                            foreach ($criteriaValue as $value) {
-                                if (in_array($value, $fieldValue)) {
-                                    return true;
-                                }
-                            }
-
-                            return false;
-                        case is_array($fieldValue):
-                            if (in_array($criteriaValue, $fieldValue)) {
-                                return true;
-                            }
-
-                            return false;
-                        case is_array($criteriaValue):
-                            if (in_array($fieldValue, $criteriaValue)) {
-                                return true;
-                            }
-
-                            return false;
-                        default:
-                            if ($fieldValue == $criteriaValue) {
-                                return true;
-                            }
-
-                            return false;
+                    if (!is_array($fieldValue)) {
+                        $fieldValue = [$fieldValue];
                     }
+                    if (!is_array($criteriaValue)) {
+                        $criteriaValue = [$criteriaValue];
+                    }
+                    return (count(array_intersect($criteriaValue, $fieldValue)) > 0);
                 }
             }
         );
@@ -235,20 +214,18 @@ class GetListListener
     {
         usort(
             $list,
-            function ($a, $b) use ($sort, $metadata) {
-                foreach ($sort as $s) {
-                    if ($s['direction'] == 'asc') {
-                        if ($metadata->getFieldValue($a, $s['field']) < $metadata->getFieldValue($b, $s['field'])) {
-                            return -1;
-                        } elseif ($metadata->getFieldValue($a, $s['field']) > $metadata->getFieldValue($b, $s['field'])) {
-                            return 1;
-                        }
+            function ($aa, $bb) use ($sort, $metadata) {
+                foreach ($sort as $ss) {
+                    if ($ss['direction'] == 'asc') {
+                        $direction = 1;
                     } else {
-                        if ($metadata->getFieldValue($a, $s['field']) > $metadata->getFieldValue($b, $s['field'])) {
-                            return -1;
-                        } elseif ($metadata->getFieldValue($a, $s['field']) < $metadata->getFieldValue($b, $s['field'])) {
-                            return 1;
-                        }
+                        $direction = -1;
+                    }
+
+                    if ($metadata->getFieldValue($aa, $ss['field']) < $metadata->getFieldValue($bb, $ss['field'])) {
+                        return -1 * $direction;
+                    } else if ($metadata->getFieldValue($aa, $ss['field']) > $metadata->getFieldValue($bb, $ss['field'])) {
+                        return 1 * $direction;
                     }
                 }
 
