@@ -16,8 +16,8 @@ use Zend\View\Model\JsonModel;
  */
 class PrepareViewModelListener
 {
-
-    public function __call($name, $args) {
+    public function __call($name, $args)
+    {
         return $this->prepareViewModel($args[0], $name);
     }
 
@@ -43,7 +43,7 @@ class PrepareViewModelListener
         //set the template
         if ($viewModel instanceof JsonModel && count($viewModel->getVariables()) == 0) {
             return $event->getResponse();
-        } else if (!($template = $viewModel->getTemplate())) {
+        } else if ($viewModel->getTemplate() == null) {
             $viewModel->setTemplate($controller->getOptions()->getTemplates()[$action]);
         }
 

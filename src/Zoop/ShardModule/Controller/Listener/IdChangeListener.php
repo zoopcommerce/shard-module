@@ -51,7 +51,14 @@ class IdChangeListener
             return $event->getResult();
         }
 
-        //the update is asking to change the doucment Id
+        return $this->doIdChange($event, $metadata, $documentId, $dataId);
+    }
+
+    protected function doIdChange($event, $metadata, $documentId, $dataId)
+    {
+        $options = $event->getTarget()->getOptions();
+        $documentManager = $options->getModelManager();
+        $document = $event->getResult()->getModel();
 
         //first delete the current document
         $event->getTarget()->delete($event);
@@ -82,18 +89,16 @@ class IdChangeListener
 
             //update all references for docs currently loaded in the uow
             if (isset($identityMap[$mapping['class']])) {
-                $doucmentUsingRefMetadata = $documentManager->getClassMetadata($mapping['class']);
-                foreach ($identityMap[$mapping['class']] as $documentUsingRef) {
+                $refMetadata = $documentManager->getClassMetadata($mapping['class']);
+                foreach ($identityMap[$mapping['class']] as $refDocument) {
                     if ($mapping['type'] == 'one' &&
                         $documentId == $metadata->reflFields[$metadata->identifier]->getValue(
-                            $doucmentUsingRefMetadata->reflFields[$mapping['field']]->getValue(
-                                $documentUsingRef
+                            $refMetadata->reflFields[$mapping['field']]->getValue(
+                                $refDocument
                             )
                         )
                     ) {
-                        $doucmentUsingRefMetadata
-                            ->reflFields[$mapping['field']]
-                            ->setValue($documentUsingRef, $newDocument);
+                        $refMetadata->setFieldValue($refDocument, $mapping['field'], $newDocument);
                     } else {
                         //TODO: mapping type == many
                     }

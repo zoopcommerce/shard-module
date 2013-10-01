@@ -18,7 +18,11 @@ class SerializeListener
 {
     use SelectTrait;
 
-    public function __call($name, $args) {
+    /**
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
+    public function __call($name, $args)
+    {
         return $this->serialize($args[0]);
     }
 
@@ -58,7 +62,7 @@ class SerializeListener
                 $items[$key] = array_intersect_key($item, array_fill_keys($select, 0));
             }
         }
-        
+
         $result->setSerializedModel($items);
         return $result;
     }
