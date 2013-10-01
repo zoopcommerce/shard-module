@@ -8,7 +8,6 @@ namespace Zoop\ShardModule;
 
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use Zend\ServiceManager\ServiceLocatorAwareTrait;
-use Zoop\ShardModule\Options\RestfulControllerOptions;
 
 /**
  *
@@ -91,7 +90,7 @@ class RestControllerMap implements ServiceLocatorAwareInterface
     public function getOptionsFromClass($class)
     {
         foreach ($this->getConfig()['rest'] as $endpoint => $options) {
-            if ($options['class'] == $class) {
+            if (isset($options['class']) && $options['class'] == $class) {
                 return $this->getOptionsFromEndpoint($endpoint);
             }
         }

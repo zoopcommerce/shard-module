@@ -3,29 +3,32 @@ return [
     'zoop' => [
         'shard' => [
             'rest' => [
-                'manifest' => 'default',
                 'cache_control' => [
                     'no_cache' => true
                 ],
                 'property' => 'name',
                 'class' => 'Zoop\ShardModule\Test\TestAsset\Document\Author',
-                'options_class' => 'Zoop\ShardModule\Options\RestfulControllerOptions',
                 'rest' => [
                     'game' => [
+                        'property' => 'name',
                         'class' => 'Zoop\ShardModule\Test\TestAsset\Document\Game',
                         'rest' => [
                             'components' => [
                                 'class' => 'Zoop\ShardModule\Test\TestAsset\Document\Component',
                                 'rest' => [
-                                    'manufacturers' => []
+                                    'manufacturers' => [
+                                        'property' => 'name',
+                                    ]
                                 ]
                             ]
                         ]
                     ],
                     'author'  => [
+                        'property' => 'name',
                         'class' => 'Zoop\ShardModule\Test\TestAsset\Document\Author',
                     ],
                     'country' => [
+                        'property' => 'name',
                         'class' => 'Zoop\ShardModule\Test\TestAsset\Document\Country',
                     ],
                     'review'  => [

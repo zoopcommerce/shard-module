@@ -33,8 +33,83 @@ return [
             ],
             'rest' => [
                 'manifest' => 'default',
-                'property' => 'id',
                 'options_class' => 'Zoop\ShardModule\Options\RestfulControllerOptions',
+                'accept_criteria' => [
+                    'Zend\View\Model\JsonModel' => [
+                        'application/json',
+                    ],
+                    'Zend\View\Model\ViewModel' => [
+                        '*/*',
+                    ],
+                ],
+                'limit' => 30,
+                'exception_serializer' => 'Zoop\MaggottModule\JsonExceptionStrategy',
+                'templates' => [
+                    'get'         => 'zoop/rest/get',
+                    'getList'     => 'zoop/rest/get-list',
+                    'create'      => 'zoop/rest/create',
+                    'delete'      => 'zoop/rest/delete',
+                    'deleteList'  => 'zoop/rest/delete-list',
+                    'patch'       => 'zoop/rest/patch',
+                    'patchList'   => 'zoop/rest/patch-list',
+                    'update'      => 'zoop/rest/update',
+                    'replaceList' => 'zoop/rest/replace-list',
+                ],
+                'query_dot_placeholder' => '_',
+                'listeners' => [
+                    'create' => [
+                        'zoop.shardmodule.listener.unserialize',
+                        'zoop.shardmodule.listener.create',
+                        'zoop.shardmodule.listener.flush',
+                        'zoop.shardmodule.listener.prepareviewmodel'
+                    ],
+                    'delete' => [
+                        'zoop.shardmodule.listener.delete',
+                        'zoop.shardmodule.listener.flush',
+                        'zoop.shardmodule.listener.prepareviewmodel'
+                     ],
+                    'deleteList' => [
+                        'zoop.shardmodule.listener.deletelist',
+                        'zoop.shardmodule.listener.flush',
+                        'zoop.shardmodule.listener.prepareviewmodel'
+                    ],
+                    'get' => [
+                        'zoop.shardmodule.listener.get',
+                        'zoop.shardmodule.listener.serialize',
+                        'zoop.shardmodule.listener.prepareviewmodel'
+                    ],
+                    'getList' => [
+                        'zoop.shardmodule.listener.getlist',
+                        'zoop.shardmodule.listener.serialize',
+                        'zoop.shardmodule.listener.prepareviewmodel'
+                    ],
+                    'patch' => [
+                        'zoop.shardmodule.listener.unserialize',
+                        'zoop.shardmodule.listener.idchange',
+                        'zoop.shardmodule.listener.patch',
+                        'zoop.shardmodule.listener.flush',
+                        'zoop.shardmodule.listener.prepareviewmodel'
+                    ],
+                    'patchList' => [
+                        'zoop.shardmodule.listener.unserialize',
+                        'zoop.shardmodule.listener.patchlist',
+                        'zoop.shardmodule.listener.flush',
+                        'zoop.shardmodule.listener.prepareviewmodel'
+                    ],
+                    'update' => [
+                        'zoop.shardmodule.listener.unserialize',
+                        'zoop.shardmodule.listener.idchange',
+                        'zoop.shardmodule.listener.update',
+                        'zoop.shardmodule.listener.flush',
+                        'zoop.shardmodule.listener.prepareviewmodel'
+                    ],
+                    'replaceList'      => [
+                        'zoop.shardmodule.listener.unserialize',
+                        'zoop.shardmodule.listener.replacelist',
+                        'zoop.shardmodule.listener.flush',
+                        'zoop.shardmodule.listener.prepareviewmodel'
+                    ],
+                ],
                 'rest' => [
                     'batch' => [
                         'listeners' => [

@@ -25,14 +25,7 @@ class RestfulControllerOptions extends AbstractOptions
 
     protected $manifest;
 
-    protected $acceptCriteria = [
-        'Zend\View\Model\JsonModel' => [
-            'application/json',
-        ],
-        'Zend\View\Model\ViewModel' => [
-            '*/*',
-        ],
-    ];
+    protected $acceptCriteria;
 
     protected $endpoint;
 
@@ -44,82 +37,19 @@ class RestfulControllerOptions extends AbstractOptions
 
     protected $rest;
 
-    protected $limit = '30';
+    protected $limit;
 
-    protected $exceptionSerializer = 'Zoop\MaggottModule\JsonExceptionStrategy';
+    protected $exceptionSerializer;
 
     protected $surpressFlush;
 
-    protected $templates = [
-        'get'         => 'zoop/rest/get',
-        'getList'     => 'zoop/rest/get-list',
-        'create'      => 'zoop/rest/create',
-        'delete'      => 'zoop/rest/delete',
-        'deleteList'  => 'zoop/rest/delete-list',
-        'patch'       => 'zoop/rest/patch',
-        'patchList'   => 'zoop/rest/patch-list',
-        'update'      => 'zoop/rest/update',
-        'replaceList' => 'zoop/rest/replace-list',
-    ];
+    protected $templates;
 
-    protected $queryDotPlaceholder = '_';
+    protected $queryDotPlaceholder;
 
     protected $doctrineSubscriber;
 
-    protected $listeners = [
-        'create' => [
-            'zoop.shardmodule.listener.unserialize',
-            'zoop.shardmodule.listener.create',
-            'zoop.shardmodule.listener.flush',
-            'zoop.shardmodule.listener.prepareviewmodel'
-        ],
-        'delete' => [
-            'zoop.shardmodule.listener.delete',
-            'zoop.shardmodule.listener.flush',
-            'zoop.shardmodule.listener.prepareviewmodel'
-         ],
-        'deleteList' => [
-            'zoop.shardmodule.listener.deletelist',
-            'zoop.shardmodule.listener.flush',
-            'zoop.shardmodule.listener.prepareviewmodel'
-        ],
-        'get' => [
-            'zoop.shardmodule.listener.get',
-            'zoop.shardmodule.listener.serialize',
-            'zoop.shardmodule.listener.prepareviewmodel'
-        ],
-        'getList' => [
-            'zoop.shardmodule.listener.getlist',
-            'zoop.shardmodule.listener.serialize',
-            'zoop.shardmodule.listener.prepareviewmodel'
-        ],
-        'patch' => [
-            'zoop.shardmodule.listener.unserialize',
-            'zoop.shardmodule.listener.idchange',
-            'zoop.shardmodule.listener.patch',
-            'zoop.shardmodule.listener.flush',
-            'zoop.shardmodule.listener.prepareviewmodel'
-        ],
-        'patchList' => [
-            'zoop.shardmodule.listener.unserialize',
-            'zoop.shardmodule.listener.patchlist',
-            'zoop.shardmodule.listener.flush',
-            'zoop.shardmodule.listener.prepareviewmodel'
-        ],
-        'update' => [
-            'zoop.shardmodule.listener.unserialize',
-            'zoop.shardmodule.listener.idchange',
-            'zoop.shardmodule.listener.update',
-            'zoop.shardmodule.listener.flush',
-            'zoop.shardmodule.listener.prepareviewmodel'
-        ],
-        'replaceList'      => [
-            'zoop.shardmodule.listener.unserialize',
-            'zoop.shardmodule.listener.replacelist',
-            'zoop.shardmodule.listener.flush',
-            'zoop.shardmodule.listener.prepareviewmodel'
-        ],
-    ];
+    protected $listeners;
 
     /**
      *
