@@ -181,6 +181,50 @@ class RestfulControllerGetListTest extends AbstractHttpControllerTestCase
         $this->assertEquals('thomas', $result[1]['name']);
     }
 
+    public function testGetFilteredCollectionList1()
+    {
+        $accept = new Accept;
+        $accept->addMediaType('application/json');
+
+        $this->getRequest()
+            ->setMethod('GET')
+            ->getHeaders()->addHeader($accept);
+
+        $this->dispatch('/rest/game?awards=mensa');
+
+        $result = json_decode($this->getResponse()->getContent(), true);
+        $this->assertResponseStatusCode(200);
+
+        $this->assertCount(1, $result);
+        $this->assertEquals(
+            'Content-Range: 0-0/1',
+            $this->getResponse()->getHeaders()->get('Content-Range')->toString()
+        );
+        $this->assertEquals('feed-the-kitty', $result[0]['name']);
+    }
+
+    public function testGetFilteredCollectionList2()
+    {
+        $accept = new Accept;
+        $accept->addMediaType('application/json');
+
+        $this->getRequest()
+            ->setMethod('GET')
+            ->getHeaders()->addHeader($accept);
+
+        $this->dispatch('/rest/game?awards=[games100]');
+
+        $this->assertResponseStatusCode(200);
+
+        $result = json_decode($this->getResponse()->getContent(), true);
+
+        $this->assertCount(2, $result);
+        $this->assertEquals(
+            'Content-Range: 0-1/2',
+            $this->getResponse()->getHeaders()->get('Content-Range')->toString()
+        );
+    }
+
     public function testGetSortedListAsc()
     {
         $accept = new Accept;

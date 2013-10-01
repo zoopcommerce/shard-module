@@ -74,12 +74,14 @@ class TestData
         $game1->setPublisher($publisher1);
         $game1->setComponents($components1);
         $game1->setAuthor($author3);
+        $game1->setAwards(['games100', 'parents choice', 'mensa']);
 
         $game2 = new Document\Game;
         $game2->setName('seven-wonders');
         $game2->setType('card');
         $game2->setComponents($components2);
         $game2->setPublisher($publisher2);
+        $game2->setAwards(['sdj', 'games100']);
 
         $r1 = new Document\Review;
         $r1->setTitle('great-review');

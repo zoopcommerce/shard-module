@@ -44,7 +44,7 @@ class GetListListener
             //load the total from the db
             $totalQuery = $documentManager->createQueryBuilder()
                 ->find($metadata->name);
-            $total = $this->addCriteriaToQuery($totalQuery, $criteria)
+            $total = $this->addCriteriaToQuery($totalQuery, $criteria, $metadata, $documentManager)
                 ->getQuery()
                 ->execute()
                 ->count();
@@ -72,7 +72,7 @@ class GetListListener
         } else {
             $resultsQuery = $documentManager->createQueryBuilder()
                 ->find($metadata->name);
-            $this->addCriteriaToQuery($resultsQuery, $criteria);
+            $this->addCriteriaToQuery($resultsQuery, $criteria, $metadata, $documentManager);
             $resultsQuery
                 ->limit($this->getLimit($event))
                 ->skip($offset);
@@ -148,11 +148,27 @@ class GetListListener
         return $result;
     }
 
-    protected function addCriteriaToQuery($query, $criteria)
+    protected function addCriteriaToQuery($query, $criteria, $metadata, $documentManager)
     {
         foreach ($criteria as $field => $value) {
-            if (is_array($value)) {
+            $pieces = explode('.', $field);
+            $targetMetadata = $metadata;
+            $mapping = null;
+            foreach ($pieces as $piece) {
+                if (isset($mapping)) {
+                    $targetMetadata = $documentManager->getClassMetadata($mapping['targetDocument']);
+                }
+                $mapping = $targetMetadata->getFieldMapping($piece);
+            }
+            if ($mapping['type'] == 'collection') {
+                if (!is_array($value)) {
+                    $value = [$value];
+                }
                 $query->field($field)->in($value);
+            } else if (is_array($value)) {
+                $query->field($field)->in($value);
+            } else if ($mapping['type'] == 'int') {
+                $query->field($field)->equals((integer) $value);
             } else {
                 $query->field($field)->equals($value);
             }

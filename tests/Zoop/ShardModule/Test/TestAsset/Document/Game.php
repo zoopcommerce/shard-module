@@ -50,6 +50,11 @@ class Game
      */
     protected $reviews;
 
+    /**
+     * @ODM\Collection
+     */
+    protected $awards;
+
     public function __construct()
     {
         $this->components = new ArrayCollection();
@@ -114,5 +119,13 @@ class Game
     public function setReviews($reviews)
     {
         $this->reviews = $reviews;
+    }
+
+    public function getAwards() {
+        return $this->awards;
+    }
+
+    public function setAwards(array $awards) {
+        $this->awards = $awards;
     }
 }
