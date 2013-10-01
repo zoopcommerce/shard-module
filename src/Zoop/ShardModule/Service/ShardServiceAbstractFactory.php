@@ -19,7 +19,7 @@ use Zend\ServiceManager\ServiceLocatorInterface;
 class ShardServiceAbstractFactory implements AbstractFactoryInterface
 {
 
-    protected $manifestServiceManagers = [];
+    protected $manifestSLs = [];
 
     /**
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
@@ -27,7 +27,7 @@ class ShardServiceAbstractFactory implements AbstractFactoryInterface
     public function canCreateServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
     {
         if ($factoryMapping = $this->getFactoryMapping($name)) {
-            if ($manifestServiceManager = $this->getManifestServiceManager(
+            if ($manifestSL = $this->getManifestServiceLocator(
                 $factoryMapping['manifestName'],
                 $serviceLocator
             )
@@ -36,7 +36,7 @@ class ShardServiceAbstractFactory implements AbstractFactoryInterface
                     return true;
                 }
 
-                return $manifestServiceManager->has($factoryMapping['serviceName']);
+                return $manifestSL->has($factoryMapping['serviceName']);
             }
         }
 
@@ -50,13 +50,13 @@ class ShardServiceAbstractFactory implements AbstractFactoryInterface
     {
         $factoryMapping = $this->getFactoryMapping($name);
 
-        $manifestServiceManager = $this->getManifestServiceManager($factoryMapping['manifestName'], $serviceLocator);
+        $manifestSL = $this->getManifestServiceLocator($factoryMapping['manifestName'], $serviceLocator);
         if ($factoryMapping['serviceName'] == 'servicemanager') {
-            return $manifestServiceManager;
+            return $manifestSL;
         }
-        $instance = $manifestServiceManager->get($factoryMapping['serviceName']);
+        $instance = $manifestSL->get($factoryMapping['serviceName']);
         if ($instance instanceof ManifestAwareInterface) {
-            $instance->setManifest($manifestServiceManager->get('manifest'));
+            $instance->setManifest($manifestSL->get('manifest'));
         }
 
         return $instance;
@@ -76,25 +76,25 @@ class ShardServiceAbstractFactory implements AbstractFactoryInterface
         ];
     }
 
-    protected function getManifestServiceManager($manifestName, $serviceLocator)
+    protected function getManifestServiceLocator($manifestName, $serviceLocator)
     {
-        if (!isset($this->manifestServiceManagers[$manifestName])) {
+        if (!isset($this->manifestSLs[$manifestName])) {
             $config = $serviceLocator->get('config')['zoop']['shard']['manifest'];
             if (isset($config[$manifestName])) {
-                $manifestServiceManager = Manifest::createServiceManager(
+                $manifestSL = Manifest::createServiceManager(
                     $config[$manifestName]['service_manager_config']
                 );
                 $manifest = new Manifest($config[$manifestName]);
                 $manifest->setName($manifestName);
-                $manifest->setServiceManager($manifestServiceManager);
-                $manifestServiceManager->setService('manifest', $manifest);
-                $manifestServiceManager->addPeeringServiceManager($serviceLocator);
-                $this->manifestServiceManagers[$manifestName] = $manifestServiceManager;
+                $manifest->setServiceManager($manifestSL);
+                $manifestSL->setService('manifest', $manifest);
+                $manifestSL->addPeeringServiceManager($serviceLocator);
+                $this->manifestSLs[$manifestName] = $manifestSL;
             } else {
                 return null;
             }
         }
 
-        return $this->manifestServiceManagers[$manifestName];
+        return $this->manifestSLs[$manifestName];
     }
 }

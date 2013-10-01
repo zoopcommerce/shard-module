@@ -5,11 +5,9 @@
  */
 namespace Zoop\ShardModule\Options;
 
-use Doctrine\Common\EventSubscriber;
 use Zend\Http\Header\CacheControl;
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\Stdlib\AbstractOptions;
-use Zoop\ShardModule\Controller\Listener\DoctrineSubscriber;
 
 /**
  *
@@ -34,8 +32,6 @@ class RestfulControllerOptions extends AbstractOptions
     protected $property;
 
     protected $cacheControl;
-
-    protected $rest;
 
     protected $limit;
 
@@ -205,14 +201,6 @@ class RestfulControllerOptions extends AbstractOptions
         $this->cacheControl = $cacheControl;
     }
 
-    public function getRest() {
-        return $this->rest;
-    }
-
-    public function setRest($rest) {
-        $this->rest = $rest;
-    }
-
     public function getTemplates() {
         return $this->templates;
     }
@@ -233,13 +221,13 @@ class RestfulControllerOptions extends AbstractOptions
 
     public function getDoctrineSubscriber()
     {
-        if (!isset($this->doctrineSubscriber)) {
-            $this->doctrineSubscriber = new DoctrineSubscriber;
+        if (is_string($this->doctrineSubscriber)) {
+            $this->doctrineSubscriber = $this->serviceLocator->get($this->doctrineSubscriber);
         }
         return $this->doctrineSubscriber;
     }
 
-    public function setDoctrineSubscriber(EventSubscriber $doctrineSubscriber)
+    public function setDoctrineSubscriber($doctrineSubscriber)
     {
         $this->doctrineSubscriber = $doctrineSubscriber;
     }

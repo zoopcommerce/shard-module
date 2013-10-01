@@ -110,6 +110,7 @@ return [
                         'zoop.shardmodule.listener.prepareviewmodel'
                     ],
                 ],
+                'doctrine_subscriber' => 'zoop.shardmodule.doctrinesubscriber',
                 'rest' => [
                     'batch' => [
                         'listeners' => [
@@ -228,6 +229,7 @@ return [
             'zoop.shardmodule.listener.update'           => 'Zoop\ShardModule\Controller\Listener\UpdateListener',
             'zoop.shardmodule.restcontrollermap'         => 'Zoop\ShardModule\RestControllerMap',
             'zoop.shardmodule.referencemap'              => 'Zoop\ShardModule\ReferenceMap',
+            'zoop.shardmodule.doctrinesubscriber'        => 'Zoop\ShardModule\Controller\DoctrineSubscriber',
             'doctrine.builder.odm.documentmanager'       => 'Zoop\ShardModule\Builder\ModelManagerBuilder',
         ],
         'factories' => [

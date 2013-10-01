@@ -48,9 +48,7 @@ class RestControllerMap implements ServiceLocatorAwareInterface
             $options['endpoint'] = $endpoint;
             $options['service_locator'] = $this->serviceLocator;
 
-            if ($endpoint == '') {
-                unset($options['rest']);
-            } else {
+            if ($endpoint != '') {
                 $pieces = explode('.', $endpoint);
                 $root = array_shift($pieces);
 
@@ -67,12 +65,12 @@ class RestControllerMap implements ServiceLocatorAwareInterface
                         unset($options['property']);
                         if (isset($options['rest'][$piece])) {
                             $options = array_merge($options, $options['rest'][$piece]);
-                        } else {
-                            unset($options['rest']);
                         }
                     }
                 }
             }
+
+            unset($options['rest']);
 
             if (isset($options)) {
                 $optionsClass = $options['options_class'];

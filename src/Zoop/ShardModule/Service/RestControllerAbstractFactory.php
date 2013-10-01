@@ -26,11 +26,17 @@ class RestControllerAbstractFactory implements AbstractFactoryInterface
         return $this->restControllerMap;
     }
 
+    /**
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     public function canCreateServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
     {
         return $this->getOptions($name, $serviceLocator->getServiceLocator());
     }
 
+    /**
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     public function createServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
     {
         return new RestfulController($this->getOptions($name, $serviceLocator->getServiceLocator()));

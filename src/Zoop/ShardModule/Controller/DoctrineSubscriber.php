@@ -3,7 +3,7 @@
  * @package    Zoop
  * @license    MIT
  */
-namespace Zoop\ShardModule\Controller\Listener;
+namespace Zoop\ShardModule\Controller;
 
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ODM\MongoDB\Event\OnFlushEventArgs;
@@ -24,7 +24,6 @@ use Zoop\ShardModule\Exception;
  */
 class DoctrineSubscriber implements EventSubscriber
 {
-
     protected $flushExceptions = [];
 
     public function getSubscribedEvents()
