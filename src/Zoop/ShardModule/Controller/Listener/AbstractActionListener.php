@@ -74,12 +74,12 @@ abstract class AbstractActionListener
         }
 
         $restControllerMap = $this->getRestControllerMap($event);
+        $targetOptions = $restControllerMap->getOptionsFromEndpoint($event->getTarget()->getOptions()->getEndpoint() . '.' . $field);
+
         if (isset($metadata->fieldMappings[$field]['embedded'])) {
-            $targetOptions = $restControllerMap->getOptionsFromEndpoint($event->getTarget()->getOptions()->getEndpoint() . '.' . $field);
             $targetDocument = $metadata->getFieldValue($document, $field);
             $routeMatchArgs = [];
         } else if ($metadata->fieldMappings[$field]['reference']) {
-            $targetOptions = $restControllerMap->getOptionsFromClass($targetMetadata->name);
             if (is_string($targetDocument)) {
                 $targetDocument = $documentManager->getRepository($targetMetadata->name)->find($targetDocument);
             }

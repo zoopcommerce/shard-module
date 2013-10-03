@@ -57,9 +57,11 @@ class RestControllerMap implements ServiceLocatorAwareInterface
                 } else {
                     $options = array_merge($options, $options['rest'][$root]);
 
-                    foreach ($pieces as $piece) {
+                    while ($piece = array_shift($pieces)) {
                         $metadata = $this->getModelManager($options['manifest'])->getClassMetadata($options['class']);
-                        if ($metadata->fieldMappings[$piece]['targetDocument']) {
+                        if (isset($metadata->fieldMappings[$piece]['reference'])) {
+                            return $this->getOptionsFromClass($metadata->fieldMappings[$piece]['targetDocument']);
+                        } else if ($metadata->fieldMappings[$piece]['targetDocument']) {
                             $options['class'] = $metadata->fieldMappings[$piece]['targetDocument'];
                         }
                         unset($options['property']);
@@ -85,7 +87,7 @@ class RestControllerMap implements ServiceLocatorAwareInterface
         return $this->optionsMap[$endpoint];
     }
 
-    public function getOptionsFromClass($class)
+    protected function getOptionsFromClass($class)
     {
         foreach ($this->getConfig()['rest'] as $endpoint => $options) {
             if (isset($options['class']) && $options['class'] == $class) {
@@ -93,5 +95,4 @@ class RestControllerMap implements ServiceLocatorAwareInterface
             }
         }
     }
-
 }

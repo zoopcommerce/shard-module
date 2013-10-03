@@ -84,7 +84,7 @@ class DeleteListener extends AbstractActionListener
             return $result;
         }
 
-        $targetOptions = $this->getRestControllerMap($event)->getOptionsFromClass($targetMetadata->name);
+        $targetOptions = $this->getRestControllerMap($event)->getOptionsFromEndpoint($event->getTarget()->getOptions()->getEndpoint() . '.' . $field);
 
         if (! ($targetDocument = $metadata->getFieldValue($document, $field))) {
             //associated document is null

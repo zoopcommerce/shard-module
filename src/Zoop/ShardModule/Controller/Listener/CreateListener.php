@@ -52,10 +52,9 @@ class CreateListener extends AbstractActionListener
         $deeperResource = $event->getParam('deeperResource');
         $restControllerMap = $this->getRestControllerMap($event);
         $collection = $metadata->getFieldValue($document, $field);
+        $targetOptions = $restControllerMap->getOptionsFromEndpoint($event->getTarget()->getOptions()->getEndpoint() . '.' . $field);
 
         if (isset($metadata->fieldMappings[$field]['embedded'])) {
-            $targetOptions = $restControllerMap->getOptionsFromEndpoint($event->getTarget()->getOptions()->getEndpoint() . '.' . $field);
-
             if (count($deeperResource) > 0) {
                 if (!($targetDocument = $this->selectItemFromCollection(
                     $collection,
@@ -89,8 +88,6 @@ class CreateListener extends AbstractActionListener
                 return $result;
             }
         } else if (isset($metadata->fieldMappings[$field]['reference'])) {
-            $targetOptions = $restControllerMap->getOptionsFromClass($targetMetadata->name);
-
             $id = array_shift($deeperResource);
             $event->setParam('id', $id);
             $event->setParam('deeperResource', $deeperResource);
