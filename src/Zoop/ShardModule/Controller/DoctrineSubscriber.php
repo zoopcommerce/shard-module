@@ -24,7 +24,7 @@ use Zoop\ShardModule\Exception;
  */
 class DoctrineSubscriber implements EventSubscriber
 {
-    protected $flushExceptions = [];
+    protected $flushExceptions;
 
     public function getSubscribedEvents()
     {

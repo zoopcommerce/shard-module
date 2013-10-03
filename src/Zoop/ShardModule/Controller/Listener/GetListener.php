@@ -56,9 +56,6 @@ class GetListener extends AbstractActionListener
 
     protected function handleAssociatedCollection(MvcEvent $event, $metadata, $documentManager, $field)
     {
-        $targetMetadata = $documentManager
-            ->getClassMetadata($metadata->fieldMappings[$field]['targetDocument']);
-
         $deeperResource = $event->getParam('deeperResource');
         $restControllerMap = $this->getRestControllerMap($event);
         $routeMatchParams = null;

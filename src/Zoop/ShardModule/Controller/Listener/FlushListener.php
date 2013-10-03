@@ -16,7 +16,9 @@ use Zoop\ShardModule\Exception;
  */
 class FlushListener
 {
-
+    /**
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     public function __call($name, $args) {
         return $this->flush($args[0]);
     }
@@ -26,18 +28,23 @@ class FlushListener
         if ($event->getTarget()->forward()->getNumNestedForwards() > 0) {
             return $event->getResult();
         }
-        
-        $options = $event->getTarget()->getOptions();
 
+        $options = $event->getTarget()->getOptions();
         $options->getModelManager()->flush();
 
-        $flushExceptions = $options->getDoctrineSubscriber()->getFlushExceptions();
+        if (!($flushExceptions = $options->getDoctrineSubscriber()->getFlushExceptions())) {
+            return $event->getResult();
+        } else {
+            return $this->prepareExceptions($flushExceptions, $options->getExceptionSerializer());
+        }
+    }
 
+    protected function prepareExceptions(array $flushExceptions, $exceptionSerializer)
+    {
         if (count($flushExceptions) == 1) {
             throw $flushExceptions[0];
-        } elseif (count($flushExceptions) > 1) {
+        } else {
             $flushException = new Exception\FlushException;
-            $exceptionSerializer = $options->getExceptionSerializer();
             $identicalStatusCodes = true;
             $exceptions = [];
             $statusCode = null;
@@ -56,7 +63,5 @@ class FlushListener
             $flushException->setInnerExceptions($exceptions);
             throw $flushException;
         }
-        
-        return $event->getResult();
     }
 }
