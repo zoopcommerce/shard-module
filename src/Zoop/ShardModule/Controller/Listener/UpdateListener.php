@@ -5,7 +5,6 @@
  */
 namespace Zoop\ShardModule\Controller\Listener;
 
-use Doctrine\ODM\MongoDB\Proxy\Proxy;
 use Zend\Mvc\MvcEvent;
 
 /**
@@ -108,9 +107,6 @@ class UpdateListener extends AbstractActionListener
                 $collection[$id] = $updatedDocument;
 
                 if (isset($metadata->fieldMappings[$field]['mappedBy'])) {
-                    if ($updatedDocument instanceof Proxy) {
-                        $updatedDocument->__load();
-                    }
                     $targetMetadata->setFieldValue($updatedDocument, $metadata->fieldMappings[$field]['mappedBy'], $document);
                 }
             } else if (is_array($updatedDocument)) {

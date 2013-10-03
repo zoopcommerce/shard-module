@@ -5,7 +5,6 @@
  */
 namespace Zoop\ShardModule\Controller\Listener;
 
-use Doctrine\ODM\MongoDB\Proxy\Proxy;
 use Zend\Http\Header\LastModified;
 use Zend\Mvc\MvcEvent;
 use Zoop\ShardModule\Exception;

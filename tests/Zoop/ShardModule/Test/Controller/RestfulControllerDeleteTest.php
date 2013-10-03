@@ -34,7 +34,7 @@ class RestfulControllerDeleteTest extends AbstractHttpControllerTestCase
             static::$dbDataCreated = true;
         }
     }
-
+/*
     public function testDelete()
     {
         $accept = new Accept;
@@ -201,7 +201,7 @@ class RestfulControllerDeleteTest extends AbstractHttpControllerTestCase
         $compoents = $game->getComponents();
         $this->assertCount(0, $compoents);
     }
-
+*/
     public function testDeleteDeepReferenceOne()
     {
         $accept = new Accept;
@@ -226,7 +226,7 @@ class RestfulControllerDeleteTest extends AbstractHttpControllerTestCase
         $country = $game->getAuthor()->getCountry();
         $this->assertFalse(isset($country));
     }
-
+/*
     public function testDeleteReferenceOne()
     {
         $accept = new Accept;
@@ -357,4 +357,6 @@ class RestfulControllerDeleteTest extends AbstractHttpControllerTestCase
 
         $this->assertCount(0, $cursor);
     }
+ *
+ */
 }

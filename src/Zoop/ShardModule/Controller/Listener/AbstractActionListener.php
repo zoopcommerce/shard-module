@@ -5,7 +5,6 @@
  */
 namespace Zoop\ShardModule\Controller\Listener;
 
-use Doctrine\ODM\MongoDB\Proxy\Proxy;
 use Zend\Mvc\MvcEvent;
 use Zoop\ShardModule\Exception;
 
@@ -87,10 +86,6 @@ abstract class AbstractActionListener
             $id = $targetMetadata->getFieldValue($targetDocument, $targetOptions->getProperty());
             $event->setParam('id', $id);
             $routeMatchArgs = ['id' => $id];
-        }
-
-        if ($targetDocument instanceof Proxy) {
-            $targetDocument->__load();
         }
 
         $event->setParam('document', $targetDocument);

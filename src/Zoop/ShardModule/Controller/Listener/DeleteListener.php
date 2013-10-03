@@ -5,7 +5,6 @@
  */
 namespace Zoop\ShardModule\Controller\Listener;
 
-use Doctrine\ODM\MongoDB\Proxy\Proxy;
 use Zend\Mvc\MvcEvent;
 use Zoop\ShardModule\Exception;
 use Zoop\ShardModule\Controller\Result;
@@ -94,9 +93,6 @@ class DeleteListener extends AbstractActionListener
 
         if (is_string($targetDocument)) {
             $targetDocument = $documentManager->getRepository($targetMetadata->name)->find($targetDocument);
-        }
-        if ($targetDocument instanceof Proxy) {
-            $targetDocument->__load();
         }
 
         $id = $targetMetadata->getFieldValue($targetDocument, $targetOptions->getProperty());

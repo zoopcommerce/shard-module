@@ -5,7 +5,6 @@
  */
 namespace Zoop\ShardModule\Controller\Listener;
 
-use Doctrine\ODM\MongoDB\Proxy\Proxy;
 use Zend\Http\Header\Location;
 use Zend\Mvc\MvcEvent;
 use Zoop\ShardModule\Exception;
@@ -81,7 +80,7 @@ class CreateListener extends AbstractActionListener
                 if ($targetProperty = $targetOptions->getProperty()) {
                     foreach ($collection as $targetDocument) {
                         if ($targetMetadata->getFieldValue($targetDocument, $targetProperty) == $targetMetadata->getFieldValue($createdDocument, $targetProperty)) {
-                            throw new Exception\DocumentAlreadyExistsException();
+                            throw new Exception\DocumentAlreadyExistsException('Document already exists');
                         }
                     }
                 }
@@ -115,9 +114,6 @@ class CreateListener extends AbstractActionListener
             $collection[] = $createdDocument;
 
             if (isset($metadata->fieldMappings[$field]['mappedBy'])) {
-                if ($createdDocument instanceof Proxy) {
-                    $createdDocument->__load();
-                }
                 $targetMetadata->setFieldValue($createdDocument, $metadata->fieldMappings[$field]['mappedBy'], $document);
             }
 
