@@ -24,27 +24,33 @@ class BatchListener
 
     protected $controllerLoader;
 
-    public function getExceptionViewModelPreparer() {
+    public function getExceptionViewModelPreparer()
+    {
         return $this->exceptionViewModelPreparer;
     }
 
-    public function setExceptionViewModelPreparer($exceptionViewModelPreparer) {
+    public function setExceptionViewModelPreparer($exceptionViewModelPreparer)
+    {
         $this->exceptionViewModelPreparer = $exceptionViewModelPreparer;
     }
 
-    public function getRouter() {
+    public function getRouter()
+    {
         return $this->router;
     }
 
-    public function setRouter($router) {
+    public function setRouter($router)
+    {
         $this->router = $router;
     }
 
-    public function getControllerLoader() {
+    public function getControllerLoader()
+    {
         return $this->controllerLoader;
     }
 
-    public function setControllerLoader($controllerLoader) {
+    public function setControllerLoader($controllerLoader)
+    {
         $this->controllerLoader = $controllerLoader;
     }
 
@@ -111,6 +117,7 @@ class BatchListener
         $result = new Result;
         $result->setSerializedModel($responseModel);
         $event->setResult($result);
+
         return $result;
     }
 

@@ -54,6 +54,7 @@ class GetListListener
             $result = new Result([]);
             $result->setStatusCode(204);
             $event->setResult($result);
+
             return $result;
         }
 
@@ -88,12 +89,14 @@ class GetListListener
         $result->addHeader(ContentRange::fromString("Content-Range: $offset-$max/$total"));
 
         $event->setResult($result);
+
         return $result;
     }
 
     protected function getLimit($event)
     {
         list($lower, $upper) = $this->getRange($event);
+
         return $upper - $lower + 1;
     }
 
@@ -165,9 +168,9 @@ class GetListListener
                     $value = [$value];
                 }
                 $query->field($field)->in($value);
-            } else if (is_array($value)) {
+            } elseif (is_array($value)) {
                 $query->field($field)->in($value);
-            } else if ($mapping['type'] == 'int') {
+            } elseif ($mapping['type'] == 'int') {
                 $query->field($field)->equals((integer) $value);
             } else {
                 $query->field($field)->equals($value);
@@ -204,6 +207,7 @@ class GetListListener
                     if (!is_array($criteriaValue)) {
                         $criteriaValue = [$criteriaValue];
                     }
+
                     return (count(array_intersect($criteriaValue, $fieldValue)) > 0);
                 }
             }
@@ -224,7 +228,7 @@ class GetListListener
 
                     if ($metadata->getFieldValue($aa, $ss['field']) < $metadata->getFieldValue($bb, $ss['field'])) {
                         return -1 * $direction;
-                    } else if ($metadata->getFieldValue($aa, $ss['field']) > $metadata->getFieldValue($bb, $ss['field'])) {
+                    } elseif ($metadata->getFieldValue($aa, $ss['field']) > $metadata->getFieldValue($bb, $ss['field'])) {
                         return 1 * $direction;
                     }
                 }

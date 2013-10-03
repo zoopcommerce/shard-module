@@ -51,6 +51,7 @@ class GetListener extends AbstractActionListener
         $result->addHeader($options->getCacheControl());
 
         $event->setResult($result);
+
         return $result;
     }
 }

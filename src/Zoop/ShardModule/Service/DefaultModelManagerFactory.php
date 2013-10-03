@@ -14,6 +14,7 @@ class DefaultModelManagerFactory implements FactoryInterface
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $name = $serviceLocator->get('config')['zoop']['shard']['manifest']['default']['model_manager'];
+
         return $serviceLocator->get($name);
     }
 }

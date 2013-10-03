@@ -62,6 +62,7 @@ class UpdateListener extends AbstractActionListener
         if (count($deeperResource) == 0) {
             $event->setParam('deeperResource', $deeperResource);
             $event->setParam('list', $collection);
+
             return $event->getTarget()->forward()->dispatch(
                 'shard.rest.' . $targetOptions->getEndpoint(),
                 ['id' => false]
@@ -87,7 +88,7 @@ class UpdateListener extends AbstractActionListener
             if (!isset($targetDocument)) {
                 $collection[$id] = $result->getModel();
             }
-        } else if (isset($metadata->fieldMappings[$field]['reference'])) {
+        } elseif (isset($metadata->fieldMappings[$field]['reference'])) {
             $event->setParam('document', null);
 
             $result = $event->getTarget()->forward()->dispatch(

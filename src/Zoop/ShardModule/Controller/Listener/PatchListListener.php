@@ -36,6 +36,7 @@ class PatchListListener
 
         $result->setModel($patchList);
         $result->setStatusCode(204);
+
         return $event->getResult();
     }
 }

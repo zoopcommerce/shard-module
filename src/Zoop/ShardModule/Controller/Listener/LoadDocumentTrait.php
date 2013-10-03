@@ -32,6 +32,7 @@ trait LoadDocumentTrait
                 throw new Exception\DocumentNotFoundException();
             }
         }
+
         return $document;
     }
 }

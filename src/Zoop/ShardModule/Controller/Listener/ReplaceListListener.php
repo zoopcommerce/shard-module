@@ -38,6 +38,7 @@ class ReplaceListListener
 
         $result->setModel($newList);
         $result->setStatusCode(204);
+
         return $event->getResult();
     }
 }

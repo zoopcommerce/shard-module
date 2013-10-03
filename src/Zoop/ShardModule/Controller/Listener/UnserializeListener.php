@@ -37,6 +37,7 @@ class UnserializeListener
                 )
         );
         $event->setResult($result);
+
         return $result;
     }
 
@@ -59,7 +60,7 @@ class UnserializeListener
     {
         return $this->unserializeList($event,  Unserializer::UNSERIALIZE_PATCH);
     }
-    
+
     public function unserializeList(MvcEvent $event, $mode)
     {
         if (count($event->getParam('deeperResource')) > 0 || $result = $event->getResult()) {
@@ -84,6 +85,7 @@ class UnserializeListener
 
         $result = new Result($list);
         $event->setResult($result);
+
         return $result;
     }
 
@@ -115,6 +117,7 @@ class UnserializeListener
                 )
         );
         $event->setResult($result);
+
         return $result;
     }
 }

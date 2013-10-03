@@ -62,7 +62,7 @@ class JuggernautCache extends CacheProvider
 
     /**
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     */    
+     */
     protected function doSave($id, $data, $lifeTime = 0)
     {
         //ttl ignored, because juggernaught doesn't support individual ttl

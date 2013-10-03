@@ -64,6 +64,7 @@ class SerializeListener
         }
 
         $result->setSerializedModel($items);
+
         return $result;
     }
 }

@@ -13,7 +13,7 @@ use Zoop\Shard\ODMCore\ModelManager;
 class ModelManagerBuilder extends DocumentManagerBuilder
 {
     /**
-     * @param \Zend\ServiceManager\ServiceLocatorInterface $serviceLocator
+     * @param  \Zend\ServiceManager\ServiceLocatorInterface $serviceLocator
      * @return \Doctrine\ODM\MongoDB\DocumentManager
      */
     public function build($options)

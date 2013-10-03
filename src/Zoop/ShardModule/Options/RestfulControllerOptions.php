@@ -96,6 +96,7 @@ class RestfulControllerOptions extends AbstractOptions
         if (is_string($this->manifest)) {
             $this->manifest = $this->serviceLocator->get('shard.' . $this->manifest . '.manifest');
         }
+
         return $this->manifest;
     }
 
@@ -118,11 +119,13 @@ class RestfulControllerOptions extends AbstractOptions
         $this->acceptCriteria = $acceptCriteria;
     }
 
-    public function getEndpoint() {
+    public function getEndpoint()
+    {
         return $this->endpoint;
     }
 
-    public function setEndpoint($endpoint) {
+    public function setEndpoint($endpoint)
+    {
         $this->endpoint = $endpoint;
     }
 
@@ -160,23 +163,28 @@ class RestfulControllerOptions extends AbstractOptions
         $this->surpressFlush = (boolean) $surpressFlush;
     }
 
-    public function getClass() {
+    public function getClass()
+    {
         return $this->class;
     }
 
-    public function setClass($class) {
+    public function setClass($class)
+    {
         $this->class = $class;
     }
 
-    public function getProperty() {
+    public function getProperty()
+    {
         return $this->property;
     }
 
-    public function setProperty($property) {
+    public function setProperty($property)
+    {
         $this->property = $property;
     }
 
-    public function getCacheControl() {
+    public function getCacheControl()
+    {
         if (! $this->cacheControl instanceof CacheControl) {
             $cacheControl = new CacheControl;
             if (isset($this->cacheControl['public'])) {
@@ -197,15 +205,18 @@ class RestfulControllerOptions extends AbstractOptions
         return $this->cacheControl;
     }
 
-    public function setCacheControl($cacheControl) {
+    public function setCacheControl($cacheControl)
+    {
         $this->cacheControl = $cacheControl;
     }
 
-    public function getTemplates() {
+    public function getTemplates()
+    {
         return $this->templates;
     }
 
-    public function setTemplates($templates) {
+    public function setTemplates($templates)
+    {
         $this->templates = $templates;
     }
 
@@ -224,6 +235,7 @@ class RestfulControllerOptions extends AbstractOptions
         if (is_string($this->doctrineSubscriber)) {
             $this->doctrineSubscriber = $this->serviceLocator->get($this->doctrineSubscriber);
         }
+
         return $this->doctrineSubscriber;
     }
 
@@ -232,19 +244,23 @@ class RestfulControllerOptions extends AbstractOptions
         $this->doctrineSubscriber = $doctrineSubscriber;
     }
 
-    public function getListeners() {
+    public function getListeners()
+    {
         return $this->listeners;
     }
 
-    public function setListeners($listeners) {
+    public function setListeners($listeners)
+    {
         $this->listeners = $listeners;
     }
 
-    public function getListenersForEvent($event) {
+    public function getListenersForEvent($event)
+    {
         $result = [];
         foreach ($this->listeners[$event] as $listener) {
             $result[] = $this->serviceLocator->get($listener);
         }
+
         return $result;
     }
 }

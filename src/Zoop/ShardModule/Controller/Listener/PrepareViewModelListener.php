@@ -43,11 +43,12 @@ class PrepareViewModelListener
         //set the template
         if ($viewModel instanceof JsonModel && count($viewModel->getVariables()) == 0) {
             return $event->getResponse();
-        } else if ($viewModel->getTemplate() == null) {
+        } elseif ($viewModel->getTemplate() == null) {
             $viewModel->setTemplate($controller->getOptions()->getTemplates()[$action]);
         }
 
         $event->setResult($viewModel);
+
         return $viewModel;
     }
 }

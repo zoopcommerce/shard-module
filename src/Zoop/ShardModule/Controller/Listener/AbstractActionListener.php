@@ -41,7 +41,7 @@ abstract class AbstractActionListener
 
         if (isset($mapping['type']) && $mapping['type'] == 'one') {
             return $this->handleAssociatedSingle($event, $metadata, $documentManager, $field);
-        } else if (isset($mapping['type']) && $mapping['type'] == 'many') {
+        } elseif (isset($mapping['type']) && $mapping['type'] == 'many') {
             return $this->handleAssociatedCollection($event, $metadata, $documentManager, $field);
         }
 
@@ -54,10 +54,10 @@ abstract class AbstractActionListener
      * This default handler is used by get, create and update
      * other listeners override
      *
-     * @param \Zend\Mvc\MvcEvent $event
-     * @param type $metadata
-     * @param type $documentManager
-     * @param type $field
+     * @param  \Zend\Mvc\MvcEvent                  $event
+     * @param  type                                $metadata
+     * @param  type                                $documentManager
+     * @param  type                                $field
      * @return type
      * @throws Exception\DocumentNotFoundException
      */
@@ -79,7 +79,7 @@ abstract class AbstractActionListener
         if (isset($metadata->fieldMappings[$field]['embedded'])) {
             $targetDocument = $metadata->getFieldValue($document, $field);
             $routeMatchArgs = [];
-        } else if ($metadata->fieldMappings[$field]['reference']) {
+        } elseif ($metadata->fieldMappings[$field]['reference']) {
             if (is_string($targetDocument)) {
                 $targetDocument = $documentManager->getRepository($targetMetadata->name)->find($targetDocument);
             }
@@ -99,10 +99,10 @@ abstract class AbstractActionListener
     /**
      * This default handler is used by the getListener.
      *
-     * @param \Zend\Mvc\MvcEvent $event
-     * @param type $metadata
-     * @param type $documentManager
-     * @param type $field
+     * @param  \Zend\Mvc\MvcEvent                  $event
+     * @param  type                                $metadata
+     * @param  type                                $documentManager
+     * @param  type                                $field
      * @return type
      * @throws Exception\DocumentNotFoundException
      */
@@ -127,7 +127,7 @@ abstract class AbstractActionListener
                     //embedded document not found in collection
                     throw new Exception\DocumentNotFoundException();
                 }
-            } else if (isset($metadata->fieldMappings[$field]['reference'])) {
+            } elseif (isset($metadata->fieldMappings[$field]['reference'])) {
                 $event->getRequest()->getQuery()->set($metadata->fieldMappings[$field]['mappedBy'], $event->getParam('id'));
                 if (!$id) {
                     $id = false;
@@ -140,6 +140,7 @@ abstract class AbstractActionListener
         }
 
         $event->setParam('deeperResource', $deeperResource);
+
         return $event->getTarget()->forward()->dispatch(
             'shard.rest.' . $targetOptions->getEndpoint(),
             ['id' => $id]
@@ -162,10 +163,12 @@ abstract class AbstractActionListener
                 throw new Exception\DocumentNotFoundException();
             }
         }
+
         return $document;
     }
 
-    protected function selectItemFromCollection($collection, $key, $keyProperty = null) {
+    protected function selectItemFromCollection($collection, $key, $keyProperty = null)
+    {
         if ($keyProperty) {
             foreach ($collection as $item) {
                 //this iteration is slow. Should be replaced when upgrade to new version of mongo happens
@@ -181,10 +184,12 @@ abstract class AbstractActionListener
         }
     }
 
-    protected function getRestControllerMap(MvcEvent $event){
+    protected function getRestControllerMap(MvcEvent $event)
+    {
         if (!isset($this->restControllerMap)) {
             $this->restControllerMap = $event->getTarget()->getOptions()->getServiceLocator()->get('zoop.shardmodule.restcontrollermap');
         }
+
         return $this->restControllerMap;
     }
 }

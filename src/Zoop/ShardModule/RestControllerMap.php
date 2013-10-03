@@ -26,17 +26,21 @@ class RestControllerMap implements ServiceLocatorAwareInterface
 
     protected $optionsMap = [];
 
-    protected function getConfig(){
+    protected function getConfig()
+    {
         if (!isset($this->config)) {
             $this->config = $this->serviceLocator->get('config')['zoop']['shard']['rest'];
         }
+
         return $this->config;
     }
 
-    protected function getModelManager($manifest){
+    protected function getModelManager($manifest)
+    {
         if (!isset($this->modelManagerMap[$manifest])) {
             $this->modelManagerMap[$manifest] = $this->serviceLocator->get('shard.' . $manifest . '.manifest')->getServiceManager()->get('modelmanager');
         }
+
         return $this->modelManagerMap[$manifest];
     }
 
@@ -61,7 +65,7 @@ class RestControllerMap implements ServiceLocatorAwareInterface
                         $metadata = $this->getModelManager($options['manifest'])->getClassMetadata($options['class']);
                         if (isset($metadata->fieldMappings[$piece]['reference'])) {
                             return $this->getOptionsFromClass($metadata->fieldMappings[$piece]['targetDocument']);
-                        } else if ($metadata->fieldMappings[$piece]['targetDocument']) {
+                        } elseif ($metadata->fieldMappings[$piece]['targetDocument']) {
                             $options['class'] = $metadata->fieldMappings[$piece]['targetDocument'];
                         }
                         unset($options['property']);
@@ -84,6 +88,7 @@ class RestControllerMap implements ServiceLocatorAwareInterface
 
             $this->optionsMap[$endpoint] = $optionsObject;
         }
+
         return $this->optionsMap[$endpoint];
     }
 

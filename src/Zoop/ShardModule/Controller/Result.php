@@ -21,43 +21,53 @@ class Result
 
     protected $headers = [];
 
-    public function getModel() {
+    public function getModel()
+    {
         return $this->model;
     }
 
-    public function setModel($model) {
+    public function setModel($model)
+    {
         $this->model = $model;
     }
 
-    public function getSerializedModel() {
+    public function getSerializedModel()
+    {
         return $this->serializedModel;
     }
 
-    public function setSerializedModel(array $serializedModel) {
+    public function setSerializedModel(array $serializedModel)
+    {
         $this->serializedModel = $serializedModel;
     }
 
-    public function getStatusCode() {
+    public function getStatusCode()
+    {
         return $this->statusCode;
     }
 
-    public function setStatusCode($statusCode) {
+    public function setStatusCode($statusCode)
+    {
         $this->statusCode = $statusCode;
     }
 
-    public function getHeaders() {
+    public function getHeaders()
+    {
         return $this->headers;
     }
 
-    public function setHeaders($headers) {
+    public function setHeaders($headers)
+    {
         $this->headers = $headers;
     }
 
-    public function addHeader($header) {
+    public function addHeader($header)
+    {
         $this->headers[] = $header;
     }
 
-    public function __construct($model = null) {
+    public function __construct($model = null)
+    {
         $this->model = $model;
     }
 }

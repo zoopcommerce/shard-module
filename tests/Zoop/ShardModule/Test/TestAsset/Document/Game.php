@@ -121,11 +121,13 @@ class Game
         $this->reviews = $reviews;
     }
 
-    public function getAwards() {
+    public function getAwards()
+    {
         return $this->awards;
     }
 
-    public function setAwards(array $awards) {
+    public function setAwards(array $awards)
+    {
         $this->awards = $awards;
     }
 }

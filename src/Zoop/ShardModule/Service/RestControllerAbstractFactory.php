@@ -19,10 +19,12 @@ class RestControllerAbstractFactory implements AbstractFactoryInterface
 {
     protected $restControllerMap;
 
-    protected function getRestControllerMap($serviceLocator){
+    protected function getRestControllerMap($serviceLocator)
+    {
         if (!isset($this->restControllerMap)) {
             $this->restControllerMap = $serviceLocator->get('zoop.shardmodule.restcontrollermap');
         }
+
         return $this->restControllerMap;
     }
 
@@ -47,6 +49,7 @@ class RestControllerAbstractFactory implements AbstractFactoryInterface
         $pieces = explode('.', $name);
         if (array_shift($pieces) == 'shard' && array_shift($pieces) == 'rest') {
             $endpoint = implode('.', $pieces);
+
             return $this->getRestControllerMap($serviceLocator)->getOptionsFromEndpoint($endpoint);
         }
 

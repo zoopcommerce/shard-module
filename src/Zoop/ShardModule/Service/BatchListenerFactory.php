@@ -24,6 +24,7 @@ class BatchListenerFactory implements FactoryInterface
         $instance->setExceptionViewModelPreparer($serviceLocator->get('Zoop\MaggottModule\JsonExceptionStrategy'));
         $instance->setRouter($serviceLocator->get('router'));
         $instance->setControllerLoader($serviceLocator->get('controllerLoader'));
+
         return $instance;
     }
 }

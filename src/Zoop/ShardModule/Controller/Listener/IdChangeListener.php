@@ -118,11 +118,12 @@ class IdChangeListener
         return $result;
     }
 
-    protected function getLocationHeader($event, $metadata, $document){
-
+    protected function getLocationHeader($event, $metadata, $document)
+    {
         if ($property = $event->getTarget()->getOptions()->getProperty()) {
             $pieces = explode('/', $event->getRequest()->getUri()->getPath());
             array_pop($pieces);
+
             return Location::fromString(
                 'Location: ' .
                 implode('/', $pieces) .

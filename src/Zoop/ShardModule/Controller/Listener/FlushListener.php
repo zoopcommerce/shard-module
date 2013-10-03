@@ -19,7 +19,8 @@ class FlushListener
     /**
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function __call($name, $args) {
+    public function __call($name, $args)
+    {
         return $this->flush($args[0]);
     }
 

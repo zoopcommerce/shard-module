@@ -43,6 +43,7 @@ class DeleteListener extends AbstractActionListener
         $result->setStatusCode(204);
 
         $event->setResult($result);
+
         return $result;
     }
 
@@ -63,10 +64,12 @@ class DeleteListener extends AbstractActionListener
                 $result->setStatusCode(204);
 
                 $event->setResult($result);
+
                 return $result;
             } else {
                 $options = $event->getTarget()->getOptions();
                 $event->setParam('document', $metadata->getFieldValue($document, $field));
+
                 return $event->getTarget()->forward()->dispatch(
                     'shard.rest.' . $options->getEndpoint() . '.' . $field
                 );
@@ -81,6 +84,7 @@ class DeleteListener extends AbstractActionListener
             $result->setStatusCode(204);
 
             $event->setResult($result);
+
             return $result;
         }
 
@@ -121,6 +125,7 @@ class DeleteListener extends AbstractActionListener
             $result->setStatusCode(204);
 
             $event->setResult($result);
+
             return $result;
         }
 
@@ -167,11 +172,13 @@ class DeleteListener extends AbstractActionListener
             $result->setStatusCode(204);
 
             $event->setResult($result);
+
             return $result;
         } else {
             array_shift($deeperResource);
             $event->setParam('deeperResource', $deeperResource);
             $event->setParam('document', $targetDocument);
+
             return $event->getTarget()->forward()->dispatch(
                 'shard.rest.' . $endpoint . '.' . $field
             );

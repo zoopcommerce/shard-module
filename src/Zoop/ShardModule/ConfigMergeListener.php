@@ -70,7 +70,6 @@ class ConfigMergeListener implements ListenerAggregateInterface
                 $manifestConfig['model_manager'] = $modelManager;
                 $config['zoop']['shard']['manifest'][$name] = $manifestConfig;
 
-
                 $dmConfig = &$this->getSubConfig($config, $modelManager);;
 
                 //inject filter config
@@ -116,6 +115,7 @@ class ConfigMergeListener implements ListenerAggregateInterface
         foreach (explode('.', $name) as $key) {
             $subConfig = &$subConfig[$key];
         }
+
         return $subConfig;
     }
 }

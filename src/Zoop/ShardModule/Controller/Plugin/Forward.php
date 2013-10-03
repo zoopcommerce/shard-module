@@ -28,8 +28,8 @@ class Forward extends ZendForward
     /**
      * Dispatch another controller
      *
-     * @param  string $name Controller name; either a class name or an alias used in the controller manager
-     * @param  null|array $params Parameters with which to seed a custom RouteMatch object for the new controller
+     * @param  string                    $name   Controller name; either a class name or an alias used in the controller manager
+     * @param  null|array                $params Parameters with which to seed a custom RouteMatch object for the new controller
      * @return mixed
      * @throws Exception\DomainException if composed controller does not define InjectApplicationEventInterface
      *         or Locator aware; or if the discovered controller is not dispatchable
@@ -67,7 +67,7 @@ class Forward extends ZendForward
             $this->numNestedForwards--;
             throw $exception;
         }
-        
+
         // If we detached any listeners, reattach them now:
         $this->reattachProblemListeners($sharedEvents, $listeners);
 

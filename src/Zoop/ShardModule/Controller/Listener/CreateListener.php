@@ -95,14 +95,15 @@ class CreateListener extends AbstractActionListener
 
             $event->setParam('deeperResource', $deeperResource);
             $event->setParam('document', $targetDocument);
+
             return $event->getTarget()->forward()->dispatch(
                 'shard.rest.' . $targetOptions->getEndpoint()
             );
         }
     }
 
-    protected function getLocationHeader($event, $metadata, $createdDocument){
-
+    protected function getLocationHeader($event, $metadata, $createdDocument)
+    {
         if ($property = $event->getTarget()->getOptions()->getProperty()) {
             return Location::fromString(
                 'Location: ' .
