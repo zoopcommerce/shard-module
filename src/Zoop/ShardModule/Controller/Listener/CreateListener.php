@@ -54,40 +54,7 @@ class CreateListener extends AbstractActionListener
         $collection = $metadata->getFieldValue($document, $field);
         $targetOptions = $restControllerMap->getOptionsFromEndpoint($event->getTarget()->getOptions()->getEndpoint() . '.' . $field);
 
-        if (isset($metadata->fieldMappings[$field]['embedded'])) {
-            if (count($deeperResource) > 0) {
-                if (!($targetDocument = $this->selectItemFromCollection(
-                    $collection,
-                    array_shift($deeperResource),
-                    $targetOptions->getProperty()))
-                ) {
-                    //embedded document not found in collection
-                    throw new Exception\DocumentNotFoundException();
-                }
-
-                $event->setParam('deeperResource', $deeperResource);
-                $event->setParam('document', $targetDocument);
-                return $event->getTarget()->forward()->dispatch(
-                    'shard.rest.' . $targetOptions->getEndpoint()
-                );
-            } else {
-                $result = $event->getTarget()->forward()->dispatch(
-                    'shard.rest.' . $targetOptions->getEndpoint()
-                );
-                $createdDocument = $result->getModel();
-
-                if ($targetProperty = $targetOptions->getProperty()) {
-                    foreach ($collection as $targetDocument) {
-                        if ($targetMetadata->getFieldValue($targetDocument, $targetProperty) == $targetMetadata->getFieldValue($createdDocument, $targetProperty)) {
-                            throw new Exception\DocumentAlreadyExistsException('Document already exists');
-                        }
-                    }
-                }
-
-                $collection[] = $createdDocument;
-                return $result;
-            }
-        } else if (isset($metadata->fieldMappings[$field]['reference'])) {
+        if (count($deeperResource) == 0 || isset($metadata->fieldMappings[$field]['reference'])) {
             $id = array_shift($deeperResource);
             $event->setParam('id', $id);
             $event->setParam('deeperResource', $deeperResource);
@@ -97,13 +64,12 @@ class CreateListener extends AbstractActionListener
                 'shard.rest.' . $targetOptions->getEndpoint(),
                 ['id' => $id]
             );
-
             $createdDocument = $result->getModel();
 
             if ($targetProperty = $targetOptions->getProperty()) {
                 foreach ($collection as $targetDocument) {
                     if ($targetMetadata->getFieldValue($targetDocument, $targetProperty) == $targetMetadata->getFieldValue($createdDocument, $targetProperty)) {
-                        throw new Exception\DocumentAlreadyExistsException();
+                        throw new Exception\DocumentAlreadyExistsException('Document already exists');
                     }
                 }
             }
@@ -115,6 +81,23 @@ class CreateListener extends AbstractActionListener
             }
 
             return $result;
+        }
+
+        if (isset($metadata->fieldMappings[$field]['embedded'])) {
+            if (!($targetDocument = $this->selectItemFromCollection(
+                $collection,
+                array_shift($deeperResource),
+                $targetOptions->getProperty()))
+            ) {
+                //embedded document not found in collection
+                throw new Exception\DocumentNotFoundException();
+            }
+
+            $event->setParam('deeperResource', $deeperResource);
+            $event->setParam('document', $targetDocument);
+            return $event->getTarget()->forward()->dispatch(
+                'shard.rest.' . $targetOptions->getEndpoint()
+            );
         }
     }
 
