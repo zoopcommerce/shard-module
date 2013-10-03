@@ -334,10 +334,8 @@ class RestfulControllerUpdateTest extends AbstractHttpControllerTestCase
             ->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Game')
              ->find('feed-the-kitty');
 
-        $review = $game->getReviews()[0];
-        $this->assertEquals('great-review', $review->getTitle());
+        $review = $game->getReviews()->filter(function($item){return ($item->getTitle() == 'great-review');})[0];
         $this->assertEquals('james', $review->getAuthor()->getName());
-
     }
 
     public function testUpdateReferencedListItemWithNew()
