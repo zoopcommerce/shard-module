@@ -96,9 +96,54 @@ abstract class AbstractActionListener
         );
     }
 
+    /**
+     * This default handler is used by the getListener.
+     *
+     * @param \Zend\Mvc\MvcEvent $event
+     * @param type $metadata
+     * @param type $documentManager
+     * @param type $field
+     * @return type
+     * @throws Exception\DocumentNotFoundException
+     */
     protected function handleAssociatedCollection(MvcEvent $event, $metadata, $documentManager, $field)
     {
+        $deeperResource = $event->getParam('deeperResource');
+        $restControllerMap = $this->getRestControllerMap($event);
+        $targetOptions = $restControllerMap->getOptionsFromEndpoint($event->getTarget()->getOptions()->getEndpoint() . '.' . $field);
 
+        if (count($deeperResource) == 0) {
+            $id = false;
+            $event->setParam('list', $metadata->getFieldValue($this->loadDocument($event, $metadata, $documentManager, $field), $field));
+        } else {
+            $id = array_shift($deeperResource);
+            if (isset($metadata->fieldMappings[$field]['embedded'])) {
+
+                if (!($targetDocument = $this->selectItemFromCollection(
+                    $metadata->getFieldValue($this->loadDocument($event, $metadata, $documentManager, $field), $field),
+                    $id,
+                    $targetOptions->getProperty()))
+                ) {
+                    //embedded document not found in collection
+                    throw new Exception\DocumentNotFoundException();
+                }
+            } else if (isset($metadata->fieldMappings[$field]['reference'])) {
+                $event->getRequest()->getQuery()->set($metadata->fieldMappings[$field]['mappedBy'], $event->getParam('id'));
+                if (!$id) {
+                    $id = false;
+                }
+                $targetDocument = null;
+            }
+
+            $event->setParam('document', $targetDocument);
+            $event->setParam('id', $id);
+        }
+
+        $event->setParam('deeperResource', $deeperResource);
+        return $event->getTarget()->forward()->dispatch(
+            'shard.rest.' . $targetOptions->getEndpoint(),
+            ['id' => $id]
+        );
     }
 
     protected function loadDocument(MvcEvent $event, $metadata, $documentManager, $field)

@@ -97,9 +97,10 @@ class UpdateListener extends AbstractActionListener
 
             $updatedDocument = $result->getModel();
 
-            $collection[$id] = $updatedDocument;
             if (isset($metadata->fieldMappings[$field]['mappedBy'])) {
                 $targetMetadata->setFieldValue($updatedDocument, $metadata->fieldMappings[$field]['mappedBy'], $document);
+            } else {
+                $collection[$id] = $updatedDocument;
             }
         }
 

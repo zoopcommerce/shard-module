@@ -405,9 +405,8 @@ class RestfulControllerPatchTest extends AbstractHttpControllerTestCase
 
         $game = $this->documentManager
             ->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Game')->find('feed-the-kitty');
-        $review = $game->getReviews()[2];
-        $this->assertEquals('another-review', $review->getTitle());
-        $this->assertEquals('more review content', $review->getContent());
+        $reviews = $game->getReviews()->filter(function($item){return ($item->getTitle() == 'another-review');});
+        $this->assertCount(1, $reviews);
     }
 
     public function testPatchReferencedList()
@@ -429,7 +428,7 @@ class RestfulControllerPatchTest extends AbstractHttpControllerTestCase
         $this->assertFalse(isset($result));
 
         $this->documentManager->clear();
-        
+
         $game = $this->documentManager
             ->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Game')->find('feed-the-kitty');
         $this->assertTrue(2 < count($game->getReviews()));

@@ -53,46 +53,4 @@ class GetListener extends AbstractActionListener
         $event->setResult($result);
         return $result;
     }
-
-    protected function handleAssociatedCollection(MvcEvent $event, $metadata, $documentManager, $field)
-    {
-        $deeperResource = $event->getParam('deeperResource');
-        $restControllerMap = $this->getRestControllerMap($event);
-        $routeMatchParams = null;
-        $targetOptions = $restControllerMap->getOptionsFromEndpoint($event->getTarget()->getOptions()->getEndpoint() . '.' . $field);
-
-        if (isset($metadata->fieldMappings[$field]['embedded'])) {
-            $document = $this->loadDocument($event, $metadata, $documentManager, $field);
-
-            if (count($deeperResource) > 0) {
-                if (!($targetDocument = $this->selectItemFromCollection(
-                    $metadata->getFieldValue($document, $field),
-                    array_shift($deeperResource),
-                    $targetOptions->getProperty()))
-                ) {
-                    //embedded document not found in collection
-                    throw new Exception\DocumentNotFoundException();
-                }
-                $event->setParam('document', $targetDocument);
-            } else {
-                $routeMatchParams = ['id' => false];
-                $event->setParam('list', $metadata->getFieldValue($document, $field));
-            }
-        } else if (isset($metadata->fieldMappings[$field]['reference'])) {
-            $event->getRequest()->getQuery()->set($metadata->fieldMappings[$field]['mappedBy'], $event->getParam('id'));
-
-            if (!($id = array_shift($deeperResource))) {
-                $id = false;
-            }
-            $routeMatchParams = ['id' => $id];
-            $event->setParam('id', $id);
-            $event->setParam('document', null);
-        }
-
-        $event->setParam('deeperResource', $deeperResource);
-        return $event->getTarget()->forward()->dispatch(
-            'shard.rest.' . $targetOptions->getEndpoint(),
-            $routeMatchParams
-        );
-    }
 }

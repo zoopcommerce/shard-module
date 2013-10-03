@@ -362,9 +362,8 @@ class RestfulControllerUpdateTest extends AbstractHttpControllerTestCase
             ->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Game')
             ->find('feed-the-kitty');
 
-        $review = $game->getReviews()[2];
-        $this->assertEquals('another-review', $review->getTitle());
-
+        $reviews = $game->getReviews()->filter(function($item){return ($item->getTitle() == 'another-review');});
+        $this->assertCount(1, $reviews);
     }
 
     public function testUpdateExistingDocument()
