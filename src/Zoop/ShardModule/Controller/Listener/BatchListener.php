@@ -56,31 +56,7 @@ class BatchListener
         $responseModel = [];
 
         foreach ($event->getParam('data') as $key => $requestData) {
-            $request = new Request();
-            $request->setMethod($requestData['method']);
-            $request->setUri($requestData['uri']);
-            $queryString = $request->getUri()->getQuery();
-            if ($queryString) {
-                $query = [];
-                parse_str($queryString, $query);
-                $request->setQuery(new Parameters($query));
-            }
-
-            $requestHeaders = [
-                $batchRequest->getHeaders()->get('Accept'),
-                $batchRequest->getHeaders()->get('Content-Type'),
-            ];
-            if (isset($requestData['headers'])) {
-                foreach ($requestData['headers'] as $name => $value) {
-                    $requestHeaders[] = GenericHeader::fromString($name . ': ' . $value);
-                }
-            }
-            $request->getHeaders()->addHeaders($requestHeaders);
-
-            if (isset($requestData['content'])) {
-                $request->setContent(json_encode($requestData['content']));
-            }
-
+            $request = $this->getSubRequest($batchRequest, $requestData);
             $response = new Response;
             $subEvent = new MvcEvent;
             $subEvent->setRequest($request);
@@ -119,7 +95,6 @@ class BatchListener
                 }
             }
 
-            $headers = [];
             foreach ($response->getHeaders() as $header) {
                 $headers[$header->getFieldName()] = $header->getFieldValue();
             }
@@ -137,6 +112,36 @@ class BatchListener
         $result->setSerializedModel($responseModel);
         $event->setResult($result);
         return $result;
+    }
+
+    protected function getSubRequest($batchRequest, array $requestData)
+    {
+        $request = new Request();
+        $request->setMethod($requestData['method']);
+        $request->setUri($requestData['uri']);
+        $queryString = $request->getUri()->getQuery();
+        if ($queryString) {
+            $query = [];
+            parse_str($queryString, $query);
+            $request->setQuery(new Parameters($query));
+        }
+
+        $requestHeaders = [
+            $batchRequest->getHeaders()->get('Accept'),
+            $batchRequest->getHeaders()->get('Content-Type'),
+        ];
+        if (isset($requestData['headers'])) {
+            foreach ($requestData['headers'] as $name => $value) {
+                $requestHeaders[] = GenericHeader::fromString($name . ': ' . $value);
+            }
+        }
+        $request->getHeaders()->addHeaders($requestHeaders);
+
+        if (isset($requestData['content'])) {
+            $request->setContent(json_encode($requestData['content']));
+        }
+
+        return $request;
     }
 
     protected function createExceptionContentModel($exception, $event)
