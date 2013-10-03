@@ -111,25 +111,10 @@ class DeleteListener extends AbstractActionListener
 
         $deeperResource = $event->getParam('deeperResource');
 
-        if (isset($metadata->fieldMappings[$field]['reference'])) {
-            if (count($deeperResource) > 0) {
-                $event->getRequest()->getQuery()->set($metadata->fieldMappings[$field]['mappedBy'], $event->getParam('id'));
-
-                $targetOptions = $this->getRestControllerMap($event)->getOptionsFromClass($targetMetadata->name);
-
-                $id = array_shift($deeperResource);
-                $event->setParam('id', $id);
-                $event->setParam('deeperResource', $deeperResource);
-                $event->setParam('document', null);
-
-                return $event->getTarget()->forward()->dispatch(
-                    'shard.rest.' . $targetOptions->getEndpoint(),
-                    ['id' => $id]
-                );
-            }
+        if (count($deeperResource) == 0) {
             $document = $this->loadDocument($event, $metadata, $documentManager, $field);
             $collection = $metadata->getFieldValue($document, $field);
-            foreach ($collection as $key => $item) {
+            foreach ($collection->getKeys() as $key) {
                 $collection->remove($key);
             }
             $result = new Result([]);
@@ -139,59 +124,57 @@ class DeleteListener extends AbstractActionListener
             return $result;
         }
 
-        $document = $this->loadDocument($event, $metadata, $documentManager, $field);
-        $endpoint = $event->getTarget()->getOptions()->getEndpoint();
+        if (isset($metadata->fieldMappings[$field]['reference'])) {
+            $event->getRequest()->getQuery()->set($metadata->fieldMappings[$field]['mappedBy'], $event->getParam('id'));
 
-        if (count($deeperResource) > 0) {
-            $collection = $metadata->getFieldValue($document, $field);
-
-            if ($targetEndpointProperty = $this->getRestControllerMap($event)->getOptionsFromEndpoint($endpoint . '.' . $field)->getProperty()) {
-                foreach ($collection as $targetDocument) {
-                    //this iteration is slow. Should be replaced when upgrade to new version of mongo happens
-                    if ($targetDocument[$targetEndpointProperty] == $deeperResource[0]) {
-                        break;
-                    }
-                }
-            } else {
-                //if endpoint property is not set, then a strategy=set must be used
-                if (isset($collection[$deeperResource[0]])) {
-                    $targetDocument = $collection[$deeperResource[0]];
-                }
-            }
-
-            if (!isset($targetDocument)) {
-                //embedded document not found in collection
-                throw new Exception\DocumentNotFoundException();
-            }
+            $targetOptions = $this->getRestControllerMap($event)->getOptionsFromClass($targetMetadata->name);
 
             $id = array_shift($deeperResource);
             $event->setParam('id', $id);
+            $event->setParam('deeperResource', $deeperResource);
+            $event->setParam('document', null);
 
-            if (count($deeperResource) == 0) {
-                $collection->removeElement($targetDocument);
-                $result = new Result([]);
-                $result->setStatusCode(204);
+            return $event->getTarget()->forward()->dispatch(
+                'shard.rest.' . $targetOptions->getEndpoint(),
+                ['id' => $id]
+            );
+        }
 
-                $event->setResult($result);
-                return $result;
-            } else {
-                array_shift($deeperResource);
-                $event->setParam('deeperResource', $deeperResource);
-                $event->setParam('document', $targetDocument);
-                return $event->getTarget()->forward()->dispatch(
-                    'shard.rest.' . $endpoint . '.' . $field
-                );
-            }
-        } else {
-            $collection = $metadata->getFieldValue($document, $field);
-            foreach ($collection as $key => $item) {
-                $collection->remove($key);
-            }
+        $document = $this->loadDocument($event, $metadata, $documentManager, $field);
+        $endpoint = $event->getTarget()->getOptions()->getEndpoint();
+        $collection = $metadata->getFieldValue($document, $field);
+
+        if (!($targetDocument = $this->selectItemFromCollection(
+            $collection,
+            $deeperResource[0],
+            $this->getRestControllerMap($event)->getOptionsFromEndpoint($endpoint . '.' . $field)->getProperty()))
+        ) {
+            //embedded document not found in collection
+            throw new Exception\DocumentNotFoundException();
+        }
+
+        if (!isset($targetDocument)) {
+            //embedded document not found in collection
+            throw new Exception\DocumentNotFoundException();
+        }
+
+        $id = array_shift($deeperResource);
+        $event->setParam('id', $id);
+
+        if (count($deeperResource) == 0) {
+            $collection->removeElement($targetDocument);
             $result = new Result([]);
             $result->setStatusCode(204);
 
             $event->setResult($result);
             return $result;
+        } else {
+            array_shift($deeperResource);
+            $event->setParam('deeperResource', $deeperResource);
+            $event->setParam('document', $targetDocument);
+            return $event->getTarget()->forward()->dispatch(
+                'shard.rest.' . $endpoint . '.' . $field
+            );
         }
     }
 }

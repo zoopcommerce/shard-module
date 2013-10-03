@@ -5,9 +5,7 @@
  */
 namespace Zoop\ShardModule\Controller\Listener;
 
-use Zend\Http\Header\ContentRange;
 use Zend\Mvc\MvcEvent;
-use Zoop\ShardModule\Exception;
 use Zoop\ShardModule\Controller\Result;
 
 /**
@@ -21,7 +19,7 @@ class DeleteListListener
     public function deleteList(MvcEvent $event)
     {
         if ($list = $event->getParam('list')) {
-            foreach ($list as $key => $item) {
+            foreach ($list->getKeys() as $key) {
                 $list->remove($key);
             }
         } else {
