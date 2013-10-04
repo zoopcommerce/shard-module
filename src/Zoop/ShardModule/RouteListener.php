@@ -57,6 +57,10 @@ class RouteListener implements ListenerAggregateInterface
 
     public static function resolveController(RouteMatch $routeMatch)
     {
+        if ($routeMatch->getMatchedRouteName() != 'rest') {
+            return;
+        }
+
         if ($endpoint = $routeMatch->getParam('endpoint')) {
             $routeMatch->setParam('controller', 'shard.rest.' . $endpoint);
         } else {

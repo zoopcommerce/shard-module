@@ -51,6 +51,10 @@ class SerializeListener
             return;
         }
 
+        if (!is_array($model) && !($model instanceof \Traversable)) {
+            return $this->serialize($event);
+        }
+
         $serializer = $event->getTarget()->getOptions()->getManifest()->getServiceManager()->get('serializer');
 
         $items = [];
