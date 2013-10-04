@@ -427,8 +427,24 @@ class RestfulControllerGetListTest extends AbstractHttpControllerTestCase
 
         $this->assertCount(2, $result);
 
-        $this->assertCount(1, array_filter($result, function($item){return ($item['title'] == 'great-review');}));
-        $this->assertCount(1, array_filter($result, function($item){return ($item['title'] == 'bad-review');}));
+        $this->assertCount(
+            1,
+            array_filter(
+                $result,
+                function ($item) {
+                return ($item['title'] == 'great-review');
+                }
+            )
+        );
+        $this->assertCount(
+            1,
+            array_filter(
+                $result,
+                function ($item) {
+                return ($item['title'] == 'bad-review');
+                }
+            )
+        );
 
         $this->assertEquals(
             'Content-Range: 0-1/2',

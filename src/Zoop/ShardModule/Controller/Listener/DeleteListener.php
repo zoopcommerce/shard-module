@@ -131,8 +131,7 @@ class DeleteListener extends AbstractActionListener
 
         if (isset($metadata->fieldMappings[$field]['reference'])) {
             $event->getRequest()->getQuery()->set($metadata->fieldMappings[$field]['mappedBy'], $event->getParam('id'));
-
-            $targetOptions = $this->getRestControllerMap($event)->getOptionsFromClass($targetMetadata->name);
+            $targetOptions = $this->getRestControllerMap()->getOptionsFromEndpoint($event->getTarget()->getOptions()->getEndpoint() . '.' . $field);
 
             $id = array_shift($deeperResource);
             $event->setParam('id', $id);

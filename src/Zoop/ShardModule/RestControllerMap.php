@@ -38,7 +38,10 @@ class RestControllerMap implements ServiceLocatorAwareInterface
     protected function getModelManager($manifest)
     {
         if (!isset($this->modelManagerMap[$manifest])) {
-            $this->modelManagerMap[$manifest] = $this->serviceLocator->get('shard.' . $manifest . '.manifest')->getServiceManager()->get('modelmanager');
+            $this->modelManagerMap[$manifest] =
+                $this->serviceLocator->get('shard.' . $manifest . '.manifest')
+                    ->getServiceManager()
+                    ->get('modelmanager');
         }
 
         return $this->modelManagerMap[$manifest];
