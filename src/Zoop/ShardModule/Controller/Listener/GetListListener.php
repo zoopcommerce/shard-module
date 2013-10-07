@@ -228,7 +228,8 @@ class GetListListener
 
                     if ($metadata->getFieldValue($aa, $ss['field']) < $metadata->getFieldValue($bb, $ss['field'])) {
                         return -1 * $direction;
-                    } elseif ($metadata->getFieldValue($aa, $ss['field']) > $metadata->getFieldValue($bb, $ss['field'])) {
+                    }
+                    if ($metadata->getFieldValue($aa, $ss['field']) > $metadata->getFieldValue($bb, $ss['field'])) {
                         return 1 * $direction;
                     }
                 }

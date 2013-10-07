@@ -53,7 +53,9 @@ class UpdateListener extends AbstractActionListener
         $deeperResource = $event->getParam('deeperResource');
         $restControllerMap = $this->getRestControllerMap($event);
         $collection = $metadata->reflFields[$field]->getValue($document);
-        $targetOptions = $restControllerMap->getOptionsFromEndpoint($event->getTarget()->getOptions()->getEndpoint() . '.' . $field);
+        $targetOptions = $restControllerMap->getOptionsFromEndpoint(
+            $event->getTarget()->getOptions()->getEndpoint() . '.' . $field
+        );
 
         if (isset($metadata->fieldMappings[$field]['reference'])) {
             $event->getRequest()->getQuery()->set($metadata->fieldMappings[$field]['mappedBy'], $event->getParam('id'));
@@ -99,7 +101,11 @@ class UpdateListener extends AbstractActionListener
             $updatedDocument = $result->getModel();
 
             if (isset($metadata->fieldMappings[$field]['mappedBy'])) {
-                $targetMetadata->setFieldValue($updatedDocument, $metadata->fieldMappings[$field]['mappedBy'], $document);
+                $targetMetadata->setFieldValue(
+                    $updatedDocument,
+                    $metadata->fieldMappings[$field]['mappedBy'],
+                    $document
+                );
             } else {
                 $collection[$id] = $updatedDocument;
             }

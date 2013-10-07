@@ -88,7 +88,9 @@ class DeleteListener extends AbstractActionListener
             return $result;
         }
 
-        $targetOptions = $this->getRestControllerMap($event)->getOptionsFromEndpoint($event->getTarget()->getOptions()->getEndpoint() . '.' . $field);
+        $targetOptions =
+            $this->getRestControllerMap($event)
+                ->getOptionsFromEndpoint($event->getTarget()->getOptions()->getEndpoint() . '.' . $field);
 
         if (! ($targetDocument = $metadata->getFieldValue($document, $field))) {
             //associated document is null
@@ -110,9 +112,6 @@ class DeleteListener extends AbstractActionListener
 
     protected function handleAssociatedCollection(MvcEvent $event, $metadata, $documentManager, $field)
     {
-        $targetMetadata = $documentManager
-            ->getClassMetadata($metadata->fieldMappings[$field]['targetDocument']);
-
         $deeperResource = $event->getParam('deeperResource');
 
         if (count($deeperResource) == 0) {
@@ -131,7 +130,8 @@ class DeleteListener extends AbstractActionListener
 
         if (isset($metadata->fieldMappings[$field]['reference'])) {
             $event->getRequest()->getQuery()->set($metadata->fieldMappings[$field]['mappedBy'], $event->getParam('id'));
-            $targetOptions = $this->getRestControllerMap()->getOptionsFromEndpoint($event->getTarget()->getOptions()->getEndpoint() . '.' . $field);
+            $targetOptions = $this->getRestControllerMap($event)
+                ->getOptionsFromEndpoint($event->getTarget()->getOptions()->getEndpoint() . '.' . $field);
 
             $id = array_shift($deeperResource);
             $event->setParam('id', $id);
@@ -148,10 +148,11 @@ class DeleteListener extends AbstractActionListener
         $endpoint = $event->getTarget()->getOptions()->getEndpoint();
         $collection = $metadata->getFieldValue($document, $field);
 
-        if (!($targetDocument = $this->selectItemFromCollection(
+        if (!$targetDocument = $this->selectItemFromCollection(
             $collection,
             $deeperResource[0],
-            $this->getRestControllerMap($event)->getOptionsFromEndpoint($endpoint . '.' . $field)->getProperty()))
+            $this->getRestControllerMap($event)->getOptionsFromEndpoint($endpoint . '.' . $field)->getProperty()
+        )
         ) {
             //embedded document not found in collection
             throw new Exception\DocumentNotFoundException();

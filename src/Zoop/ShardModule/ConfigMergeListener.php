@@ -70,11 +70,12 @@ class ConfigMergeListener implements ListenerAggregateInterface
                 $manifestConfig['model_manager'] = $modelManager;
                 $config['zoop']['shard']['manifest'][$name] = $manifestConfig;
 
-                $dmConfig = &$this->getSubConfig($config, $modelManager);;
+                $dmConfig = &$this->getSubConfig($config, $modelManager);
 
                 //inject filter config
                 $configurationConfig = &$this->getSubConfig($config, $dmConfig['configuration']);
-                foreach ($manifest->getServiceManager()->get('extension.odmcore')->getFilters() as $filterName => $filterClass) {
+                foreach ($manifest->getServiceManager()->get('extension.odmcore')->getFilters() as
+                    $filterName => $filterClass) {
                     $configurationConfig['filters'][$filterName] = $filterClass;
                 }
 

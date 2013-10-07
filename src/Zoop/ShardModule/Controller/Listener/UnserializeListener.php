@@ -43,22 +43,22 @@ class UnserializeListener
 
     public function update(MvcEvent $event)
     {
-        return $this->unserializeSingle($event,  Unserializer::UNSERIALIZE_UPDATE);
+        return $this->unserializeSingle($event, Unserializer::UNSERIALIZE_UPDATE);
     }
 
     public function patch(MvcEvent $event)
     {
-        return $this->unserializeSingle($event,  Unserializer::UNSERIALIZE_PATCH);
+        return $this->unserializeSingle($event, Unserializer::UNSERIALIZE_PATCH);
     }
 
     public function replaceList(MvcEvent $event)
     {
-        return $this->unserializeList($event,  Unserializer::UNSERIALIZE_UPDATE);
+        return $this->unserializeList($event, Unserializer::UNSERIALIZE_UPDATE);
     }
 
     public function patchList(MvcEvent $event)
     {
-        return $this->unserializeList($event,  Unserializer::UNSERIALIZE_PATCH);
+        return $this->unserializeList($event, Unserializer::UNSERIALIZE_PATCH);
     }
 
     public function unserializeList(MvcEvent $event, $mode)

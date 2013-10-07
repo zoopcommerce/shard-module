@@ -18,7 +18,8 @@ trait RestControllerMapTrait
     protected function getRestControllerMap($event)
     {
         if (!isset($this->restControllerMap)) {
-            $this->restControllerMap = $event->getTarget()->getOptions()->getServiceLocator()->get('zoop.shardmodule.restcontrollermap');
+            $this->restControllerMap =
+                $event->getTarget()->getOptions()->getServiceLocator()->get('zoop.shardmodule.restcontrollermap');
         }
 
         return $this->restControllerMap;

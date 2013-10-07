@@ -37,7 +37,9 @@ class RestfulController extends AbstractRestfulController
         $this->setOptions($options);
 
         //attach listeners for shard/doctrine events
-        $this->options->getModelManager()->getEventManager()->addEventSubscriber($this->options->getDoctrineSubscriber());
+        $this->options->getModelManager()
+            ->getEventManager()
+            ->addEventSubscriber($this->options->getDoctrineSubscriber());
     }
 
     public function trigger($name, $event)

@@ -27,7 +27,9 @@ class CreateListener extends AbstractActionListener
         $result = $event->getResult();
         $createdDocument = $result->getModel();
 
-        if ($event->getTarget()->forward()->getNumNestedForwards() == 0 && $documentManager->contains($createdDocument)) {
+        if ($event->getTarget()->forward()->getNumNestedForwards() == 0 &&
+            $documentManager->contains($createdDocument)
+        ) {
             $exception = new Exception\DocumentAlreadyExistsException;
             $exception->setDocument($createdDocument);
             throw $exception;
@@ -52,7 +54,8 @@ class CreateListener extends AbstractActionListener
         $deeperResource = $event->getParam('deeperResource');
         $restControllerMap = $this->getRestControllerMap($event);
         $collection = $metadata->getFieldValue($document, $field);
-        $targetOptions = $restControllerMap->getOptionsFromEndpoint($event->getTarget()->getOptions()->getEndpoint() . '.' . $field);
+        $targetOptions = $restControllerMap
+            ->getOptionsFromEndpoint($event->getTarget()->getOptions()->getEndpoint() . '.' . $field);
 
         if (count($deeperResource) == 0 || isset($metadata->fieldMappings[$field]['reference'])) {
             $id = array_shift($deeperResource);
@@ -68,7 +71,9 @@ class CreateListener extends AbstractActionListener
 
             if ($targetProperty = $targetOptions->getProperty()) {
                 foreach ($collection as $targetDocument) {
-                    if ($targetMetadata->getFieldValue($targetDocument, $targetProperty) == $targetMetadata->getFieldValue($createdDocument, $targetProperty)) {
+                    if ($targetMetadata->getFieldValue($targetDocument, $targetProperty) ==
+                        $targetMetadata->getFieldValue($createdDocument, $targetProperty)
+                    ) {
                         throw new Exception\DocumentAlreadyExistsException('Document already exists');
                     }
                 }
@@ -77,17 +82,22 @@ class CreateListener extends AbstractActionListener
             $collection[] = $createdDocument;
 
             if (isset($metadata->fieldMappings[$field]['mappedBy'])) {
-                $targetMetadata->setFieldValue($createdDocument, $metadata->fieldMappings[$field]['mappedBy'], $document);
+                $targetMetadata->setFieldValue(
+                    $createdDocument,
+                    $metadata->fieldMappings[$field]['mappedBy'],
+                    $document
+                );
             }
 
             return $result;
         }
 
         if (isset($metadata->fieldMappings[$field]['embedded'])) {
-            if (!($targetDocument = $this->selectItemFromCollection(
+            if (!$targetDocument = $this->selectItemFromCollection(
                 $collection,
                 array_shift($deeperResource),
-                $targetOptions->getProperty()))
+                $targetOptions->getProperty()
+            )
             ) {
                 //embedded document not found in collection
                 throw new Exception\DocumentNotFoundException();

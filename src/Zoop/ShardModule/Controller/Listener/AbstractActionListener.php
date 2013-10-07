@@ -74,7 +74,8 @@ abstract class AbstractActionListener
         }
 
         $restControllerMap = $this->getRestControllerMap($event);
-        $targetOptions = $restControllerMap->getOptionsFromEndpoint($event->getTarget()->getOptions()->getEndpoint() . '.' . $field);
+        $targetOptions = $restControllerMap
+             ->getOptionsFromEndpoint($event->getTarget()->getOptions()->getEndpoint() . '.' . $field);
 
         if (isset($metadata->fieldMappings[$field]['embedded'])) {
             $targetDocument = $metadata->getFieldValue($document, $field);
@@ -110,25 +111,33 @@ abstract class AbstractActionListener
     {
         $deeperResource = $event->getParam('deeperResource');
         $restControllerMap = $this->getRestControllerMap($event);
-        $targetOptions = $restControllerMap->getOptionsFromEndpoint($event->getTarget()->getOptions()->getEndpoint() . '.' . $field);
+        $targetOptions = $restControllerMap
+            ->getOptionsFromEndpoint($event->getTarget()->getOptions()->getEndpoint() . '.' . $field);
 
         if (count($deeperResource) == 0) {
             $id = false;
-            $event->setParam('list', $metadata->getFieldValue($this->loadDocument($event, $metadata, $documentManager, $field), $field));
+            $event->setParam(
+                'list',
+                $metadata->getFieldValue($this->loadDocument($event, $metadata, $documentManager, $field), $field)
+            );
         } else {
             $id = array_shift($deeperResource);
             if (isset($metadata->fieldMappings[$field]['embedded'])) {
 
-                if (!($targetDocument = $this->selectItemFromCollection(
+                if (!$targetDocument = $this->selectItemFromCollection(
                     $metadata->getFieldValue($this->loadDocument($event, $metadata, $documentManager, $field), $field),
                     $id,
-                    $targetOptions->getProperty()))
+                    $targetOptions->getProperty()
+                )
                 ) {
                     //embedded document not found in collection
                     throw new Exception\DocumentNotFoundException();
                 }
             } elseif (isset($metadata->fieldMappings[$field]['reference'])) {
-                $event->getRequest()->getQuery()->set($metadata->fieldMappings[$field]['mappedBy'], $event->getParam('id'));
+                $event->getRequest()->getQuery()->set(
+                    $metadata->fieldMappings[$field]['mappedBy'],
+                    $event->getParam('id')
+                );
                 if (!$id) {
                     $id = false;
                 }
@@ -187,7 +196,8 @@ abstract class AbstractActionListener
     protected function getRestControllerMap(MvcEvent $event)
     {
         if (!isset($this->restControllerMap)) {
-            $this->restControllerMap = $event->getTarget()->getOptions()->getServiceLocator()->get('zoop.shardmodule.restcontrollermap');
+            $this->restControllerMap =
+                $event->getTarget()->getOptions()->getServiceLocator()->get('zoop.shardmodule.restcontrollermap');
         }
 
         return $this->restControllerMap;
