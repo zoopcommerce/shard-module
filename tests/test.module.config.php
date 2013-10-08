@@ -2,12 +2,43 @@
 return [
     'zoop' => [
         'shard' => [
-            'controllers' => [
+            'rest' => [
+                'cache_control' => [
+                    'no_cache' => true
+                ],
+                'property' => 'name',
+                'class' => 'Zoop\ShardModule\Test\TestAsset\Document\Author',
                 'rest' => [
-                    'default' => [
-                        'review' => [
-                            'limit' => 2
+                    'game' => [
+                        'property' => 'name',
+                        'class' => 'Zoop\ShardModule\Test\TestAsset\Document\Game',
+                        'rest' => [
+                            'components' => [
+                                'class' => 'Zoop\ShardModule\Test\TestAsset\Document\Component',
+                                'rest' => [
+                                    'manufacturers' => [
+                                        'property' => 'name',
+                                    ]
+                                ]
+                            ]
                         ]
+                    ],
+                    'author'  => [
+                        'property' => 'name',
+                        'class' => 'Zoop\ShardModule\Test\TestAsset\Document\Author',
+                    ],
+                    'country' => [
+                        'property' => 'name',
+                        'class' => 'Zoop\ShardModule\Test\TestAsset\Document\Country',
+                    ],
+                    'review'  => [
+                        'class' => 'Zoop\ShardModule\Test\TestAsset\Document\Review',
+                        'property' => 'title',
+                        'limit' => 2,
+                    ],
+                    'user'    => [
+                        'class' => 'Zoop\ShardModule\Test\TestAsset\Document\User',
+                        'property' => 'username',
                     ]
                 ]
             ],
@@ -20,55 +51,7 @@ return [
                         'extension.annotation' => true,
                         'extension.crypt' => true,
                         'extension.freeze' => true,
-                        'extension.generator' => [
-                            'resource_map' => [
-                                'Zoop/Document/Author.js' => [
-                                    'generator' => 'generator.dojo.model',
-                                    'class'     => 'Zoop\ShardModule\Test\TestAsset\Document\Author'
-                                ],
-                            ]
-                        ],
                         'extension.owner' => true,
-                        'extension.reference' => true,
-                        'extension.rest' => [
-                            'endpoint_map' => [
-                                'game' => [
-                                    'class' => 'Zoop\ShardModule\Test\TestAsset\Document\Game',
-                                    'property' => 'name',
-                                    'cache_control' => [
-                                        'no_cache' => true
-                                    ],
-                                    'embedded_lists' => [
-                                        'components' => [
-                                            'property' => '$set',
-                                            'class' => 'Zoop\ShardModule\Test\TestAsset\Document\Component',
-                                            'embedded_lists' => [
-                                                'manufacturers' => [
-                                                    'property' => 'name',
-                                                    'class' => 'Zoop\ShardModule\Test\TestAsset\Document\Manufacturer',
-                                                ]
-                                            ]
-                                        ]
-                                    ]
-                                ],
-                                'author'  => [
-                                    'class' => 'Zoop\ShardModule\Test\TestAsset\Document\Author',
-                                    'property' => 'name'
-                                ],
-                                'country' => [
-                                    'class' => 'Zoop\ShardModule\Test\TestAsset\Document\Country',
-                                    'property' => 'name'
-                                ],
-                                'review'  => [
-                                    'class' => 'Zoop\ShardModule\Test\TestAsset\Document\Review',
-                                    'property' => 'title'
-                                ],
-                                'user'    => [
-                                    'class' => 'Zoop\ShardModule\Test\TestAsset\Document\User',
-                                    'property' => 'username'
-                                ]
-                            ]
-                        ],
                         'extension.serializer' => [
                             'maxNestingDepth' => 2
                         ],
@@ -78,7 +61,7 @@ return [
                         'extension.validator' => true,
                         'extension.zone' => true,
                     ],
-                    'documents' => [
+                    'models' => [
                         'Zoop\ShardModule\Test\TestAsset\Document' => __DIR__.'/Zoop/ShardModule/Test/TestAsset/Document'
                     ]
                 ]
@@ -101,16 +84,5 @@ return [
     'view_manager' => array(
         'display_not_found_reason' => true,
         'display_exceptions' => true,
-        'doctype' => 'HTML5',
-        'not_found_template' => 'error/404',
-        'exception_template' => 'error/index',
-        'template_map' => array(
-            'layout/layout'           => __DIR__ . '/view/layout/layout.phtml',
-            'error/404' => __DIR__ . '/view/error/404.phtml',
-            'error/index' => __DIR__ . '/view/error/index.phtml',
-        ),
-        'template_path_stack' => array(
-            __DIR__ . '/view',
-        ),
     ),
 ];

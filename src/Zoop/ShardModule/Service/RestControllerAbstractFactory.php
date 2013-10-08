@@ -5,9 +5,7 @@
  */
 namespace Zoop\ShardModule\Service;
 
-use Zoop\ShardModule\Controller\JsonRestfulController;
-use Zoop\ShardModule\Controller\JsonRestfulController\DoctrineSubscriber;
-use Zoop\ShardModule\Options\JsonRestfulControllerOptions;
+use Zoop\ShardModule\Controller\RestfulController;
 use Zend\ServiceManager\AbstractFactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
@@ -19,72 +17,42 @@ use Zend\ServiceManager\ServiceLocatorInterface;
  */
 class RestControllerAbstractFactory implements AbstractFactoryInterface
 {
-    protected $endpointMap;
+    protected $restControllerMap;
 
+    protected function getRestControllerMap($serviceLocator)
+    {
+        if (!isset($this->restControllerMap)) {
+            $this->restControllerMap = $serviceLocator->get('zoop.shardmodule.restcontrollermap');
+        }
+
+        return $this->restControllerMap;
+    }
+
+    /**
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     public function canCreateServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
     {
-        if ($factoryMapping = $this->getFactoryMapping($name)) {
-            return $this->getEndpointMap($factoryMapping['manifestName'], $serviceLocator)
-                ->hasEndpoint($factoryMapping['endpoint']);
+        return $this->getOptions($name, $serviceLocator->getServiceLocator());
+    }
+
+    /**
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
+    public function createServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
+    {
+        return new RestfulController($this->getOptions($name, $serviceLocator->getServiceLocator()));
+    }
+
+    protected function getOptions($name, $serviceLocator)
+    {
+        $pieces = explode('.', $name);
+        if (array_shift($pieces) == 'shard' && array_shift($pieces) == 'rest') {
+            $endpoint = implode('.', $pieces);
+
+            return $this->getRestControllerMap($serviceLocator)->getOptionsFromEndpoint($endpoint);
         }
 
         return false;
-    }
-
-    public function createServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
-    {
-        $factoryMapping = $this->getFactoryMapping($name);
-
-        $endpointMap = $this->getEndpointMap($factoryMapping['manifestName'], $serviceLocator);
-        $endpoint = $endpointMap->getEndpoint($factoryMapping['endpoint']);
-
-        $options = [
-            'end_point'        => $endpoint,
-            'endpoint_map'     => $endpointMap,
-            'document_class'   => $endpoint->getClass(),
-            'manifest_name'    => $factoryMapping['manifestName'],
-            'service_locator'  => $serviceLocator
-                ->getServiceLocator()->get('shard.' . $factoryMapping['manifestName'] . '.serviceManager')
-        ];
-
-        //load any custom option overrides from config
-        $config = $serviceLocator->getServiceLocator()->get('config')['zoop']['shard'];
-        if (isset($config['controllers']) &&
-            isset($config['controllers']['rest']) &&
-            isset($config['controllers']['rest'][$factoryMapping['manifestName']]) &&
-            isset($config['controllers']['rest'][$factoryMapping['manifestName']][$factoryMapping['endpoint']])
-        ) {
-            $options = array_merge(
-                $options,
-                $config['controllers']['rest'][$factoryMapping['manifestName']][$factoryMapping['endpoint']]
-            );
-        }
-
-        $options = new JsonRestfulControllerOptions($options);
-
-        $instance = new JsonRestfulController($options);
-        $instance->setDoctrineSubscriber(new DoctrineSubscriber);
-
-        return $instance;
-    }
-
-    protected function getEndpointMap($manifestName, $serviceLocator)
-    {
-        if (!isset($this->endpointMap)) {
-            $this->endpointMap = $serviceLocator->getServiceLocator()->get('shard.' . $manifestName . '.endpointMap');
-        }
-
-        return $this->endpointMap;
-    }
-
-    protected function getFactoryMapping($name)
-    {
-        $matches = [];
-
-        if (! preg_match('/^rest\.(?<manifestName>[a-z0-9_]+)\.(?<endpoint>[a-z0-9_]+)$/', $name, $matches)) {
-            return false;
-        }
-
-        return $matches;
     }
 }

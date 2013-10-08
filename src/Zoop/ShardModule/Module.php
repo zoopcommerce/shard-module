@@ -20,10 +20,7 @@ class Module
     public function init(ModuleManager $moduleManager)
     {
         $eventManager = $moduleManager->getEventManager();
-        $sharedEventManager = $eventManager->getSharedManager();
-
         $eventManager->attachAggregate(new ConfigMergeListener);
-        $sharedEventManager->attachAggregate(new InitalizeConsoleListener);
     }
 
     public function onBootstrap(MvcEvent $event)
