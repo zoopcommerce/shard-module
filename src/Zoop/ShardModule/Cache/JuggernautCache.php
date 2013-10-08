@@ -31,6 +31,10 @@ class JuggernautCache extends CacheProvider
     {
         $this->setJuggernautInstance($juggernautInstance);
     }
+
+    /**
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     protected function doDelete($id)
     {
         //juggernaut doesn't support delete yet
@@ -46,6 +50,9 @@ class JuggernautCache extends CacheProvider
         return false;
     }
 
+    /**
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     protected function doContains($id)
     {
         $this->juggernautInstance->getItem($id, $success);
@@ -53,6 +60,9 @@ class JuggernautCache extends CacheProvider
         return $success;
     }
 
+    /**
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     protected function doSave($id, $data, $lifeTime = 0)
     {
         //ttl ignored, because juggernaught doesn't support individual ttl

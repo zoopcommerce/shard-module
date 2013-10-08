@@ -2,21 +2,18 @@
 return [
     'zoop' => [
         'shard' => [
-            //shard supports multiple manifest-objectManager pairs.
-            //each manifest should be configured with it's own objectManager.
             //a default manifest is pre-configured with the default documentManager
             'manifest' => [
                 'default' => [
-                    'object_manager' => 'doctrine.odm.documentmanager.default',
+                    'model_manager' => 'doctrine.odm.documentmanager.default',
                     'extension_configs' => [
-//                        'extension.accessControl' => true,
+                        'extension.odmcore'       => true,
+//                        'extension.accesscontrol' => true,
 //                        'extension.annotation' => true,
 //                        'extension.crypt' => true,
 //                        'extension.freeze' => true,
 //                        'extension.generator' => true,
 //                        'extension.owner' => true,
-//                        'extension.reference' => true,
-//                        'extension.rest' => true,
 //                        'extension.serializer' => true,
 //                        'extension.softdelete' => true,
 //                        'extension.stamp' => true,
@@ -25,16 +22,111 @@ return [
 //                        'extension.zone' => true,
                     ],
                     'service_manager_config' => [
-                        'invokables' => [
-                            'eventmanager.delegator.factory' => 'Zoop\ShardModule\Delegator\EventManagerDelegatorFactory',
-                            'configuration.delegator.factory' => 'Zoop\ShardModule\Delegator\ConfigurationDelegatorFactory'
-                        ],
                         'factories' => [
-                            'objectmanager' => 'Zoop\ShardModule\Service\DefaultObjectManagerFactory'
+                            'modelmanager' => 'Zoop\ShardModule\Service\DefaultModelManagerFactory'
                         ],
                         'abstract_factories' => [
                             'Zoop\ShardModule\Service\UserAbstractFactory'
                         ]
+                    ]
+                ]
+            ],
+            'rest' => [
+                'manifest' => 'default',
+                'options_class' => 'Zoop\ShardModule\Options\RestfulControllerOptions',
+                'accept_criteria' => [
+                    'Zend\View\Model\JsonModel' => [
+                        'application/json',
+                    ],
+                    'Zend\View\Model\ViewModel' => [
+                        '*/*',
+                    ],
+                ],
+                'limit' => 30,
+                'exception_serializer' => 'Zoop\MaggottModule\JsonExceptionStrategy',
+                'templates' => [
+                    'get'         => 'zoop/rest/get',
+                    'getList'     => 'zoop/rest/get-list',
+                    'create'      => 'zoop/rest/create',
+                    'delete'      => 'zoop/rest/delete',
+                    'deleteList'  => 'zoop/rest/delete-list',
+                    'patch'       => 'zoop/rest/patch',
+                    'patchList'   => 'zoop/rest/patch-list',
+                    'update'      => 'zoop/rest/update',
+                    'replaceList' => 'zoop/rest/replace-list',
+                ],
+                'query_dot_placeholder' => '_',
+                'listeners' => [
+                    'create' => [
+                        'zoop.shardmodule.listener.unserialize',
+                        'zoop.shardmodule.listener.create',
+                        'zoop.shardmodule.listener.flush',
+                        'zoop.shardmodule.listener.prepareviewmodel'
+                    ],
+                    'delete' => [
+                        'zoop.shardmodule.listener.delete',
+                        'zoop.shardmodule.listener.flush',
+                        'zoop.shardmodule.listener.prepareviewmodel'
+                     ],
+                    'deleteList' => [
+                        'zoop.shardmodule.listener.deletelist',
+                        'zoop.shardmodule.listener.flush',
+                        'zoop.shardmodule.listener.prepareviewmodel'
+                    ],
+                    'get' => [
+                        'zoop.shardmodule.listener.get',
+                        'zoop.shardmodule.listener.serialize',
+                        'zoop.shardmodule.listener.prepareviewmodel'
+                    ],
+                    'getList' => [
+                        'zoop.shardmodule.listener.getlist',
+                        'zoop.shardmodule.listener.serialize',
+                        'zoop.shardmodule.listener.prepareviewmodel'
+                    ],
+                    'patch' => [
+                        'zoop.shardmodule.listener.unserialize',
+                        'zoop.shardmodule.listener.idchange',
+                        'zoop.shardmodule.listener.patch',
+                        'zoop.shardmodule.listener.flush',
+                        'zoop.shardmodule.listener.prepareviewmodel'
+                    ],
+                    'patchList' => [
+                        'zoop.shardmodule.listener.unserialize',
+                        'zoop.shardmodule.listener.patchlist',
+                        'zoop.shardmodule.listener.flush',
+                        'zoop.shardmodule.listener.prepareviewmodel'
+                    ],
+                    'update' => [
+                        'zoop.shardmodule.listener.unserialize',
+                        'zoop.shardmodule.listener.idchange',
+                        'zoop.shardmodule.listener.update',
+                        'zoop.shardmodule.listener.flush',
+                        'zoop.shardmodule.listener.prepareviewmodel'
+                    ],
+                    'replaceList'      => [
+                        'zoop.shardmodule.listener.unserialize',
+                        'zoop.shardmodule.listener.replacelist',
+                        'zoop.shardmodule.listener.flush',
+                        'zoop.shardmodule.listener.prepareviewmodel'
+                    ],
+                ],
+                'doctrine_subscriber' => 'zoop.shardmodule.doctrinesubscriber',
+                'rest' => [
+                    'batch' => [
+                        'listeners' => [
+                            'create' => [
+                                'zoop.shardmodule.listener.batch',
+                                'zoop.shardmodule.listener.prepareviewmodel'
+                            ],
+                            'delete'      => [],
+                            'deleteList'  => [],
+                            'get'         => [],
+                            'getList'     => [],
+                            'patch'       => [],
+                            'patchList'   => [],
+                            'update'      => [],
+                            'replaceList' => [],
+                        ],
                     ]
                 ]
             ]
@@ -98,20 +190,16 @@ return [
 
     'router' => [
         'routes' => [
-            'rest.default' => [
+            'rest' => [
                 //this route will look to load a controller
-                //service called `rest.default.<endpoint>`
+                //service called `shard.rest.<endpoint>`
                 'type' => 'Zend\Mvc\Router\Http\Segment',
                 'options' => [
-                    'route' => '/rest/:endpoint[/:id]',
+                    'route' => '/rest[/:endpoint][/:id]',
                     'constraints' => [
                         'endpoint' => '[a-zA-Z][a-zA-Z0-9_-]+',
                         'id'       => '[a-zA-Z][a-zA-Z0-9/_-]+',
                     ],
-                    'defaults' => [
-                        'extension'    => 'rest',
-                        'manifestName' => 'default',
-                    ]
                 ],
             ],
         ]
@@ -119,24 +207,33 @@ return [
 
     'controllers' => [
         'abstract_factories' => [
-            'Zoop\ShardModule\Service\BatchRestControllerAbstractFactory',
             'Zoop\ShardModule\Service\RestControllerAbstractFactory'
         ]
     ],
 
     'service_manager' => [
         'invokables' => [
-            'zoop.shardmodule.assistant.create' => 'Zoop\ShardModule\Controller\JsonRestfulController\CreateAssistant',
-            'zoop.shardmodule.assistant.delete' => 'Zoop\ShardModule\Controller\JsonRestfulController\DeleteAssistant',
-            'zoop.shardmodule.assistant.deletelist' => 'Zoop\ShardModule\Controller\JsonRestfulController\DeleteListAssistant',
-            'zoop.shardmodule.assistant.get' => 'Zoop\ShardModule\Controller\JsonRestfulController\GetAssistant',
-            'zoop.shardmodule.assistant.getlist' => 'Zoop\ShardModule\Controller\JsonRestfulController\GetListAssistant',
-            'zoop.shardmodule.assistant.patch' => 'Zoop\ShardModule\Controller\JsonRestfulController\PatchAssistant',
-            'zoop.shardmodule.assistant.patchlist' => 'Zoop\ShardModule\Controller\JsonRestfulController\PatchListAssistant',
-            'zoop.shardmodule.assistant.replacelist' => 'Zoop\ShardModule\Controller\JsonRestfulController\ReplaceListAssistant',
-            'zoop.shardmodule.assistant.update' => 'Zoop\ShardModule\Controller\JsonRestfulController\UpdateAssistant',
+            'zoop.shardmodule.listener.serialize'        => 'Zoop\ShardModule\Controller\Listener\SerializeListener',
+            'zoop.shardmodule.listener.unserialize'      => 'Zoop\ShardModule\Controller\Listener\UnserializeListener',
+            'zoop.shardmodule.listener.idchange'         => 'Zoop\ShardModule\Controller\Listener\IdChangeListener',
+            'zoop.shardmodule.listener.flush'            => 'Zoop\ShardModule\Controller\Listener\FlushListener',
+            'zoop.shardmodule.listener.prepareviewmodel' => 'Zoop\ShardModule\Controller\Listener\PrepareViewModelListener',
+            'zoop.shardmodule.listener.create'           => 'Zoop\ShardModule\Controller\Listener\CreateListener',
+            'zoop.shardmodule.listener.delete'           => 'Zoop\ShardModule\Controller\Listener\DeleteListener',
+            'zoop.shardmodule.listener.deletelist'       => 'Zoop\ShardModule\Controller\Listener\DeleteListListener',
+            'zoop.shardmodule.listener.get'              => 'Zoop\ShardModule\Controller\Listener\GetListener',
+            'zoop.shardmodule.listener.getlist'          => 'Zoop\ShardModule\Controller\Listener\GetListListener',
+            'zoop.shardmodule.listener.patch'            => 'Zoop\ShardModule\Controller\Listener\PatchListener',
+            'zoop.shardmodule.listener.patchlist'        => 'Zoop\ShardModule\Controller\Listener\PatchListListener',
+            'zoop.shardmodule.listener.replacelist'      => 'Zoop\ShardModule\Controller\Listener\ReplaceListListener',
+            'zoop.shardmodule.listener.update'           => 'Zoop\ShardModule\Controller\Listener\UpdateListener',
+            'zoop.shardmodule.restcontrollermap'         => 'Zoop\ShardModule\RestControllerMap',
+            'zoop.shardmodule.referencemap'              => 'Zoop\ShardModule\ReferenceMap',
+            'zoop.shardmodule.doctrinesubscriber'        => 'Zoop\ShardModule\Controller\DoctrineSubscriber',
+            'doctrine.builder.odm.documentmanager'       => 'Zoop\ShardModule\Builder\ModelManagerBuilder',
         ],
         'factories' => [
+            'zoop.shardmodule.listener.batch'      => 'Zoop\ShardModule\Service\BatchListenerFactory',
             'doctrine.cache.juggernaut.filesystem' => 'Zoop\ShardModule\Service\JuggernautFileSystemCacheFactory',
         ],
         'abstract_factories' => [
@@ -151,5 +248,11 @@ return [
         'strategies' => array(
             'ViewJsonStrategy',
         ),
-    )
+    ),
+
+    'controller_plugins' => [
+        'factories' => [
+            'forward' => 'Zoop\ShardModule\Service\ForwardFactory'
+        ]
+    ],
 ];

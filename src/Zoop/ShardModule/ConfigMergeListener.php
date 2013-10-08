@@ -62,38 +62,61 @@ class ConfigMergeListener implements ListenerAggregateInterface
         foreach ($config['zoop']['shard']['manifest'] as $name => $manifestConfig) {
             if (!isset($manifestConfig['initalized']) || !$manifestConfig['initalized']) {
 
-                $objectManager = $manifestConfig['object_manager'];
-                unset($manifestConfig['object_manager']);
+                $modelManager = $manifestConfig['model_manager'];
+                unset($manifestConfig['model_manager']);
 
                 $manifest = new Manifest($manifestConfig);
                 $manifestConfig = $manifest->toArray();
-                $manifestConfig['object_manager'] = $objectManager;
+                $manifestConfig['model_manager'] = $modelManager;
                 $config['zoop']['shard']['manifest'][$name] = $manifestConfig;
 
-                //add delegators
-                $objectManagerConfig = $config;
-                foreach (explode('.', $objectManager) as $key) {
-                    $objectManagerConfig = $objectManagerConfig[$key];
+                $dmConfig = &$this->getSubConfig($config, $modelManager);
+
+                //inject filter config
+                $configurationConfig = &$this->getSubConfig($config, $dmConfig['configuration']);
+                foreach ($manifest->getServiceManager()->get('extension.odmcore')->getFilters() as
+                    $filterName => $filterClass) {
+                    $configurationConfig['filters'][$filterName] = $filterClass;
                 }
 
+                //inject models
+                $driverConfig = &$this->getSubConfig($config, $configurationConfig['driver']);
+                $count = 0;
+                foreach ($manifest->getModels() as $namespace => $path) {
+                    $driverConfig['drivers'][$namespace] = 'doctrine.driver.shard' . $name . $count;
+                    $config['doctrine']['driver']['shard' . $name . $count] = [
+                        'class' => 'Doctrine\ODM\MongoDB\Mapping\Driver\AnnotationDriver',
+                        'paths' => [$path]
+                    ];
+                    $count++;
+                }
+
+                //inject subscribers
+                $eventManagerConfig = &$this->getSubConfig($config, $dmConfig['eventmanager']);
+                foreach ($manifest->getSubscribers() as $subscriber) {
+                    $eventManagerConfig['subscribers'][] = 'shard.' . $name . '.' . $subscriber;
+                }
+
+                //make sure the Zoop/Shard/Core/ModuleManagerDelegator gets called
                 $delegatorConfig = [
                     'delegators' => [
-                        $objectManager => ['shard.' . $name . '.objectmanager.delegator.factory'],
-                        $objectManagerConfig['eventmanager'] => ['shard.' . $name . '.eventmanager.delegator.factory'],
-                        $objectManagerConfig['configuration'] => ['shard.' .$name . '.configuration.delegator.factory']
+                        $modelManager => ['shard.' . $name . '.modelmanager.delegator.factory'],
                     ]
                 ];
                 $config['service_manager'] = ArrayUtils::merge($config['service_manager'], $delegatorConfig);
             }
         }
 
-        if (!isset($config['zoop']['shard']['manifest']['default']) ||
-            !isset($config['zoop']['shard']['manifest']['default']['extension_configs']['extension.rest'])
-        ) {
-            //remove rest.default route if shard.rest.default is not configured
-            unset($config['router']['routes']['rest.default']);
+        $event->getConfigListener()->setMergedConfig($config);
+    }
+
+    protected function &getSubConfig(&$config, $name)
+    {
+        $subConfig = &$config;
+        foreach (explode('.', $name) as $key) {
+            $subConfig = &$subConfig[$key];
         }
 
-        $event->getConfigListener()->setMergedConfig($config);
+        return $subConfig;
     }
 }

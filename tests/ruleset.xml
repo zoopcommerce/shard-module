@@ -7,12 +7,19 @@
             <property name="minimum" value="2" />
         </properties>
     </rule>
+    <rule ref="rulesets/naming.xml/LongVariable">
+        <priority>3</priority>
+        <properties>
+            <property name="maximum" value="30" />
+        </properties>
+    </rule>
 
     <rule ref="rulesets/codesize.xml" />
     <rule ref="rulesets/controversial.xml" />
     <rule ref="rulesets/design.xml" />
     <rule ref="rulesets/naming.xml">
         <exclude name="ShortVariable" />
+        <exclude name="LongVariable" />
     </rule>
     <rule ref="rulesets/unusedcode.xml" />
 </ruleset>
