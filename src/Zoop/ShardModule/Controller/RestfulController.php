@@ -177,4 +177,10 @@ class RestfulController extends AbstractRestfulController
         //trigger event
         return $this->trigger(Event::DELETE_LIST, $this->getEvent())->last();
     }
+
+    public function options()
+    {
+        //trigger event
+        return $this->trigger(Event::OPTIONS, $this->getEvent())->last();
+    }
 }

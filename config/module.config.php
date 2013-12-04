@@ -50,6 +50,7 @@ return [
                     'create'      => 'zoop/rest/create',
                     'delete'      => 'zoop/rest/delete',
                     'deleteList'  => 'zoop/rest/delete-list',
+                    'options'     => 'zoop/rest/options',
                     'patch'       => 'zoop/rest/patch',
                     'patchList'   => 'zoop/rest/patch-list',
                     'update'      => 'zoop/rest/update',
@@ -61,6 +62,7 @@ return [
                         'zoop.shardmodule.listener.unserialize',
                         'zoop.shardmodule.listener.create',
                         'zoop.shardmodule.listener.flush',
+                        'zoop.shardmodule.listener.location',
                         'zoop.shardmodule.listener.prepareviewmodel'
                     ],
                     'delete' => [
@@ -103,10 +105,14 @@ return [
                         'zoop.shardmodule.listener.flush',
                         'zoop.shardmodule.listener.prepareviewmodel'
                     ],
-                    'replaceList'      => [
+                    'replaceList' => [
                         'zoop.shardmodule.listener.unserialize',
                         'zoop.shardmodule.listener.replacelist',
                         'zoop.shardmodule.listener.flush',
+                        'zoop.shardmodule.listener.prepareviewmodel'
+                    ],
+                    'options' => [
+                        'zoop.shardmodule.listener.options',
                         'zoop.shardmodule.listener.prepareviewmodel'
                     ],
                 ],
@@ -126,6 +132,7 @@ return [
                             'patchList'   => [],
                             'update'      => [],
                             'replaceList' => [],
+                            'options'     => [],
                         ],
                     ]
                 ]
@@ -223,6 +230,8 @@ return [
             'zoop.shardmodule.listener.deletelist'       => 'Zoop\ShardModule\Controller\Listener\DeleteListListener',
             'zoop.shardmodule.listener.get'              => 'Zoop\ShardModule\Controller\Listener\GetListener',
             'zoop.shardmodule.listener.getlist'          => 'Zoop\ShardModule\Controller\Listener\GetListListener',
+            'zoop.shardmodule.listener.location'         => 'Zoop\ShardModule\Controller\Listener\LocationListener',
+            'zoop.shardmodule.listener.options'          => 'Zoop\ShardModule\Controller\Listener\OptionsListener',
             'zoop.shardmodule.listener.patch'            => 'Zoop\ShardModule\Controller\Listener\PatchListener',
             'zoop.shardmodule.listener.patchlist'        => 'Zoop\ShardModule\Controller\Listener\PatchListListener',
             'zoop.shardmodule.listener.replacelist'      => 'Zoop\ShardModule\Controller\Listener\ReplaceListListener',
