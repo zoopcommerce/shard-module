@@ -31,7 +31,9 @@ class LocationListener
                 'Location: ' .
                 $event->getRequest()->getUri()->getPath() .
                 '/' .
-                $options->getModelManager()->getClassMetadata(get_class($createdDocument))->getFieldValue($createdDocument, $property)
+                $options->getModelManager()
+                    ->getClassMetadata(get_class($createdDocument))
+                    ->getFieldValue($createdDocument, $property)
             ));
         }
         return $event->getResult();
