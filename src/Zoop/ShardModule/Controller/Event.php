@@ -27,6 +27,8 @@ class Event
 
     const DELETE_LIST = 'deleteList';
 
+    const OPTIONS = 'options';
+
     const PATCH = 'patch';
 
     const PATCH_LIST = 'patchList';

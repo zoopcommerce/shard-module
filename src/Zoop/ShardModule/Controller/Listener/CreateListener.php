@@ -39,7 +39,6 @@ class CreateListener extends AbstractActionListener
         }
 
         $result->setStatusCode(201);
-        $result->addHeader($this->getLocationHeader($event, $metadata, $createdDocument));
 
         return $result;
     }
@@ -108,18 +107,6 @@ class CreateListener extends AbstractActionListener
 
             return $event->getTarget()->forward()->dispatch(
                 'shard.rest.' . $targetOptions->getEndpoint()
-            );
-        }
-    }
-
-    protected function getLocationHeader($event, $metadata, $createdDocument)
-    {
-        if ($property = $event->getTarget()->getOptions()->getProperty()) {
-            return Location::fromString(
-                'Location: ' .
-                $event->getRequest()->getUri()->getPath() .
-                '/' .
-                $metadata->getFieldValue($createdDocument, $property)
             );
         }
     }

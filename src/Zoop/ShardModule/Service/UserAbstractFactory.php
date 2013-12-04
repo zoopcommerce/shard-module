@@ -31,12 +31,13 @@ class UserAbstractFactory implements AbstractFactoryInterface
 
         $this->activeCall = true;
         if ($name == 'user' &&
-            $serviceLocator->has('Zend\Authentication\AuthenticationService') &&
-            $serviceLocator->get('Zend\Authentication\AuthenticationService')->hasIdentity()
+            $serviceLocator->has('Zend\Authentication\AuthenticationService')
         ) {
-            $this->activeCall = false;
-
-            return true;
+            $authenticationService = $serviceLocator->get('Zend\Authentication\AuthenticationService');
+            if ($authenticationService->hasIdentity() || $authenticationService->authenticate()->isValid()) {
+                $this->activeCall = false;
+                return true;
+            }
         }
         $this->activeCall = false;
     }
