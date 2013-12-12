@@ -122,7 +122,7 @@ class RestfulControllerPatchTest extends AbstractHttpControllerTestCase
 
         $this->getRequest()
             ->setMethod('PATCH')
-            ->setContent('{"country": {"$ref": "country/us"}}')
+            ->setContent('{"country": {"$ref": "us"}}')
             ->getHeaders()->addHeaders([$accept, ContentType::fromString('Content-type: application/json')]);
 
         $this->dispatch('/rest/game/does-not-exist/author');
@@ -144,7 +144,7 @@ class RestfulControllerPatchTest extends AbstractHttpControllerTestCase
 
         $this->getRequest()
             ->setMethod('PATCH')
-            ->setContent('{"country": {"$ref": "country/us"}}')
+            ->setContent('{"country": {"$ref": "us"}}')
             ->getHeaders()->addHeaders([$accept, ContentType::fromString('Content-type: application/json')]);
 
         $this->dispatch('/rest/game/feed-the-kitty/does-not-exist');
@@ -166,7 +166,7 @@ class RestfulControllerPatchTest extends AbstractHttpControllerTestCase
 
         $this->getRequest()
             ->setMethod('PATCH')
-            ->setContent('{"country": {"$ref": "country/us"}}')
+            ->setContent('{"country": {"$ref": "us"}}')
             ->getHeaders()->addHeaders([$accept, ContentType::fromString('Content-type: application/json')]);
 
         $this->dispatch('/rest/game/feed-the-kitty/publisher');
@@ -308,7 +308,7 @@ class RestfulControllerPatchTest extends AbstractHttpControllerTestCase
 
         $this->getRequest()
             ->setMethod('PATCH')
-            ->setContent('{"$ref": "author/bill"}')
+            ->setContent('{"$ref": "bill"}')
             ->getHeaders()->addHeaders([$accept, ContentType::fromString('Content-type: application/json')]);
 
         $this->dispatch('/rest/game/feed-the-kitty/author');
