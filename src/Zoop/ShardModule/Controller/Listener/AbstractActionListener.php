@@ -181,6 +181,7 @@ abstract class AbstractActionListener
         if ($keyProperty) {
             foreach ($collection as $item) {
                 //this iteration is slow. Should be replaced when upgrade to new version of mongo happens
+
                 if ($item[$keyProperty] == $key) {
                     return $item;
                 }

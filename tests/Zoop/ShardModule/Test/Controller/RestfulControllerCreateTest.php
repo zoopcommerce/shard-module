@@ -240,7 +240,7 @@ class RestfulControllerCreateTest extends AbstractHttpControllerTestCase
 
         $this->getRequest()
             ->setMethod('POST')
-            ->setContent('{"$ref": "review/bad-review"}')
+            ->setContent('{"$ref": "bad-review"}')
             ->getHeaders()->addHeaders([$accept, ContentType::fromString('Content-type: application/json')]);
 
         $this->dispatch('/rest/game/seven-wonders/reviews');

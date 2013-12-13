@@ -66,7 +66,7 @@ class RestfulControllerUpdateTest extends AbstractHttpControllerTestCase
 
         $this->getRequest()
             ->setMethod('PUT')
-            ->setContent('{"author": {"$ref": "author/thomas"}}')
+            ->setContent('{"author": {"$ref": "thomas"}}')
             ->getHeaders()->addHeaders([$accept, ContentType::fromString('Content-type: application/json')]);
 
         $this->dispatch('/rest/game/feed-the-kitty');
@@ -96,7 +96,7 @@ class RestfulControllerUpdateTest extends AbstractHttpControllerTestCase
 
         $this->getRequest()
             ->setMethod('PUT')
-            ->setContent('{"country": {"$ref": "country/us"}}')
+            ->setContent('{"country": {"$ref": "us"}}')
             ->getHeaders()->addHeaders([$accept, ContentType::fromString('Content-type: application/json')]);
 
         $this->dispatch('/rest/game/feed-the-kitty/does-not-exist');
@@ -259,7 +259,7 @@ class RestfulControllerUpdateTest extends AbstractHttpControllerTestCase
 
         $this->getRequest()
             ->setMethod('PUT')
-            ->setContent('{"$ref": "author/bill"}')
+            ->setContent('{"$ref": "bill"}')
             ->getHeaders()->addHeaders([$accept, ContentType::fromString('Content-type: application/json')]);
 
         $this->dispatch('/rest/game/feed-the-kitty/author');
