@@ -8,9 +8,6 @@ class TestData
 {
     public static function create($documentManager)
     {
-        //Create data in the db to query against
-        $documentManager->getConnection()->selectDatabase('shardModuleTest');
-
         $country1 = new Document\Country;
         $country1->setName('us');
         $country2 = new Document\Country;
@@ -113,14 +110,5 @@ class TestData
 
         $documentManager->flush();
         $documentManager->clear();
-    }
-
-    public static function remove($documentManager)
-    {
-        //Cleanup db after all tests have run
-        $collections = $documentManager->getConnection()->selectDatabase('shardModuleTest')->listCollections();
-        foreach ($collections as $collection) {
-            $collection->remove(array(), array('safe' => true));
-        }
     }
 }
