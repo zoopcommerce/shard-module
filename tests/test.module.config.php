@@ -73,7 +73,7 @@ return [
         'odm' => [
             'configuration' => [
                 'default' => [
-                    'default_db' => 'shardModuleTest',
+                    'default_db' => 'shard-module-phpunit',
                     'proxy_dir'    => __DIR__ . '/Proxy',
                     'hydrator_dir' => __DIR__ . '/Hydrator',
                 ],
