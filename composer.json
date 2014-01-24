@@ -24,13 +24,13 @@
     ],
     "require": {
         "php"                                : ">=5.4",
-        "zoopcommerce/shard"                 : "~3.1",
+        "zoopcommerce/shard"                 : "3.1.5",
         "zoopcommerce/maggott-module"        : "~1.1",
         "zoopcommerce/juggernaut"            : "~1.1",
         "doctrine/doctrine-mongo-odm-module" : "1.0.x-dev",
         "doctrine/doctrine-module"           : "1.0.x-dev as 1.0",
-        "doctrine/mongodb-odm"             : "dev-hotfix719 as 1.0.0-BETA9",
-        "zendframework/zendframework"        : "2.3.x-dev"
+        "doctrine/mongodb-odm"               : "dev-hotfix719 as 1.0.0-BETA9",
+        "zendframework/zendframework"        : "dev-develop#f92a07bc3f5cbd49a518ee880b1451f357c71376"
     },
     "require-dev": {
         "phpunit/phpunit"           : ">=3.7",
