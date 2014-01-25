@@ -14,21 +14,16 @@ return [
                         'class' => 'Zoop\ShardModule\Test\TestAsset\Document\Game',
                         'rest' => [
                             'components' => [
-                                'class' => 'Zoop\ShardModule\Test\TestAsset\Document\Component',
                                 'rest' => [
-                                    'manufacturers' => [
-                                        'property' => 'name',
-                                    ]
+                                    'manufacturers' => []
                                 ]
                             ]
                         ]
                     ],
                     'author'  => [
-                        'property' => 'name',
                         'class' => 'Zoop\ShardModule\Test\TestAsset\Document\Author',
                     ],
                     'country' => [
-                        'property' => 'name',
                         'class' => 'Zoop\ShardModule\Test\TestAsset\Document\Country',
                     ],
                     'review'  => [
@@ -73,7 +68,7 @@ return [
         'odm' => [
             'configuration' => [
                 'default' => [
-                    'default_db' => 'shardModuleTest',
+                    'default_db' => 'shard-module-phpunit',
                     'proxy_dir'    => __DIR__ . '/Proxy',
                     'hydrator_dir' => __DIR__ . '/Hydrator',
                 ],

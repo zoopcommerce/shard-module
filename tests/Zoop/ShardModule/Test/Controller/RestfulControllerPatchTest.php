@@ -2,41 +2,12 @@
 
 namespace Zoop\ShardModule\Test\Controller;
 
-use Zoop\ShardModule\Test\TestAsset\TestData;
-use Zend\Test\PHPUnit\Controller\AbstractHttpControllerTestCase;
+use Zoop\ShardModule\Test\BaseTest;
 use Zend\Http\Header\Accept;
 use Zend\Http\Header\ContentType;
 
-class RestfulControllerPatchTest extends AbstractHttpControllerTestCase
+class RestfulControllerPatchTest extends BaseTest
 {
-    protected static $staticDcumentManager;
-
-    protected static $dbDataCreated = false;
-
-    public static function tearDownAfterClass()
-    {
-        //Cleanup db after all tests have run
-        TestData::remove(static::$staticDcumentManager);
-    }
-
-    public function setUp()
-    {
-        $this->setApplicationConfig(
-            include __DIR__ . '/../../../../test.application.config.php'
-        );
-
-        parent::setUp();
-
-        $this->documentManager = $this->getApplicationServiceLocator()->get('doctrine.odm.documentmanager.default');
-        static::$staticDcumentManager = $this->documentManager;
-
-        if (! static::$dbDataCreated) {
-            //Create data in the db to query against
-            TestData::create($this->documentManager);
-            static::$dbDataCreated = true;
-        }
-    }
-
     public function testCreateViaPatch()
     {
         $accept = new Accept;
@@ -82,6 +53,7 @@ class RestfulControllerPatchTest extends AbstractHttpControllerTestCase
 
         $this->assertEquals('kids', $game->getType());
         $this->assertEquals('gamewright', $game->getPublisher()->getName());
+        $this->assertCount(3, $game->getComponents());
     }
 
     public function testPatchValidationFail()
@@ -122,7 +94,7 @@ class RestfulControllerPatchTest extends AbstractHttpControllerTestCase
 
         $this->getRequest()
             ->setMethod('PATCH')
-            ->setContent('{"country": {"$ref": "country/us"}}')
+            ->setContent('{"country": {"$ref": "us"}}')
             ->getHeaders()->addHeaders([$accept, ContentType::fromString('Content-type: application/json')]);
 
         $this->dispatch('/rest/game/does-not-exist/author');
@@ -144,7 +116,7 @@ class RestfulControllerPatchTest extends AbstractHttpControllerTestCase
 
         $this->getRequest()
             ->setMethod('PATCH')
-            ->setContent('{"country": {"$ref": "country/us"}}')
+            ->setContent('{"country": {"$ref": "germany"}}')
             ->getHeaders()->addHeaders([$accept, ContentType::fromString('Content-type: application/json')]);
 
         $this->dispatch('/rest/game/feed-the-kitty/does-not-exist');
@@ -166,7 +138,7 @@ class RestfulControllerPatchTest extends AbstractHttpControllerTestCase
 
         $this->getRequest()
             ->setMethod('PATCH')
-            ->setContent('{"country": {"$ref": "country/us"}}')
+            ->setContent('{"country": {"$ref": "germany"}}')
             ->getHeaders()->addHeaders([$accept, ContentType::fromString('Content-type: application/json')]);
 
         $this->dispatch('/rest/game/feed-the-kitty/publisher');
@@ -181,7 +153,7 @@ class RestfulControllerPatchTest extends AbstractHttpControllerTestCase
             ->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Game')->find('feed-the-kitty');
         $publisher = $game->getPublisher();
         $this->assertEquals('gamewright', $publisher->getName());
-        $this->assertEquals('us', $publisher->getCountry()->getName());
+        $this->assertEquals('germany', $publisher->getCountry()->getName());
         $this->assertEquals('Little Rock', $publisher->getCity());
     }
 
@@ -308,7 +280,7 @@ class RestfulControllerPatchTest extends AbstractHttpControllerTestCase
 
         $this->getRequest()
             ->setMethod('PATCH')
-            ->setContent('{"$ref": "author/bill"}')
+            ->setContent('{"$ref": "bill"}')
             ->getHeaders()->addHeaders([$accept, ContentType::fromString('Content-type: application/json')]);
 
         $this->dispatch('/rest/game/feed-the-kitty/author');

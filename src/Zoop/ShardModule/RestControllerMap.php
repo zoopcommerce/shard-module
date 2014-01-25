@@ -50,49 +50,66 @@ class RestControllerMap implements ServiceLocatorAwareInterface
     public function getOptionsFromEndpoint($endpoint)
     {
         if (!isset($this->optionsMap[$endpoint])) {
+            $this->optionsMap[$endpoint] = $this->loadOptionsFromConfig($endpoint);
+        }
+        return $this->optionsMap[$endpoint];
+    }
 
-            $options = $this->getConfig();
-            $options['endpoint'] = $endpoint;
-            $options['service_locator'] = $this->serviceLocator;
+    protected function loadOptionsFromConfig($endpoint)
+    {
+        $options = $this->getConfig();
+        $options['endpoint'] = $endpoint;
+        $options['service_locator'] = $this->serviceLocator;
 
-            if ($endpoint != '') {
-                $pieces = explode('.', $endpoint);
-                $root = array_shift($pieces);
+        $pieces = explode('.', $endpoint);
+        $root = array_shift($pieces);
 
-                if (!isset($options['rest'][$root])) {
-                    $options = null;
-                } else {
-                    $options = array_merge($options, $options['rest'][$root]);
-
-                    while ($piece = array_shift($pieces)) {
-                        $metadata = $this->getModelManager($options['manifest'])->getClassMetadata($options['class']);
-                        if (isset($metadata->fieldMappings[$piece]['reference'])) {
-                            return $this->getOptionsFromClass($metadata->fieldMappings[$piece]['targetDocument']);
-                        } elseif ($metadata->fieldMappings[$piece]['targetDocument']) {
-                            $options['class'] = $metadata->fieldMappings[$piece]['targetDocument'];
-                        }
-                        unset($options['property']);
-                        if (isset($options['rest'][$piece])) {
-                            $options = array_merge($options, $options['rest'][$piece]);
-                        }
-                    }
-                }
-            }
-
-            unset($options['rest']);
-
-            if (isset($options)) {
-                $optionsClass = $options['options_class'];
-                unset($options['options_class']);
-                $optionsObject = new $optionsClass($options);
-            } else {
-                $optionsObject = null;
-            }
-
-            $this->optionsMap[$endpoint] = $optionsObject;
+        if ($endpoint != '' && isset($options['rest'][$root])) {
+            $options = $this->iterateOptionsConfig(
+                $pieces,
+                array_merge($options, $options['rest'][$root])
+            );
+        } elseif ($endpoint != '') {
+            return;
         }
 
-        return $this->optionsMap[$endpoint];
+        if (!is_array($options)) {
+            return $options;
+        }
+
+        unset($options['rest']);
+
+        $optionsClass = $options['options_class'];
+        unset($options['options_class']);
+        $optionsObject = new $optionsClass($options);
+
+        return $optionsObject;
+    }
+
+    protected function iterateOptionsConfig($endpointPieces, $options)
+    {
+        while ($piece = array_shift($endpointPieces)) {
+            $metadata = $this->getModelManager($options['manifest'])->getClassMetadata($options['class']);
+            $field = $piece;
+            if (isset($metadata->fieldMappings[$field]['reference'])) {
+                return $this->getOptionsFromClass($metadata->fieldMappings[$field]['targetDocument']);
+            } elseif ($metadata->fieldMappings[$field]['targetDocument']) {
+                $options['class'] = $metadata->fieldMappings[$field]['targetDocument'];
+            }
+            if (isset($options['rest'][$field])) {
+                $options = array_merge($options, $options['rest'][$field]);
+            }
+        }
+        if (isset($metadata) &&
+            isset($metadata->associationMappings[$field]) &&
+            (
+                $metadata->associationMappings[$field]['type'] == 'one' ||
+                $metadata->associationMappings[$field]['strategy'] == 'set'
+            )
+        ) {
+            unset($options['property']);
+        }
+        return $options;
     }
 
     protected function getOptionsFromClass($class)
