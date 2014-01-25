@@ -277,7 +277,6 @@ class RestfulControllerDeleteTest extends BaseTest
             ->getRepository('Zoop\ShardModule\Test\TestAsset\Document\Game')->find('feed-the-kitty');
         $reviews = $game->getReviews();
         $this->assertCount(1, $reviews);
-
     }
 
     public function testDeleteReferenceList()

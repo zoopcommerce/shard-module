@@ -6,6 +6,8 @@ use Zoop\ShardModule\Test\TestAsset\Document;
 
 class TestData
 {
+    const DB = 'shard-module-phpunit';
+
     public static function create($documentManager)
     {
         $country1 = new Document\Country;
@@ -110,5 +112,17 @@ class TestData
 
         $documentManager->flush();
         $documentManager->clear();
+    }
+
+    public static function remove($documentManager){
+        $collections = $documentManager
+            ->getConnection()
+            ->selectDatabase(self::DB)->listCollections();
+
+        foreach ($collections as $collection) {
+            /* @var $collection \MongoCollection */
+            $collection->remove();
+            $collection->drop();
+        }
     }
 }
