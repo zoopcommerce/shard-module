@@ -19,7 +19,7 @@ abstract class BaseTest extends AbstractHttpControllerTestCase
     public function setUp()
     {
         $this->setApplicationConfig(
-                include __DIR__ . '/../../../test.application.config.php'
+            include __DIR__ . '/../../../test.application.config.php'
         );
 
         parent::setUp();

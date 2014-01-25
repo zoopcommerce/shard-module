@@ -78,7 +78,10 @@ class RestControllerMap implements ServiceLocatorAwareInterface
                     }
                     if (isset($metadata) &&
                         isset($metadata->associationMappings[$field]) &&
-                        ($metadata->associationMappings[$field]['type'] == 'one' ||$metadata->associationMappings[$field]['strategy'] == 'set')
+                        (
+                            $metadata->associationMappings[$field]['type'] == 'one' ||
+                            $metadata->associationMappings[$field]['strategy'] == 'set'
+                        )
                     ) {
                         unset($options['property']);
                     }

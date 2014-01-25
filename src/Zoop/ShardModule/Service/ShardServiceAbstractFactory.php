@@ -54,12 +54,7 @@ class ShardServiceAbstractFactory implements AbstractFactoryInterface
         if ($factoryMapping['serviceName'] == 'servicemanager') {
             return $manifestSL;
         }
-        $instance = $manifestSL->get($factoryMapping['serviceName']);
-        if ($instance instanceof ManifestAwareInterface) {
-            $instance->setManifest($manifestSL->get('manifest'));
-        }
-
-        return $instance;
+        return $manifestSL->get($factoryMapping['serviceName']);
     }
 
     protected function getFactoryMapping($name)

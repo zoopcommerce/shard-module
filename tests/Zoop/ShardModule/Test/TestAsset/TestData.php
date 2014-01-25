@@ -114,7 +114,8 @@ class TestData
         $documentManager->clear();
     }
 
-    public static function remove($documentManager){
+    public static function remove($documentManager)
+    {
         $collections = $documentManager
             ->getConnection()
             ->selectDatabase(self::DB)->listCollections();
