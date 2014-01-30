@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "75fcc797ccd1395d287d7afcbbd98268",
+    "hash": "78aa36ffd8291e432e3bfeb8d6d0c220",
     "packages": [
         {
             "name": "doctrine/annotations",
@@ -623,7 +623,7 @@
                     "homepage": "http://avalanche123.com"
                 },
                 {
-                    "name": "Jonathan H. Wage",
+                    "name": "Jonathan Wage",
                     "email": "jonwage@gmail.com",
                     "homepage": "http://www.jwage.com/",
                     "role": "Creator"
@@ -654,12 +654,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/superdweebie/mongodb-odm.git",
-                "reference": "173c8042f4eee5d0991d2b6a66d7e0e35a57e108"
+                "reference": "87319a6d8df14f65023cb7446a29551330055131"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/superdweebie/mongodb-odm/zipball/173c8042f4eee5d0991d2b6a66d7e0e35a57e108",
-                "reference": "173c8042f4eee5d0991d2b6a66d7e0e35a57e108",
+                "url": "https://api.github.com/repos/superdweebie/mongodb-odm/zipball/87319a6d8df14f65023cb7446a29551330055131",
+                "reference": "87319a6d8df14f65023cb7446a29551330055131",
                 "shasum": ""
             },
             "require": {
@@ -721,7 +721,7 @@
             "support": {
                 "source": "https://github.com/superdweebie/mongodb-odm/tree/hotfix719"
             },
-            "time": "2014-01-23 19:37:23"
+            "time": "2014-01-30 10:38:46"
         },
         {
             "name": "symfony/console",
@@ -786,7 +786,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/zendframework/zf2/zipball/f92a07bc3f5cbd49a518ee880b1451f357c71376",
+                "url": "https://api.github.com/repos/zendframework/zf2/zipball/f0f304ce1b0a0819498d4de088ed2a2e1b985d71",
                 "reference": "f92a07bc3f5cbd49a518ee880b1451f357c71376",
                 "shasum": ""
             },
@@ -934,16 +934,16 @@
         },
         {
             "name": "zoopcommerce/juggernaut",
-            "version": "1.1.1",
+            "version": "1.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/zoopcommerce/juggernaut.git",
-                "reference": "360422b572742be9a0eacacccfe2d21ac6a4c6a5"
+                "reference": "9d3eacd0cc65119d77c0b1887371f3f92bf9adbe"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/zoopcommerce/juggernaut/zipball/360422b572742be9a0eacacccfe2d21ac6a4c6a5",
-                "reference": "360422b572742be9a0eacacccfe2d21ac6a4c6a5",
+                "url": "https://api.github.com/repos/zoopcommerce/juggernaut/zipball/9d3eacd0cc65119d77c0b1887371f3f92bf9adbe",
+                "reference": "9d3eacd0cc65119d77c0b1887371f3f92bf9adbe",
                 "shasum": ""
             },
             "require": {
@@ -973,7 +973,7 @@
                 "caching",
                 "php"
             ],
-            "time": "2013-09-11 00:48:24"
+            "time": "2014-01-25 04:22:56"
         },
         {
             "name": "zoopcommerce/maggott-module",
@@ -1156,16 +1156,16 @@
         },
         {
             "name": "zoopcommerce/shard",
-            "version": "3.1.5",
+            "version": "3.1.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/zoopcommerce/shard.git",
-                "reference": "a52959c316fc7ec794f04e8acdf75f4f2ff40d7d"
+                "reference": "f2e5b5a419165c2188cfd63b289e390a016764bc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/zoopcommerce/shard/zipball/a52959c316fc7ec794f04e8acdf75f4f2ff40d7d",
-                "reference": "a52959c316fc7ec794f04e8acdf75f4f2ff40d7d",
+                "url": "https://api.github.com/repos/zoopcommerce/shard/zipball/f2e5b5a419165c2188cfd63b289e390a016764bc",
+                "reference": "f2e5b5a419165c2188cfd63b289e390a016764bc",
                 "shasum": ""
             },
             "require": {
@@ -1198,7 +1198,7 @@
                 {
                     "name": "Tim Roediger",
                     "email": "superdweebie@gmail.com",
-                    "homepage": "http://superdweebie.com"
+                    "homepage": "http://github.com/superdweebie"
                 }
             ],
             "description": "Add new behaviours to Doctrine Mongo ODM Documents",
@@ -1209,7 +1209,7 @@
                 "odm",
                 "zoop"
             ],
-            "time": "2014-01-23 20:06:22"
+            "time": "2014-01-30 11:33:04"
         }
     ],
     "packages-dev": [
@@ -1384,16 +1384,16 @@
         },
         {
             "name": "phpunit/php-text-template",
-            "version": "1.1.4",
+            "version": "1.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-text-template.git",
-                "reference": "5180896f51c5b3648ac946b05f9ec02be78a0b23"
+                "reference": "206dfefc0ffe9cebf65c413e3d0e809c82fbf00a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-text-template/zipball/5180896f51c5b3648ac946b05f9ec02be78a0b23",
-                "reference": "5180896f51c5b3648ac946b05f9ec02be78a0b23",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-text-template/zipball/206dfefc0ffe9cebf65c413e3d0e809c82fbf00a",
+                "reference": "206dfefc0ffe9cebf65c413e3d0e809c82fbf00a",
                 "shasum": ""
             },
             "require": {
@@ -1424,7 +1424,7 @@
             "keywords": [
                 "template"
             ],
-            "time": "2012-10-31 18:15:28"
+            "time": "2014-01-30 17:20:04"
         },
         {
             "name": "phpunit/php-timer",
