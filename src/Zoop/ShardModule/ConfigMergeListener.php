@@ -103,7 +103,12 @@ class ConfigMergeListener implements ListenerAggregateInterface
                         $modelManager => ['shard.' . $name . '.modelmanager.delegator.factory'],
                     ]
                 ];
-                $config['service_manager'] = ArrayUtils::merge($config['service_manager'], $delegatorConfig);
+
+                if (isset($config['service_manager'])) {
+                    $config['service_manager'] = ArrayUtils::merge($config['service_manager'], $delegatorConfig);
+                } else {
+                    $config['service_manager'] = $delegatorConfig;
+                }
             }
         }
 
