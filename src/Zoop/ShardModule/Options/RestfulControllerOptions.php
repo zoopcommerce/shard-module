@@ -43,7 +43,7 @@ class RestfulControllerOptions extends AbstractOptions
 
     protected $queryDotPlaceholder;
 
-    protected $doctrineSubscriber;
+    protected $exceptionSubscriber;
 
     protected $listeners;
 
@@ -230,18 +230,18 @@ class RestfulControllerOptions extends AbstractOptions
         $this->queryDotPlaceholder = $queryDotPlaceholder;
     }
 
-    public function getDoctrineSubscriber()
+    public function getExceptionSubscriber()
     {
-        if (is_string($this->doctrineSubscriber)) {
-            $this->doctrineSubscriber = $this->serviceLocator->get($this->doctrineSubscriber);
+        if (is_string($this->exceptionSubscriber)) {
+            $this->exceptionSubscriber = $this->serviceLocator->get($this->exceptionSubscriber);
         }
 
-        return $this->doctrineSubscriber;
+        return $this->exceptionSubscriber;
     }
 
-    public function setDoctrineSubscriber($doctrineSubscriber)
+    public function setExceptionSubscriber($exceptionSubscriber)
     {
-        $this->doctrineSubscriber = $doctrineSubscriber;
+        $this->exceptionSubscriber = $exceptionSubscriber;
     }
 
     public function getListeners()

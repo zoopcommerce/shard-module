@@ -33,7 +33,7 @@ class FlushListener
         $options = $event->getTarget()->getOptions();
         $options->getModelManager()->flush();
 
-        if (!($flushExceptions = $options->getDoctrineSubscriber()->getFlushExceptions())) {
+        if (!($flushExceptions = $options->getExceptionSubscriber()->getFlushExceptions())) {
             return $event->getResult();
         } else {
             return $this->prepareExceptions($flushExceptions, $options->getExceptionSerializer());

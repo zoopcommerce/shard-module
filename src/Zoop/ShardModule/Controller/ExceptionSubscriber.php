@@ -7,12 +7,9 @@ namespace Zoop\ShardModule\Controller;
 
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ODM\MongoDB\Event\OnFlushEventArgs;
-use Zoop\Shard\AccessControl\Events as AccessControlEvents;
+use Zoop\Shard\Core\Events as CoreEvents;
+use Zoop\Shard\Core\ExceptionEventArgs;
 use Zoop\Shard\AccessControl\EventArgs as AccessControlEventArgs;
-use Zoop\Shard\Freeze\Events as FreezeEvents;
-use Zoop\Shard\SoftDelete\Events as SoftDeleteEvents;
-use Zoop\Shard\State\Events as StateEvents;
-use Zoop\Shard\Validator\Events as ValidatorEvents;
 use Zoop\Shard\Validator\EventArgs as ValidatorEventArgs;
 use Zoop\ShardModule\Exception;
 
@@ -22,27 +19,13 @@ use Zoop\ShardModule\Exception;
  * @version $Revision$
  * @author  Tim Roediger <superdweebie@gmail.com>
  */
-class DoctrineSubscriber implements EventSubscriber
+class ExceptionSubscriber implements EventSubscriber
 {
     protected $flushExceptions;
 
     public function getSubscribedEvents()
     {
-        return [
-            AccessControlEvents::CREATE_DENIED,
-            AccessControlEvents::UPDATE_DENIED,
-            AccessControlEvents::DELETE_DENIED,
-            FreezeEvents::FREEZE_DENIED,
-            FreezeEvents::THAW_DENIED,
-            FreezeEvents::FROZEN_UPDATE_DENIED,
-            FreezeEvents::FROZEN_DELETE_DENIED,
-            SoftDeleteEvents::RESTORE_DENIED,
-            SoftDeleteEvents::SOFT_DELETE_DENIED,
-            SoftDeleteEvents::SOFT_DELETED_UPDATE_DENIED,
-            StateEvents::TRANSITION_DENIED,
-            StateEvents::BAD_STATE,
-            ValidatorEvents::INVALID_MODEL,
-        ];
+        return [CoreEvents::EXCEPTION];
     }
 
     public function getFlushExceptions()
@@ -76,13 +59,32 @@ class DoctrineSubscriber implements EventSubscriber
         $this->flushExceptions[] = $exception;
     }
 
+    public function genericException($eventName)
+    {
+        $exception = new Exception\GenericShardExceptionExceptionn;
+        $exception->setEventName($eventName);
+        $this->flushExceptions[] = $exception;
+    }
+
     /**
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function __call($name, $args)
     {
-        if ($args[0] instanceof AccessControlEventArgs) {
-            $this->accessControlEvent($args[0]);
+        if ($args[0] instanceof ExceptionEventArgs) {
+            $innerEvent = $args[0]->getInnerEvent();
+            if ($innerEvent instanceof AccessControlEventArgs) {
+                $this->accessControlEvent($innerEvent);
+                return;
+            }
+
+            $eventName = $args[0]->getName();
+            if (method_exists($this, $eventName)) {
+                $this->$eventName($innerEvent);
+                return;
+            }
+
+            $this->genericException($eventName);
         }
     }
 }
