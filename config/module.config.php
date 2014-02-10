@@ -23,7 +23,8 @@ return [
                     ],
                     'service_manager_config' => [
                         'factories' => [
-                            'modelmanager' => 'Zoop\ShardModule\Service\DefaultModelManagerFactory'
+                            'modelmanager' => 'Zoop\ShardModule\Service\DefaultModelManagerFactory',
+                            'eventmanager' => 'Zoop\ShardModule\Service\EventManagerFactory'
                         ],
                         'abstract_factories' => [
                             'Zoop\ShardModule\Service\UserAbstractFactory'
@@ -116,7 +117,7 @@ return [
                         'zoop.shardmodule.listener.prepareviewmodel'
                     ],
                 ],
-                'doctrine_subscriber' => 'zoop.shardmodule.doctrinesubscriber',
+                'exception_subscriber' => 'zoop.shardmodule.exceptionsubscriber',
                 'rest' => [
                     'batch' => [
                         'listeners' => [
@@ -238,8 +239,9 @@ return [
             'zoop.shardmodule.listener.update'           => 'Zoop\ShardModule\Controller\Listener\UpdateListener',
             'zoop.shardmodule.restcontrollermap'         => 'Zoop\ShardModule\RestControllerMap',
             'zoop.shardmodule.referencemap'              => 'Zoop\ShardModule\ReferenceMap',
-            'zoop.shardmodule.doctrinesubscriber'        => 'Zoop\ShardModule\Controller\DoctrineSubscriber',
+            'zoop.shardmodule.exceptionsubscriber'       => 'Zoop\ShardModule\Controller\ExceptionSubscriber',
             'doctrine.builder.odm.documentmanager'       => 'Zoop\ShardModule\Builder\ModelManagerBuilder',
+            'doctrine.builder.eventmanager'              => 'Zoop\ShardModule\Builder\EventManagerBuilder',
         ],
         'factories' => [
             'zoop.shardmodule.listener.batch'      => 'Zoop\ShardModule\Service\BatchListenerFactory',
