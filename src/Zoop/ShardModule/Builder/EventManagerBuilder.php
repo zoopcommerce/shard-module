@@ -51,31 +51,33 @@ class EventManagerBuilder implements BuilderInterface, ServiceLocatorAwareInterf
         $eventManager = new EventManager();
 
         foreach ($options->getSubscribers() as $subscriberName) {
-            $subscriber = $subscriberName;
-
-            if (is_string($subscriber)) {
-                if ($this->serviceLocator->has($subscriber)) {
-                    $subscriber = $this->serviceLocator->get($subscriber);
-                } elseif (class_exists($subscriber)) {
-                    $subscriber = new $subscriber();
-                }
-            }
-
-            if ($subscriber instanceof EventSubscriber) {
-                $eventManager->addEventSubscriber($subscriber);
-                continue;
-            }
-
-            $subscriberType = is_object($subscriberName) ? get_class($subscriberName) : $subscriberName;
-            throw new InvalidArgumentException(
-                sprintf(
-                    'Invalid event subscriber "%s" given, must be a service name, '
-                    . 'class name or an instance implementing Doctrine\Common\EventSubscriber',
-                    is_string($subscriberType) ? $subscriberType : gettype($subscriberType)
-                )
-            );
+            $eventManager->addEventSubscriber($this->getSubscriber($subscriberName));
         }
 
         return $eventManager;
+    }
+
+    protected function getSubscriber($name)
+    {
+        $subscriber = $name;
+
+        if (is_string($subscriber) && $this->serviceLocator->has($subscriber)) {
+            $subscriber = $this->serviceLocator->get($subscriber);
+        } elseif (is_string($subscriber) && class_exists($subscriber)) {
+            $subscriber = new $subscriber();
+        }
+
+        if ($subscriber instanceof EventSubscriber) {
+            return $subscriber;
+        }
+
+        $subscriberType = is_object($name) ? get_class($name) : $name;
+        throw new InvalidArgumentException(
+            sprintf(
+                'Invalid event subscriber "%s" given, must be a service name, '
+                . 'class name or an instance implementing Doctrine\Common\EventSubscriber',
+                $subscriberType
+            )
+        );
     }
 }

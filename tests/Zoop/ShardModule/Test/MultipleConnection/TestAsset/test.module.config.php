@@ -32,7 +32,8 @@ return [
                     ],
                     'service_manager_config' => [
                         'factories' => [
-                            'modelmanager' => 'Zoop\ShardModule\Test\MultipleConnection\TestAsset\CountryModelManagerFactory',
+                            'modelmanager' =>
+                                'Zoop\ShardModule\Test\MultipleConnection\TestAsset\CountryModelManagerFactory',
                             'eventmanager' => 'Zoop\ShardModule\Service\EventManagerFactory'
                         ],
                         'abstract_factories' => [
@@ -51,7 +52,8 @@ return [
                     ],
                     'service_manager_config' => [
                         'factories' => [
-                            'modelmanager' => 'Zoop\ShardModule\Test\MultipleConnection\TestAsset\UserModelManagerFactory',
+                            'modelmanager' =>
+                                'Zoop\ShardModule\Test\MultipleConnection\TestAsset\UserModelManagerFactory',
                             'eventmanager' => 'Zoop\ShardModule\Service\EventManagerFactory'
                         ],
                         'abstract_factories' => [

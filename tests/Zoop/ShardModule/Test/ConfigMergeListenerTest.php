@@ -60,6 +60,15 @@ class ConfigMergeListenerTest extends PHPUnit_Framework_TestCase
 
         $config = $configListener->getMergedConfig(false);
 
-        $this->assertEquals('Zoop\Shard\Serializer\Type\Collection', $config['zoop']['shard']['manifest']['default']['service_manager_config']['invokables']['serializer.type.collection']);
+        $this->assertEquals(
+            'Zoop\Shard\Serializer\Type\Collection',
+            $config['zoop']
+            ['shard']
+            ['manifest']
+            ['default']
+            ['service_manager_config']
+            ['invokables']
+            ['serializer.type.collection']
+        );
     }
 }

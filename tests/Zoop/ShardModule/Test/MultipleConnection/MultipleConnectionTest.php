@@ -25,12 +25,16 @@ class MultipleConnectionTest extends AbstractHttpControllerTestCase
     {
         //tidy up
         $documentManagerCountry = static::$staticServiceManager->get('doctrine.odm.documentmanager.country');
-        foreach ($documentManagerCountry->getConnection()->selectDatabase('shard-module-phpunit-country')->listCollections() as $collection) {
+        $collections = $documentManagerCountry->getConnection()
+            ->selectDatabase('shard-module-phpunit-country')->listCollections();
+        foreach ($collections as $collection) {
             $collection->remove(array(), array('safe' => true));
         }
 
         $documentManagerUser = static::$staticServiceManager->get('doctrine.odm.documentmanager.user');
-        foreach ($documentManagerUser->getConnection()->selectDatabase('shard-module-phpunit-user')->listCollections() as $collection) {
+        $collections = $documentManagerUser->getConnection()
+            ->selectDatabase('shard-module-phpunit-user')->listCollections();
+        foreach ($collections as $collection) {
             $collection->remove(array(), array('safe' => true));
         }
     }
@@ -60,7 +64,9 @@ class MultipleConnectionTest extends AbstractHttpControllerTestCase
 
         //look into the db and check the results
         $documentManagerCountry = static::$staticServiceManager->get('doctrine.odm.documentmanager.country');
-        $countries = $documentManagerCountry->getRepository('Zoop\ShardModule\Test\MultipleConnection\TestAsset\Document1\Country')->findAll();
+        $countries = $documentManagerCountry
+            ->getRepository('Zoop\ShardModule\Test\MultipleConnection\TestAsset\Document1\Country')
+            ->findAll();
         $this->assertCount(1, $countries);
         $this->assertEquals('australia', $countries[0]->getName());
     }
@@ -90,7 +96,9 @@ class MultipleConnectionTest extends AbstractHttpControllerTestCase
 
         //look into the db and check the results
         $documentManagerUser = static::$staticServiceManager->get('doctrine.odm.documentmanager.user');
-        $users = $documentManagerUser->getRepository('Zoop\ShardModule\Test\MultipleConnection\TestAsset\Document2\User')->findAll();
+        $users = $documentManagerUser
+            ->getRepository('Zoop\ShardModule\Test\MultipleConnection\TestAsset\Document2\User')
+            ->findAll();
         $this->assertCount(1, $users);
         $this->assertEquals('paddington', $users[0]->getUsername());
     }
