@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "cb354552674b5976f85e0f2b033fc34f",
+    "hash": "0e310ecfd73429f9aeac30e1564db976",
     "packages": [
         {
             "name": "doctrine/annotations",
@@ -623,7 +623,7 @@
                     "homepage": "http://avalanche123.com"
                 },
                 {
-                    "name": "Jonathan Wage",
+                    "name": "Jonathan H. Wage",
                     "email": "jonwage@gmail.com",
                     "homepage": "http://www.jwage.com/",
                     "role": "Creator"
@@ -765,7 +765,9 @@
             "authors": [
                 {
                     "name": "Fabien Potencier",
-                    "email": "fabien@symfony.com"
+                    "email": "fabien@symfony.com",
+                    "homepage": "http://fabien.potencier.org",
+                    "role": "Lead Developer"
                 },
                 {
                     "name": "Symfony Community",
@@ -786,7 +788,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/zendframework/zf2/zipball/4741ba787ea221000213249d52db375797356d5d",
+                "url": "https://api.github.com/repos/zendframework/zf2/zipball/4d8a7ebdf3f628b10b9bfbf48babfaa3f903842b",
                 "reference": "f92a07bc3f5cbd49a518ee880b1451f357c71376",
                 "shasum": ""
             },
@@ -1156,16 +1158,16 @@
         },
         {
             "name": "zoopcommerce/shard",
-            "version": "4.0",
+            "version": "4.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/zoopcommerce/shard.git",
-                "reference": "02b46c4ecf229b6512ab7c9020dcb7a9c22b69e5"
+                "reference": "61b60d23649d099a2be15ec4c282fa7d61101b71"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/zoopcommerce/shard/zipball/02b46c4ecf229b6512ab7c9020dcb7a9c22b69e5",
-                "reference": "02b46c4ecf229b6512ab7c9020dcb7a9c22b69e5",
+                "url": "https://api.github.com/repos/zoopcommerce/shard/zipball/61b60d23649d099a2be15ec4c282fa7d61101b71",
+                "reference": "61b60d23649d099a2be15ec4c282fa7d61101b71",
                 "shasum": ""
             },
             "require": {
@@ -1210,7 +1212,7 @@
                 "odm",
                 "zoop"
             ],
-            "time": "2014-02-05 08:11:38"
+            "time": "2014-02-11 05:40:54"
         }
     ],
     "packages-dev": [
@@ -1523,16 +1525,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "3.7.30",
+            "version": "3.7.31",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "2f33258fa5a0c330515b7deba2bc040fa5c3953b"
+                "reference": "d24e9877331039582497052cc3c4d9f465b88210"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/2f33258fa5a0c330515b7deba2bc040fa5c3953b",
-                "reference": "2f33258fa5a0c330515b7deba2bc040fa5c3953b",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/d24e9877331039582497052cc3c4d9f465b88210",
+                "reference": "d24e9877331039582497052cc3c4d9f465b88210",
                 "shasum": ""
             },
             "require": {
@@ -1593,7 +1595,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2014-01-31 08:54:33"
+            "time": "2014-02-03 07:46:27"
         },
         {
             "name": "phpunit/phpunit-mock-objects",
