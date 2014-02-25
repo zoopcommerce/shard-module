@@ -25,7 +25,7 @@
     "require": {
         "php"                                : ">=5.4",
         "doctrine/annotations"               : "dev-master#a11349d39d85bef75a71bd69bd604ac4fb993f03 as dev-master",
-        "zoopcommerce/shard"                 : "4.0.2",
+        "zoopcommerce/shard"                 : "~4.0",
         "zoopcommerce/maggott-module"        : "~1.1",
         "zoopcommerce/juggernaut"            : "~1.1",
         "doctrine/doctrine-mongo-odm-module" : "1.0.x-dev",
