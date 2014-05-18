@@ -2,6 +2,8 @@
 
 namespace Zoop\ShardModule\Test\TestAsset;
 
+use \DateTime;
+use \DateTimeZone;
 use Zoop\ShardModule\Test\TestAsset\Document;
 
 class TestData
@@ -86,16 +88,19 @@ class TestData
         $r1->setTitle('great-review');
         $r1->setAuthor($author1);
         $r1->setGame($game1);
+        $r1->setDate(new DateTime('2014-01-01', new DateTimeZone('UTC')));
 
         $r2 = new Document\Review;
         $r2->setTitle('bad-review');
         $r2->setAuthor($author2);
         $r2->setGame($game1);
+        $r1->setDate(new DateTime('2014-02-01', new DateTimeZone('UTC')));
 
         $r3 = new Document\Review;
         $r3->setTitle('happy-review');
         $r3->setAuthor($author4);
         $r3->setGame($game2);
+        $r1->setDate(new DateTime('2014-03-01', new DateTimeZone('UTC')));
 
         $documentManager->persist($country1);
         $documentManager->persist($country2);

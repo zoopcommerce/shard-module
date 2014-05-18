@@ -197,6 +197,31 @@ class RestfulControllerGetListTest extends BaseTest
         );
     }
 
+    public function testGetRangeList()
+    {
+        $accept = new Accept;
+        $accept->addMediaType('application/json');
+
+        $this->getRequest()
+            ->setMethod('GET')
+            ->getHeaders()->addHeader($accept);
+
+        $this->dispatch('/rest/review?date={2014-01-01,2014-02-01}');
+
+        $this->assertResponseStatusCode(200);
+
+        $result = json_decode($this->getResponse()->getContent(), true);
+
+        $this->assertCount(2, $result);
+        $this->assertEquals(
+            'Content-Range: 0-1/2',
+            $this->getResponse()->getHeaders()->get('Content-Range')->toString()
+        );
+        die(var_dump($result));
+//        $this->assertEquals('harry', $result[0]['name']);
+//        $this->assertEquals('thomas', $result[1]['name']);
+    }
+
     public function testGetSortedListAsc()
     {
         $accept = new Accept;

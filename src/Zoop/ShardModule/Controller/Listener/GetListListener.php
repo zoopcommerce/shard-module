@@ -5,6 +5,8 @@
  */
 namespace Zoop\ShardModule\Controller\Listener;
 
+use \DateTime;
+use \DateTimeZone;
 use Zend\Http\Header\ContentRange;
 use Zend\Mvc\MvcEvent;
 use Zoop\ShardModule\Exception;
@@ -143,6 +145,12 @@ class GetListListener
             if (isset($value) && $value !== '') {
                 if (substr($value, 0, 1) == '[') {
                     $value = explode(',', substr($value, 1, -1));
+                } elseif(substr($value, 0, 1) == '{' && strpos($value, ',') !== false) {
+                    $range = explode(',', substr($value, 1, -1));
+                    $value = array(
+                        'lower' => trim($range[0]),
+                        'upper' => trim($range[1])
+                    );
                 }
                 $result[str_replace($dotPlaceholder, '.', $key)] = $value;
             }
@@ -163,14 +171,28 @@ class GetListListener
                 }
                 $mapping = $targetMetadata->getFieldMapping($piece);
             }
-            if ($mapping['type'] == 'collection') {
+            if ($mapping['type'] === 'collection') {
                 if (!is_array($value)) {
                     $value = [$value];
                 }
                 $query->field($field)->in($value);
+            } elseif (isset($value['lower']) && isset($value['upper'])) {
+                if ($mapping['type'] === 'int') {
+                    $query->field($field)
+                        ->range((int) $value['lower'], (int) $value['upper']);
+                } elseif ($mapping['type'] === 'date') {
+                    $query->field($field)
+                        ->range(
+                            new DateTime($value['lower'], new DateTimeZone('UTC')), 
+                            new DateTime($value['upper'], new DateTimeZone('UTC'))
+                        );
+                } else {
+                    $query->field($field)
+                        ->range($value['lower'], $value['upper']);
+                }
             } elseif (is_array($value)) {
                 $query->field($field)->in($value);
-            } elseif ($mapping['type'] == 'int') {
+            } elseif ($mapping['type'] === 'int') {
                 $query->field($field)->equals((integer) $value);
             } else {
                 $query->field($field)->equals($value);

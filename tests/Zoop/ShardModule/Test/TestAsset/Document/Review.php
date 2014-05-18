@@ -2,6 +2,7 @@
 
 namespace Zoop\ShardModule\Test\TestAsset\Document;
 
+use \DateTime;
 //Annotation imports
 use Doctrine\ODM\MongoDB\Mapping\Annotations as ODM;
 use Zoop\Shard\Annotation\Annotations as Shard;
@@ -34,6 +35,12 @@ class Review
      * @ODM\String
      */
     protected $content;
+
+    /**
+     *
+     * @ODM\Date
+     */
+    protected $date;
 
     public function getTitle()
     {
@@ -73,5 +80,23 @@ class Review
     public function setContent($content)
     {
         $this->content = $content;
+    }
+    
+    /**
+     * 
+     * @return DateTime
+     */
+    public function getDate()
+    {
+        return $this->date;
+    }
+
+    /**
+     * 
+     * @param DateTime $date
+     */
+    public function setDate(DateTime $date)
+    {
+        $this->date = $date;
     }
 }
