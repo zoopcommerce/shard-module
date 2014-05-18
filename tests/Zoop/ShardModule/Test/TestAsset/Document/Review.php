@@ -42,6 +42,20 @@ class Review
      */
     protected $date;
 
+    /**
+     * Score out of 100
+     *
+     * @ODM\Float
+     */
+    protected $score;
+
+    /**
+     * Number of comments
+     *
+     * @ODM\Int
+     */
+    protected $numComments;
+
     public function getTitle()
     {
         return $this->title;
@@ -81,9 +95,9 @@ class Review
     {
         $this->content = $content;
     }
-    
+
     /**
-     * 
+     *
      * @return DateTime
      */
     public function getDate()
@@ -92,11 +106,43 @@ class Review
     }
 
     /**
-     * 
+     *
      * @param DateTime $date
      */
     public function setDate(DateTime $date)
     {
         $this->date = $date;
+    }
+
+    /**
+     * @return float
+     */
+    public function getScore()
+    {
+        return $this->score;
+    }
+
+    /**
+     * @param float $score
+     */
+    public function setScore($score)
+    {
+        $this->score = (float) $score;
+    }
+
+    /**
+     * @return int
+     */
+    public function getNumComments()
+    {
+        return $this->numComments;
+    }
+
+    /**
+     * @param int $numComments
+     */
+    public function setNumComments($numComments)
+    {
+        $this->numComments = (int) $numComments;
     }
 }

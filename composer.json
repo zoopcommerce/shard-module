@@ -19,7 +19,7 @@
     "repositories": [
         {
             "type": "vcs",
-            "url": "https://github.com/superdweebie/mongodb-odm"
+            "url": "https://github.com/crimsonronin/mongodb-odm"
         }
     ],
     "require": {

@@ -13,7 +13,8 @@ use Zoop\ShardModule\Exception;
 use Zoop\ShardModule\Controller\Result;
 
 /**
- *
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
+ * 
  * @since   1.0
  * @version $Revision$
  * @author  Tim Roediger <superdweebie@gmail.com>
@@ -145,7 +146,7 @@ class GetListListener
             if (isset($value) && $value !== '') {
                 if (substr($value, 0, 1) == '[') {
                     $value = explode(',', substr($value, 1, -1));
-                } elseif(substr($value, 0, 1) == '{' && strpos($value, ',') !== false) {
+                } elseif (substr($value, 0, 1) == '{' && strpos($value, ',') !== false) {
                     $range = explode(',', substr($value, 1, -1));
                     $value = array(
                         'lower' => trim($range[0]),
@@ -159,6 +160,9 @@ class GetListListener
         return $result;
     }
 
+    /**
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     */
     protected function addCriteriaToQuery($query, $criteria, $metadata, $documentManager)
     {
         foreach ($criteria as $field => $value) {
@@ -180,10 +184,13 @@ class GetListListener
                 if ($mapping['type'] === 'int') {
                     $query->field($field)
                         ->range((int) $value['lower'], (int) $value['upper']);
+                } elseif ($mapping['type'] === 'float') {
+                    $query->field($field)
+                        ->range((float) $value['lower'], (float) $value['upper']);
                 } elseif ($mapping['type'] === 'date') {
                     $query->field($field)
                         ->range(
-                            new DateTime($value['lower'], new DateTimeZone('UTC')), 
+                            new DateTime($value['lower'], new DateTimeZone('UTC')),
                             new DateTime($value['upper'], new DateTimeZone('UTC'))
                         );
                 } else {
