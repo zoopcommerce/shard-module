@@ -2,6 +2,8 @@
 
 namespace Zoop\ShardModule\Test\Controller;
 
+use \DateTime;
+use \DateTimezone;
 use Zoop\ShardModule\Test\BaseTest;
 use Zend\Http\Header\Accept;
 use Zend\Http\Header\Range;
@@ -195,6 +197,129 @@ class RestfulControllerGetListTest extends BaseTest
             'Content-Range: 0-1/2',
             $this->getResponse()->getHeaders()->get('Content-Range')->toString()
         );
+    }
+
+    public function testGetListDateRange()
+    {
+        $accept = new Accept;
+        $accept->addMediaType('application/json');
+
+        $this->getRequest()
+            ->setMethod('GET')
+            ->getHeaders()->addHeader($accept);
+
+        //2 month range
+        $dateFrom = new DateTime('2014-01-01', new DateTimezone('UTC'));
+        $dateTo = new DateTime('2014-03-01', new DateTimezone('UTC'));
+
+        $this->dispatch(
+            sprintf(
+                '/rest/review?date={%s,%s}',
+                $dateFrom->format('Y-m-d'),
+                $dateTo->format('Y-m-d')
+            )
+        );
+
+        $this->assertResponseStatusCode(200);
+
+        $result = json_decode($this->getResponse()->getContent(), true);
+
+        $this->assertCount(2, $result);
+        $this->assertEquals(
+            'Content-Range: 0-1/2',
+            $this->getResponse()->getHeaders()->get('Content-Range')->toString()
+        );
+
+        $this->assertEquals('harry', $result[0]['author']['$ref']);
+        $this->assertEquals('2014-01-01T00:00:00+00:00', $result[0]['date']);
+    }
+
+    public function testGetListFloatRange()
+    {
+        $accept = new Accept;
+        $accept->addMediaType('application/json');
+
+        $this->getRequest()
+            ->setMethod('GET')
+            ->getHeaders()->addHeader($accept);
+
+        //get all scores above 90
+        $this->dispatch(
+            sprintf(
+                '/rest/review?score={%s,%s}',
+                90.65,
+                101
+            )
+        );
+
+        $this->assertResponseStatusCode(200);
+
+        $result = json_decode($this->getResponse()->getContent(), true);
+
+        $this->assertCount(2, $result);
+        $this->assertEquals(
+            'Content-Range: 0-1/2',
+            $this->getResponse()->getHeaders()->get('Content-Range')->toString()
+        );
+
+        $this->assertEquals(98.5, $result[0]['score']);
+    }
+
+    public function testGetListIntRange()
+    {
+        $accept = new Accept;
+        $accept->addMediaType('application/json');
+
+        $this->getRequest()
+            ->setMethod('GET')
+            ->getHeaders()->addHeader($accept);
+
+        //get all scores between 20 and 31
+        $this->dispatch(
+            sprintf(
+                '/rest/review?numComments={%s,%s}',
+                20,
+                31
+            )
+        );
+
+        $this->assertResponseStatusCode(200);
+
+        $result = json_decode($this->getResponse()->getContent(), true);
+
+        $this->assertCount(1, $result);
+        $this->assertEquals(
+            'Content-Range: 0-0/1',
+            $this->getResponse()->getHeaders()->get('Content-Range')->toString()
+        );
+
+        $this->assertEquals(25, $result[0]['numComments']);
+    }
+
+    public function testGetListEmptyDateRange()
+    {
+        $accept = new Accept;
+        $accept->addMediaType('application/json');
+
+        $this->getRequest()
+            ->setMethod('GET')
+            ->getHeaders()->addHeader($accept);
+
+        //1 month range
+        $dateFrom = new DateTime('2013-01-01', new DateTimezone('UTC'));
+        $dateTo = new DateTime('2013-02-01', new DateTimezone('UTC'));
+
+        $this->dispatch(
+            sprintf(
+                '/rest/review?date={%s,%s}',
+                $dateFrom->format('Y-m-d'),
+                $dateTo->format('Y-m-d')
+            )
+        );
+        $result = json_decode($this->getResponse()->getContent(), true);
+
+        $this->assertResponseStatusCode(204);
+        $this->assertFalse(isset($result));
     }
 
     public function testGetSortedListAsc()

@@ -13,7 +13,7 @@ namespace Zoop\ShardModule\Exception;
  * @version $Revision$
  * @author  Tim Roediger <superdweebie@gmail.com>
  */
-class GenericShardExceptionException extends \Exception implements ExceptionInterface
+class GenericShardException extends \Exception implements ExceptionInterface
 {
 
     protected $eventName;
