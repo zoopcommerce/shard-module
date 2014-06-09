@@ -1,6 +1,6 @@
 <?php
 
-namespace Zoop\ShardModule\Test;
+namespace Zoop\ShardModule\Test\MultipleConnection;
 
 use Zend\Http\Header\Accept;
 use Zend\Http\Header\ContentType;
@@ -28,14 +28,14 @@ class MultipleConnectionTest extends AbstractHttpControllerTestCase
         $collections = $documentManagerCountry->getConnection()
             ->selectDatabase('shard-module-phpunit-country')->listCollections();
         foreach ($collections as $collection) {
-            $collection->remove(array(), array('safe' => true));
+            $collection->remove(array(), array('w' => true));
         }
 
         $documentManagerUser = static::$staticServiceManager->get('doctrine.odm.documentmanager.user');
         $collections = $documentManagerUser->getConnection()
             ->selectDatabase('shard-module-phpunit-user')->listCollections();
         foreach ($collections as $collection) {
-            $collection->remove(array(), array('safe' => true));
+            $collection->remove(array(), array('w' => true));
         }
     }
 

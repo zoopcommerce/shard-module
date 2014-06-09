@@ -234,6 +234,100 @@ class RestfulControllerGetListTest extends BaseTest
         $this->assertEquals('2014-01-01T00:00:00+00:00', $result[0]['date']);
     }
 
+    public function testGetListDateRangeLower()
+    {
+        $accept = new Accept;
+        $accept->addMediaType('application/json');
+
+        $this->getRequest()
+            ->setMethod('GET')
+            ->getHeaders()->addHeader($accept);
+
+        //2 month range
+        $dateFrom = new DateTime('2014-01-01', new DateTimezone('UTC'));
+
+        $this->dispatch(
+            sprintf(
+                '/rest/review?date={%s,}',
+                $dateFrom->format('Y-m-d')
+            )
+        );
+
+        $this->assertResponseStatusCode(200);
+
+        $result = json_decode($this->getResponse()->getContent(), true);
+
+        $this->assertCount(2, $result);
+        //has a total of 3 documents
+        $this->assertEquals(
+            'Content-Range: 0-1/3',
+            $this->getResponse()->getHeaders()->get('Content-Range')->toString()
+        );
+
+        $this->assertEquals('harry', $result[0]['author']['$ref']);
+        $this->assertEquals('2014-01-01T00:00:00+00:00', $result[0]['date']);
+    }
+
+    public function testGetListDateRangeUpper()
+    {
+        $accept = new Accept;
+        $accept->addMediaType('application/json');
+
+        $this->getRequest()
+            ->setMethod('GET')
+            ->getHeaders()->addHeader($accept);
+
+        //2 month range
+        $dateTo = new DateTime('2014-04-01', new DateTimezone('UTC'));
+
+        $this->dispatch(
+            sprintf(
+                '/rest/review?date={,%s}',
+                $dateTo->format('Y-m-d')
+            )
+        );
+
+        $this->assertResponseStatusCode(200);
+
+        $result = json_decode($this->getResponse()->getContent(), true);
+
+        $this->assertCount(2, $result);
+        //has a total of 3 documents
+        $this->assertEquals(
+            'Content-Range: 0-1/3',
+            $this->getResponse()->getHeaders()->get('Content-Range')->toString()
+        );
+
+        $this->assertEquals('harry', $result[0]['author']['$ref']);
+        $this->assertEquals('2014-01-01T00:00:00+00:00', $result[0]['date']);
+    }
+
+    public function testGetListEmptyDateRange()
+    {
+        $accept = new Accept;
+        $accept->addMediaType('application/json');
+
+        $this->getRequest()
+            ->setMethod('GET')
+            ->getHeaders()->addHeader($accept);
+
+        //1 month range
+        $dateFrom = new DateTime('2013-01-01', new DateTimezone('UTC'));
+        $dateTo = new DateTime('2013-02-01', new DateTimezone('UTC'));
+
+        $this->dispatch(
+            sprintf(
+                '/rest/review?date={%s,%s}',
+                $dateFrom->format('Y-m-d'),
+                $dateTo->format('Y-m-d')
+            )
+        );
+        $result = json_decode($this->getResponse()->getContent(), true);
+
+        $this->assertResponseStatusCode(204);
+        $this->assertFalse(isset($result));
+    }
+
     public function testGetListFloatRange()
     {
         $accept = new Accept;
@@ -263,6 +357,92 @@ class RestfulControllerGetListTest extends BaseTest
         );
 
         $this->assertEquals(98.5, $result[0]['score']);
+    }
+
+    public function testGetListFloatRangeLower()
+    {
+        $accept = new Accept;
+        $accept->addMediaType('application/json');
+
+        $this->getRequest()
+            ->setMethod('GET')
+            ->getHeaders()->addHeader($accept);
+
+        //get all scores above 90
+        $this->dispatch(
+            sprintf(
+                '/rest/review?score={%s,}',
+                15.31
+            )
+        );
+
+        $this->assertResponseStatusCode(200);
+
+        $result = json_decode($this->getResponse()->getContent(), true);
+
+        $this->assertCount(2, $result);
+        $this->assertEquals(
+            'Content-Range: 0-1/2',
+            $this->getResponse()->getHeaders()->get('Content-Range')->toString()
+        );
+
+        $this->assertEquals(98.5, $result[0]['score']);
+    }
+
+    public function testGetListFloatRangeUpper()
+    {
+        $accept = new Accept;
+        $accept->addMediaType('application/json');
+
+        $this->getRequest()
+            ->setMethod('GET')
+            ->getHeaders()->addHeader($accept);
+
+        //get all scores above 90
+        $this->dispatch(
+            sprintf(
+                '/rest/review?score={,%s}',
+                90.66
+            )
+        );
+
+        $this->assertResponseStatusCode(200);
+
+        $result = json_decode($this->getResponse()->getContent(), true);
+
+        $this->assertCount(2, $result);
+        $this->assertEquals(
+            'Content-Range: 0-1/2',
+            $this->getResponse()->getHeaders()->get('Content-Range')->toString()
+        );
+
+        $this->assertEquals(15.30, $result[0]['score']);
+    }
+
+    public function testGetListFloatEmpty()
+    {
+        $accept = new Accept;
+        $accept->addMediaType('application/json');
+
+        $this->getRequest()
+            ->setMethod('GET')
+            ->getHeaders()->addHeader($accept);
+
+        //get all scores above 90
+        $this->dispatch(
+            sprintf(
+                '/rest/review?score={%s,%s}',
+                200,
+                300
+            )
+        );
+
+        $this->assertResponseStatusCode(204);
+
+        $result = json_decode($this->getResponse()->getContent(), true);
+
+        $this->assertResponseStatusCode(204);
+        $this->assertFalse(isset($result));
     }
 
     public function testGetListIntRange()
@@ -296,7 +476,7 @@ class RestfulControllerGetListTest extends BaseTest
         $this->assertEquals(25, $result[0]['numComments']);
     }
 
-    public function testGetListEmptyDateRange()
+    public function testGetListIntRangeLower()
     {
         $accept = new Accept;
         $accept->addMediaType('application/json');
@@ -305,17 +485,78 @@ class RestfulControllerGetListTest extends BaseTest
             ->setMethod('GET')
             ->getHeaders()->addHeader($accept);
 
-        //1 month range
-        $dateFrom = new DateTime('2013-01-01', new DateTimezone('UTC'));
-        $dateTo = new DateTime('2013-02-01', new DateTimezone('UTC'));
-
+        //get all scores between 20 and 31
         $this->dispatch(
             sprintf(
-                '/rest/review?date={%s,%s}',
-                $dateFrom->format('Y-m-d'),
-                $dateTo->format('Y-m-d')
+                '/rest/review?numComments={%s,}',
+                5
             )
         );
+
+        $this->assertResponseStatusCode(200);
+
+        $result = json_decode($this->getResponse()->getContent(), true);
+
+        $this->assertCount(2, $result);
+        $this->assertEquals(
+            'Content-Range: 0-1/3',
+            $this->getResponse()->getHeaders()->get('Content-Range')->toString()
+        );
+
+        $this->assertEquals(5, $result[0]['numComments']);
+    }
+
+    public function testGetListIntRangeUpper()
+    {
+        $accept = new Accept;
+        $accept->addMediaType('application/json');
+
+        $this->getRequest()
+            ->setMethod('GET')
+            ->getHeaders()->addHeader($accept);
+
+        //get all scores between 20 and 31
+        $this->dispatch(
+            sprintf(
+                '/rest/review?numComments={,%s}',
+                35
+            )
+        );
+
+        $this->assertResponseStatusCode(200);
+
+        $result = json_decode($this->getResponse()->getContent(), true);
+
+        $this->assertCount(2, $result);
+        $this->assertEquals(
+            'Content-Range: 0-1/2',
+            $this->getResponse()->getHeaders()->get('Content-Range')->toString()
+        );
+
+        $this->assertEquals(5, $result[0]['numComments']);
+        $this->assertEquals(25, $result[1]['numComments']);
+    }
+
+    public function testGetListIntRangeEmpty()
+    {
+        $accept = new Accept;
+        $accept->addMediaType('application/json');
+
+        $this->getRequest()
+            ->setMethod('GET')
+            ->getHeaders()->addHeader($accept);
+
+        //get all scores between 20 and 31
+        $this->dispatch(
+            sprintf(
+                '/rest/review?numComments={%s,%s}',
+                200,
+                300
+            )
+        );
+
+        $this->assertResponseStatusCode(204);
+
         $result = json_decode($this->getResponse()->getContent(), true);
 
         $this->assertResponseStatusCode(204);

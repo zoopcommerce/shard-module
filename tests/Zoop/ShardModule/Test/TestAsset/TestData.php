@@ -133,7 +133,7 @@ class TestData
 
         foreach ($collections as $collection) {
             /* @var $collection \MongoCollection */
-            $collection->remove();
+            $collection->remove(array(), array('w' => true));
             $collection->drop();
         }
     }
