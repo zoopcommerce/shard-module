@@ -7,6 +7,7 @@ namespace Zoop\ShardModule\Controller\Listener;
 
 use \DateTime;
 use \DateTimeZone;
+use Doctrine\ODM\MongoDB\Query\Query;
 use Zend\Http\Header\ContentRange;
 use Zend\Mvc\MvcEvent;
 use Zoop\ShardModule\Exception;
@@ -181,32 +182,83 @@ class GetListListener
                 }
                 $query->field($field)->in($value);
             } elseif (isset($value['lower']) && isset($value['upper'])) {
-                if ($mapping['type'] === 'int') {
-                    $query->field($field)
-                        ->range((int) $value['lower'], (int) $value['upper']);
-                } elseif ($mapping['type'] === 'float') {
-                    $query->field($field)
-                        ->range((float) $value['lower'], (float) $value['upper']);
-                } elseif ($mapping['type'] === 'date') {
-                    $query->field($field)
-                        ->range(
-                            new DateTime($value['lower'], new DateTimeZone('UTC')),
-                            new DateTime($value['upper'], new DateTimeZone('UTC'))
-                        );
-                } else {
-                    $query->field($field)
-                        ->range($value['lower'], $value['upper']);
-                }
+                $this->addRangeCriteriaQuery($query, $field, $mapping['type'], $value['lower'], $value['upper']);
             } elseif (is_array($value)) {
                 $query->field($field)->in($value);
-            } elseif ($mapping['type'] === 'int') {
-                $query->field($field)->equals((integer) $value);
+            } elseif ($mapping['type'] === 'int' || $mapping['type'] === 'float') {
+                settype($value, $mapping['type']);
+                $query->field($field)->equals($value);
             } else {
                 $query->field($field)->equals($value);
             }
         }
 
         return $query;
+    }
+
+    protected function addRangeCriteriaQuery($query, $field, $type, $lower = null, $upper = null)
+    {
+        if ($type === 'int' || $type === 'float') {
+            $this->addNumberRangeCriteriaQuery($query, $field, $type, $lower, $upper);
+        } elseif ($type === 'date') {
+            $this->addDateRangeCriteriaQuery($query, $field, $lower, $upper);
+        } else {
+            $this->addStringRangeCriteriaQuery($query, $field, $lower, $upper);
+        }
+    }
+
+    /**
+     * Applies a date range to the query
+     *
+     * @param type $query
+     * @param string $field
+     * @param string|null $lower A date string or null
+     * @param string|null $upper A date string or null
+     */
+    protected function addDateRangeCriteriaQuery($query, $field, $lower = null, $upper = null)
+    {
+        if (!empty($lower) && !empty($upper)) {
+            $query->field($field)
+                ->range(
+                    new DateTime($lower, new DateTimeZone('UTC')),
+                    new DateTime($upper, new DateTimeZone('UTC'))
+                );
+        } elseif (!empty($lower)) {
+            $query->field($field)
+                ->gte(new DateTime($lower, new DateTimeZone('UTC')));
+        } elseif (!empty($upper)) {
+            $query->field($field)
+                ->lt(new DateTime($upper, new DateTimeZone('UTC')));
+        }
+    }
+
+    protected function addNumberRangeCriteriaQuery($query, $field, $type, $lower = null, $upper = null)
+    {
+        if (!empty($lower) && !empty($upper)) {
+            settype($lower, $type);
+            settype($upper, $type);
+
+            $query->field($field)->range($lower, $upper);
+        } elseif (!empty($lower)) {
+            settype($lower, $type);
+
+            $query->field($field)->gte($lower);
+        } elseif (!empty($upper)) {
+            settype($upper, $type);
+
+            $query->field($field)->lt($upper);
+        }
+    }
+
+    protected function addStringRangeCriteriaQuery($query, $field, $lower = null, $upper = null)
+    {
+        if (!empty($lower) && !empty($upper)) {
+            $query->field($field)->range($lower, $upper);
+        } elseif (!empty($lower)) {
+            $query->field($field)->gte($lower);
+        } elseif (!empty($upper)) {
+            $query->field($field)->lt($upper);
+        }
     }
 
     protected function addSortToQuery($query, $sort)

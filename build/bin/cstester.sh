@@ -1,3 +1,3 @@
 #!/bin/bash
 
-./vendor/bin/phpcs --standard=PSR2 ./src ./tests
+./vendor/bin/phpcs --standard=PSR2 ./src ./tests/Zoop
