@@ -14,7 +14,7 @@ use Zoop\ShardModule\Controller\Result;
 
 /**
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
- * 
+ *
  * @since   1.0
  * @version $Revision$
  * @author  Tim Roediger <superdweebie@gmail.com>

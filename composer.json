@@ -14,24 +14,28 @@
         {
             "name": "Tim Roediger",
             "email": "superdweebie@gmail.com"
+        },
+        {
+            "name": "Josh Stuart",
+            "email": "josh.stuart@zoopcommerce.com"
         }
     ],
     "repositories": [
         {
             "type": "vcs",
-            "url": "https://github.com/crimsonronin/mongodb-odm"
+            "url": "https://github.com/zoopcommerce/mongodb-odm"
         }
     ],
     "require": {
         "php"                                : ">=5.4",
+        "zendframework/zendframework"        : "~2.3",
         "doctrine/annotations"               : "dev-master#a11349d39d85bef75a71bd69bd604ac4fb993f03 as dev-master",
-        "zoopcommerce/shard"                 : "~4.0",
+        "zoopcommerce/shard"                 : "~4.1",
         "zoopcommerce/maggott-module"        : "~1.1",
         "zoopcommerce/juggernaut"            : "~1.1",
         "doctrine/doctrine-mongo-odm-module" : "1.0.x-dev",
         "doctrine/doctrine-module"           : "1.0.x-dev as 1.0",
-        "doctrine/mongodb-odm"               : "dev-hotfix719 as 1.0.0-BETA9",
-        "zendframework/zendframework"        : "dev-develop#f92a07bc3f5cbd49a518ee880b1451f357c71376"
+        "doctrine/mongodb-odm"               : "dev-hotfix719 as 1.0.0-BETA9"
     },
     "require-dev": {
         "phpunit/phpunit"           : ">=3.7",
