@@ -1,3 +1,3 @@
 #!/bin/bash
 
-./vendor/bin/phpmd ./src/ ./tests/text ./tests/ruleset.xml
+./vendor/bin/phpmd ./src/ text ./tests/ruleset.xml
