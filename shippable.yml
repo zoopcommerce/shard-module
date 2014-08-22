@@ -10,6 +10,7 @@ before_script:
   - mkdir -p shippable/codecoverage
   - echo "extension=mongo.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
   - echo "xdebug.max_nesting_level = 1000" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+  - echo "memory_limit = 256M" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
 script:
   - cd ./tests
   - phpunit  --log-junit ../shippable/testresults/junit.xml --coverage-xml ../shippable/codecoverage
