@@ -8,17 +8,17 @@
          convertWarningsToExceptions="true"
          stopOnFailure="false"
          syntaxCheck="false"
-         bootstrap="./bootstrap.php"
+         bootstrap="tests/bootstrap.php"
 >
     <testsuites>
         <testsuite name="Zoop ShardModule Test Suite">
-            <directory>./Zoop/ShardModule/Test/</directory>
+            <directory>./tests/Zoop/ShardModule/Test/</directory>
         </testsuite>
     </testsuites>
 
     <filter>
         <whitelist>
-            <directory suffix=".php">../src</directory>
+            <directory suffix=".php">src</directory>
         </whitelist>
     </filter>
     <php>

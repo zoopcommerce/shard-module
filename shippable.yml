@@ -14,10 +14,9 @@ before_script:
   - composer install
   
 script:
-  - cd ./tests
-  - phpunit --log-junit ../shippable/testresults/junit.xml
-  - ../vendor/bin/phpcs --standard=PSR2 ../src/ ./Zoop/
-  - ../vendor/bin/phpmd ../src/ text ruleset.xml
+  - phpunit --log-junit shippable/testresults/junit.xml --coverage-xml shippable/codecoverage tests/
+  - vendor/bin/phpcs --standard=PSR2 src/ tests/Zoop/
+  - vendor/bin/phpmd src/ text ruleset.xml
   
 notifications:
    email: false
