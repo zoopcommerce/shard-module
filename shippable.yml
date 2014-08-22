@@ -8,10 +8,8 @@ services:
 before_script: 
   - mkdir -p shippable/testresults
   - mkdir -p shippable/codecoverage
-  - tar -xzf mongo-1.5.2.tgz
-  - sh -c "cd mongo-1.5.2/mongo-1.5.2 && phpize && ./configure && make install"
-  - echo "extension=mongo.so" >> '/home/minion/.phpenv/versions/$(phpenv version-name)/etc/php.ini'
-  - echo "xdebug.max_nesting_level = 1000" >> '/home/minion/.phpenv/versions/$(phpenv version-name)/etc/php.ini'
+  - echo "extension=mongo.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+  - echo "xdebug.max_nesting_level = 1000" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
 script:
   - cd ./tests
   - phpunit  --log-junit ../shippable/testresults/junit.xml --coverage-xml ../shippable/codecoverage
