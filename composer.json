@@ -38,7 +38,7 @@
         "doctrine/mongodb-odm"               : "dev-hotfix719 as 1.0.0-BETA9"
     },
     "require-dev": {
-        "phpunit/phpunit"			: "4.0.*",
+        "phpunit/phpunit"           : ">=3.7",
         "squizlabs/php_codesniffer" : "1.4.*",
         "pdepend/pdepend"           : "1.1.1",
         "phpmd/phpmd"               : "1.5.*",
