@@ -3,6 +3,10 @@ language: php
 php: 
   - 5.4
   - 5.5
+
+matrix:
+  allow_failures:
+    - php: 5.5
   
 services:
   - mongodb
@@ -16,7 +20,8 @@ before_script:
   - composer install
   
 script:
-  - phpunit --log-junit shippable/testresults/junit.xml --coverage-xml shippable/codecoverage tests/
+  - phpunit --log-junit shippable/testresults/junit.xml --coverage-clover shippable/codecoverage/clover.xml tests/
+  - php build/coverage-checker.php shippable/codecoverage/clover.xml 79
   - vendor/bin/phpcs --standard=PSR2 src/ tests/Zoop/
   - vendor/bin/phpmd src/ text ruleset.xml
   
