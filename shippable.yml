@@ -10,7 +10,10 @@ matrix:
   
 services:
   - mongodb
-  
+
+env:
+    secure: nnsDq3xth+RakuCnLc0XqG5fbI41G6Ev7Ri9C5JFHjKvemX+DjarYivZoDYF3GPnqJSHwGpjpZllR6eqpi9G8x7ppNVbCY5bI0zS/LIslz+s0sALTsEMYyRYO3oxLDv+A9ddz/djMk56apTG8x/BiobLojDRutj6MkBeQpUUIWNmDKyj3aAWqWE1ZBzGWbnllJ5dMTBirxUTbBAhzVYy8wgLdzY7KfpfJpW/uW1y9Vc6ke08QGN/DoPadCDhPs6B+qPBSQP6UHAtKv/GKSBpVXqX+f3rKziTPk7JUxTTuZJI11M7/CIYRWltoV+r0SZpygqUHs0DjLrqO0Z98q9ijg==
+	
 before_script: 
   - mkdir -p shippable/testresults
   - mkdir -p shippable/codecoverage
