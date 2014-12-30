@@ -3,23 +3,21 @@ language: php
 php: 
   - 5.4
   - 5.5
+  - 5.6
 
 matrix:
   allow_failures:
     - php: 5.5
+    - php: 5.6
   
 services:
   - mongodb
 
-env:
-  - secure: j6HrKTI0NnVQLwjG/Nhtd7+hVhHXFqfdYLleez8CIGPKHJ2RQGAoAqv1ftDCbGmLjcPpz9+RH32wE5xr8kgB9zws8wK2LP6UAjlA1O58gUJU9KDX4aPLJN2jtsasqzIoG5yITNbd46+uo6Ewj9BNt+yg69ZIe+vborXmnLZSnvC58LDE2TIT7XCns+onqcA0iQU5WO5Un7PV+hPVtWfAzyvcYkdhOxEMkFS5B7T+BeJwkDzZF4KU+cJm2nKGgaQYqJ+lcZHxB0krYmappzVMNrn6p+dBRcxx8CK5JrZCsvwfyPjoO+hlpgcMouh7PmZVvKYSVUtKaWjrbmi53RPWhQ==
-	
 before_script: 
   - mkdir -p shippable/testresults
   - mkdir -p shippable/codecoverage
   - echo "extension=mongo.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
   - echo "xdebug.max_nesting_level = 1000" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
-  - composer config -g github-oauth.github.com $GITHUB_TOKEN
   - composer self-update
   - composer install
   
