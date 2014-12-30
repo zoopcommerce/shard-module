@@ -1,7 +1,7 @@
 Zoop shard-module
 =================
 
-[![Build Status](https://api.shippable.com/projects/53f674712f40b05c030ac9d9/badge/master)
+[![Build Status](https://api.shippable.com/projects/540e7ac73479c5ea8f9eb9ff/badge?branchName=master)](https://app.shippable.com/projects/540e7ac73479c5ea8f9eb9ff/builds/latest)
 
 A zf2 module for shard, behavioral extensions to Doctrine Mongo ODM.
 
