@@ -61,7 +61,7 @@ class ExceptionSubscriber implements EventSubscriber
 
     public function genericException($eventName)
     {
-        $exception = new Exception\GenericShardExceptionExceptionn;
+        $exception = new Exception\GenericShardException;
         $exception->setEventName($eventName);
         $this->flushExceptions[] = $exception;
     }
